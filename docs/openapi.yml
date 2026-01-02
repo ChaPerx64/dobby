@@ -1,0 +1,353 @@
+openapi: 3.0.3
+info:
+  title: Dobby API
+  description: Household management service API for managing finances and allocations
+  version: 1.0.0
+
+servers:
+  - url: /api/v1
+
+security:
+  - bearerAuth: []
+
+paths:
+  /users:
+    get:
+      summary: List all household users
+      operationId: listUsers
+      tags:
+        - Users
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+
+  /me:
+    get:
+      summary: Get current authenticated user
+      operationId: getCurrentUser
+      tags:
+        - Users
+      responses:
+        '200':
+          description: Current user details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /me/allocations:
+    get:
+      summary: Get current user's allocation for current period
+      operationId: getCurrentUserAllocations
+      tags:
+        - Allocations
+      responses:
+        '200':
+          description: User's allocations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Allocation'
+
+  /periods:
+    get:
+      summary: List all financial periods
+      operationId: listPeriods
+      tags:
+        - Periods
+      responses:
+        '200':
+          description: List of periods
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Period'
+
+  /periods/current:
+    get:
+      summary: Get current active period
+      operationId: getCurrentPeriod
+      tags:
+        - Periods
+      responses:
+        '200':
+          description: Current period
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Period'
+
+  /periods/{periodId}:
+    get:
+      summary: Get period by ID
+      operationId: getPeriod
+      tags:
+        - Periods
+      parameters:
+        - name: periodId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Period details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Period'
+        '404':
+          description: Period not found
+
+  /periods/{periodId}/allocations:
+    get:
+      summary: Get all allocations for a period
+      operationId: getPeriodAllocations
+      tags:
+        - Allocations
+      parameters:
+        - name: periodId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: List of allocations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Allocation'
+        '404':
+          description: Period not found
+
+  /transactions:
+    get:
+      summary: List transactions
+      operationId: listTransactions
+      tags:
+        - Transactions
+      parameters:
+        - name: periodId
+          in: query
+          schema:
+            type: string
+            format: uuid
+          description: Filter by period
+      responses:
+        '200':
+          description: List of transactions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Transaction'
+    post:
+      summary: Create a new transaction
+      operationId: createTransaction
+      tags:
+        - Transactions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTransaction'
+      responses:
+        '201':
+          description: Transaction created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        '400':
+          description: Invalid request
+
+  /transactions/{transactionId}:
+    get:
+      summary: Get transaction by ID
+      operationId: getTransaction
+      tags:
+        - Transactions
+      parameters:
+        - name: transactionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Transaction details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        '404':
+          description: Transaction not found
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: OIDC JWT token
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: TheMan
+        currentBalance:
+          type: number
+          format: double
+          description: Remaining balance for current period in RSD
+          example: 25000
+      required:
+        - id
+        - name
+        - currentBalance
+
+    Period:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        isActive:
+          type: boolean
+        totalBudget:
+          type: number
+          format: double
+          description: Total household budget in RSD
+          example: 60000
+      required:
+        - id
+        - startDate
+        - endDate
+        - isActive
+        - totalBudget
+
+    Allocation:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        periodId:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        purpose:
+          type: string
+          enum:
+            - groceries
+            - housekeeping
+            - personal
+        amount:
+          type: number
+          format: double
+          description: Allocated amount in RSD
+          example: 30000
+        spent:
+          type: number
+          format: double
+          description: Amount spent in RSD
+          example: 5000
+        remaining:
+          type: number
+          format: double
+          description: Remaining amount in RSD
+          example: 25000
+      required:
+        - id
+        - periodId
+        - userId
+        - purpose
+        - amount
+        - spent
+        - remaining
+
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        periodId:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        allocationId:
+          type: string
+          format: uuid
+        amount:
+          type: number
+          format: double
+          description: Transaction amount in RSD
+          example: 1500
+        description:
+          type: string
+          example: Weekly groceries
+        date:
+          type: string
+          format: date-time
+        category:
+          type: string
+          example: food
+      required:
+        - id
+        - periodId
+        - userId
+        - allocationId
+        - amount
+        - date
+
+    CreateTransaction:
+      type: object
+      properties:
+        allocationId:
+          type: string
+          format: uuid
+        amount:
+          type: number
+          format: double
+          description: Transaction amount in RSD
+        description:
+          type: string
+        category:
+          type: string
+      required:
+        - allocationId
+        - amount
