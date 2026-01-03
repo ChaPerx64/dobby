@@ -220,10 +220,10 @@ components:
           type: string
           example: TheMan
         currentBalance:
-          type: number
-          format: double
-          description: Remaining balance for current period in RSD
-          example: 25000
+          type: integer
+          format: int64
+          description: Remaining balance for current period in para (1/100 RSD)
+          example: 2500000
       required:
         - id
         - name
@@ -244,10 +244,10 @@ components:
         isActive:
           type: boolean
         totalBudget:
-          type: number
-          format: double
-          description: Total household budget in RSD
-          example: 60000
+          type: integer
+          format: int64
+          description: Total household budget in para (1/100 RSD)
+          example: 6000000
       required:
         - id
         - startDate
@@ -274,20 +274,20 @@ components:
             - housekeeping
             - personal
         amount:
-          type: number
-          format: double
-          description: Allocated amount in RSD
-          example: 30000
+          type: integer
+          format: int64
+          description: Allocated amount in para (1/100 RSD)
+          example: 3000000
         spent:
-          type: number
-          format: double
-          description: Amount spent in RSD
-          example: 5000
+          type: integer
+          format: int64
+          description: Amount spent in para (1/100 RSD)
+          example: 500000
         remaining:
-          type: number
-          format: double
-          description: Remaining amount in RSD
-          example: 25000
+          type: integer
+          format: int64
+          description: Remaining amount in para (1/100 RSD)
+          example: 2500000
       required:
         - id
         - periodId
@@ -313,10 +313,10 @@ components:
           type: string
           format: uuid
         amount:
-          type: number
-          format: double
-          description: Transaction amount in RSD
-          example: 1500
+          type: integer
+          format: int64
+          description: Transaction amount in para (1/100 RSD)
+          example: 150000
         description:
           type: string
           example: Weekly groceries
@@ -341,9 +341,9 @@ components:
           type: string
           format: uuid
         amount:
-          type: number
-          format: double
-          description: Transaction amount in RSD
+          type: integer
+          format: int64
+          description: Transaction amount in para (1/100 RSD)
         description:
           type: string
         category:
