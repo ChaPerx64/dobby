@@ -110,31 +110,6 @@ paths:
         '404':
           description: Period not found
 
-  /periods/{periodId}/allocations:
-    get:
-      summary: Get all allocations for a period
-      operationId: getPeriodAllocations
-      tags:
-        - Allocations
-      parameters:
-        - name: periodId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: List of allocations
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Allocation'
-        '404':
-          description: Period not found
-
   /transactions:
     get:
       summary: List transactions
@@ -248,12 +223,17 @@ components:
           format: int64
           description: Total household budget in para (1/100 RSD)
           example: 6000000
+        allocations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Allocation'
       required:
         - id
         - startDate
         - endDate
         - isActive
         - totalBudget
+        - allocations
 
     Allocation:
       type: object
