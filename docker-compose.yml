@@ -1,0 +1,18 @@
+services:
+  backend:
+    build:
+      context: ./apps/backend
+    container_name: dobby-backend
+    restart: unless-stopped
+    networks:
+      - homelab
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dobby-api.rule=Host(`api.dobby.homelab.chapar.tech`)"
+      - "traefik.http.routers.dobby-api.entrypoints=websecure"
+      - "traefik.http.routers.dobby-api.tls.certresolver=letsencrypt"
+      - "traefik.http.services.dobby-api.loadbalancer.server.port=8080"
+
+networks:
+  homelab:
+    external: true
