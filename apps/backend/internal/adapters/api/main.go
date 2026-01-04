@@ -15,7 +15,7 @@ type dobbyHandler struct {
 var _ oas.Handler = (*dobbyHandler)(nil)
 
 func RunServer() {
-	srv, err := oas.NewServer(dobbyHandler{}, &DobbySecurity{})
+	srv, err := oas.NewServer(dobbyHandler{}, &dobbySecurity{})
 	if err != nil {
 		log.Fatal(err)
 	}
