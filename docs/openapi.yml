@@ -26,6 +26,12 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/User'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /me:
     get:
@@ -40,6 +46,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /me/allocations:
     get:
@@ -56,6 +68,12 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Allocation'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /periods:
     get:
@@ -72,6 +90,12 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Period'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /periods/current:
     get:
@@ -86,6 +110,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Period'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /periods/{periodId}:
     get:
@@ -109,6 +139,12 @@ paths:
                 $ref: '#/components/schemas/Period'
         '404':
           description: Period not found
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /transactions:
     get:
@@ -132,6 +168,12 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Transaction'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
     post:
       summary: Create a new transaction
       operationId: createTransaction
@@ -152,6 +194,12 @@ paths:
                 $ref: '#/components/schemas/Transaction'
         '400':
           description: Invalid request
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /transactions/{transactionId}:
     get:
@@ -175,6 +223,12 @@ paths:
                 $ref: '#/components/schemas/Transaction'
         '404':
           description: Transaction not found
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
 components:
   securitySchemes:
@@ -331,3 +385,14 @@ components:
       required:
         - allocationId
         - amount
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+      required:
+        - code
+        - message
