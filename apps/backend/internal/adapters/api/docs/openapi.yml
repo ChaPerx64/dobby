@@ -1,0 +1,398 @@
+openapi: 3.0.3
+info:
+  title: Dobby API
+  description: Household management service API for managing finances and allocations
+  version: 1.0.0
+
+servers:
+  - url: /
+
+security:
+  - bearerAuth: []
+
+paths:
+  /users:
+    get:
+      summary: List all household users
+      operationId: listUsers
+      tags:
+        - Users
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /me:
+    get:
+      summary: Get current authenticated user
+      operationId: getCurrentUser
+      tags:
+        - Users
+      responses:
+        '200':
+          description: Current user details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /me/allocations:
+    get:
+      summary: Get current user's allocation for current period
+      operationId: getCurrentUserAllocations
+      tags:
+        - Allocations
+      responses:
+        '200':
+          description: User's allocations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Allocation'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /periods:
+    get:
+      summary: List all financial periods
+      operationId: listPeriods
+      tags:
+        - Periods
+      responses:
+        '200':
+          description: List of periods
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Period'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /periods/current:
+    get:
+      summary: Get current active period
+      operationId: getCurrentPeriod
+      tags:
+        - Periods
+      responses:
+        '200':
+          description: Current period
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Period'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /periods/{periodId}:
+    get:
+      summary: Get period by ID
+      operationId: getPeriod
+      tags:
+        - Periods
+      parameters:
+        - name: periodId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Period details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Period'
+        '404':
+          description: Period not found
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /transactions:
+    get:
+      summary: List transactions
+      operationId: listTransactions
+      tags:
+        - Transactions
+      parameters:
+        - name: periodId
+          in: query
+          schema:
+            type: string
+            format: uuid
+          description: Filter by period
+      responses:
+        '200':
+          description: List of transactions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Transaction'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Create a new transaction
+      operationId: createTransaction
+      tags:
+        - Transactions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTransaction'
+      responses:
+        '201':
+          description: Transaction created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        '400':
+          description: Invalid request
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /transactions/{transactionId}:
+    get:
+      summary: Get transaction by ID
+      operationId: getTransaction
+      tags:
+        - Transactions
+      parameters:
+        - name: transactionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Transaction details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        '404':
+          description: Transaction not found
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: OIDC JWT token
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: TheMan
+        currentBalance:
+          type: integer
+          format: int64
+          description: Remaining balance for current period in para (1/100 RSD)
+          example: 2500000
+      required:
+        - id
+        - name
+        - currentBalance
+
+    Period:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        isActive:
+          type: boolean
+        totalBudget:
+          type: integer
+          format: int64
+          description: Total household budget in para (1/100 RSD)
+          example: 6000000
+        allocations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Allocation'
+      required:
+        - id
+        - startDate
+        - endDate
+        - isActive
+        - totalBudget
+        - allocations
+
+    Allocation:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        periodId:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        purpose:
+          type: string
+          enum:
+            - groceries
+            - housekeeping
+            - personal
+        amount:
+          type: integer
+          format: int64
+          description: Allocated amount in para (1/100 RSD)
+          example: 3000000
+        spent:
+          type: integer
+          format: int64
+          description: Amount spent in para (1/100 RSD)
+          example: 500000
+        remaining:
+          type: integer
+          format: int64
+          description: Remaining amount in para (1/100 RSD)
+          example: 2500000
+      required:
+        - id
+        - periodId
+        - userId
+        - purpose
+        - amount
+        - spent
+        - remaining
+
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        periodId:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        allocationId:
+          type: string
+          format: uuid
+        amount:
+          type: integer
+          format: int64
+          description: Transaction amount in para (1/100 RSD)
+          example: 150000
+        description:
+          type: string
+          example: Weekly groceries
+        date:
+          type: string
+          format: date-time
+        category:
+          type: string
+          example: food
+      required:
+        - id
+        - periodId
+        - userId
+        - allocationId
+        - amount
+        - date
+
+    CreateTransaction:
+      type: object
+      properties:
+        allocationId:
+          type: string
+          format: uuid
+        amount:
+          type: integer
+          format: int64
+          description: Transaction amount in para (1/100 RSD)
+        description:
+          type: string
+        category:
+          type: string
+      required:
+        - allocationId
+        - amount
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+      required:
+        - code
+        - message

@@ -19,7 +19,17 @@ func RunServer() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	if err := http.ListenAndServe("0.0.0.0:8080", srv); err != nil {
+
+	mux := http.NewServeMux()
+
+	// Swagger UI at /docs
+	mux.Handle("/docs/", SwaggerUIHandler())
+	mux.HandleFunc("/docs/openapi.yml", OpenAPISpecHandler)
+
+	// API routes (Ogen handles /api/v1 prefix internally)
+	mux.Handle("/", srv)
+
+	if err := http.ListenAndServe("0.0.0.0:8080", mux); err != nil {
 		log.Fatal(err)
 	}
 }
