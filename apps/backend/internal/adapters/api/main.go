@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/ChaPerx64/dobby/apps/backend/internal/oas"
+	"github.com/ChaPerx64/dobby/apps/backend/internal/adapters/oas"
 )
 
 type dobbyHandler struct {

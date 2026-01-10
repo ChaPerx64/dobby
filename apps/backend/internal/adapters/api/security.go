@@ -3,7 +3,7 @@ package api
 import (
 	"context"
 
-	"github.com/ChaPerx64/dobby/apps/backend/internal/oas"
+	"github.com/ChaPerx64/dobby/apps/backend/internal/adapters/oas"
 )
 
 type dobbySecurity struct {
