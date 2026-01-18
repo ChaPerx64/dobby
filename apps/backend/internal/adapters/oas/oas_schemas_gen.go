@@ -385,8 +385,12 @@ type Period struct {
 	StartDate time.Time `json:"startDate"`
 	EndDate   time.Time `json:"endDate"`
 	IsActive  bool      `json:"isActive"`
-	// Total household budget in para (1/100 RSD).
-	TotalBudget int64        `json:"totalBudget"`
+	// Total household budget.
+	TotalBudget int64 `json:"totalBudget"`
+	// Last known remaining balance.
+	LastKnownRemain int64 `json:"lastKnownRemain"`
+	// Total spendings for the period.
+	TotalSpent  int64        `json:"totalSpent"`
 	Allocations []Allocation `json:"allocations"`
 }
 
@@ -413,6 +417,16 @@ func (s *Period) GetIsActive() bool {
 // GetTotalBudget returns the value of TotalBudget.
 func (s *Period) GetTotalBudget() int64 {
 	return s.TotalBudget
+}
+
+// GetLastKnownRemain returns the value of LastKnownRemain.
+func (s *Period) GetLastKnownRemain() int64 {
+	return s.LastKnownRemain
+}
+
+// GetTotalSpent returns the value of TotalSpent.
+func (s *Period) GetTotalSpent() int64 {
+	return s.TotalSpent
 }
 
 // GetAllocations returns the value of Allocations.
@@ -443,6 +457,16 @@ func (s *Period) SetIsActive(val bool) {
 // SetTotalBudget sets the value of TotalBudget.
 func (s *Period) SetTotalBudget(val int64) {
 	s.TotalBudget = val
+}
+
+// SetLastKnownRemain sets the value of LastKnownRemain.
+func (s *Period) SetLastKnownRemain(val int64) {
+	s.LastKnownRemain = val
+}
+
+// SetTotalSpent sets the value of TotalSpent.
+func (s *Period) SetTotalSpent(val int64) {
+	s.TotalSpent = val
 }
 
 // SetAllocations sets the value of Allocations.

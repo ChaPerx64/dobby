@@ -1,7 +1,12 @@
 openapi: 3.0.3
 info:
   title: Dobby API
-  description: Household management service API for managing finances and allocations
+  description: |
+    Household management service API for managing finances and allocations.
+
+    **Note on Money Amounts:** All monetary values in this API are represented as integers in currency cents (1/100 of a unit).
+    The API is agnostic to the specific currency - it works with any currency by using cents as the base unit.
+    For example, 2500000 represents 25,000.00 in your chosen currency.
   version: 1.0.0
 
 servers:
@@ -251,7 +256,7 @@ components:
         currentBalance:
           type: integer
           format: int64
-          description: Remaining balance for current period in para (1/100 RSD)
+          description: Remaining balance for current period in currency cents
           example: 2500000
       required:
         - id
@@ -275,8 +280,23 @@ components:
         totalBudget:
           type: integer
           format: int64
-          description: Total household budget in para (1/100 RSD)
-          example: 6000000
+          description: Total household budget in currency cents
+          example: 600000
+        totalRemaining:
+          type: integer
+          format: int64
+          description: Last known remaining balance in currency cents
+          example: 19920
+        totalSpent:
+          type: integer
+          format: int64
+          description: Total spendings for the period in currency cents
+          example: 580080
+        projectedEndingBalance:
+          type: integer
+          format: int64
+          description: Projected balance at the end of the period in currency cents
+          example: -30000
         allocations:
           type: array
           items:
@@ -288,6 +308,8 @@ components:
         - isActive
         - totalBudget
         - allocations
+        - totalRemaining
+        - totalSpent
 
     Allocation:
       type: object
@@ -310,17 +332,17 @@ components:
         amount:
           type: integer
           format: int64
-          description: Allocated amount in para (1/100 RSD)
+          description: Allocated amount in currency cents
           example: 3000000
         spent:
           type: integer
           format: int64
-          description: Amount spent in para (1/100 RSD)
+          description: Amount spent in currency cents
           example: 500000
         remaining:
           type: integer
           format: int64
-          description: Remaining amount in para (1/100 RSD)
+          description: Remaining amount in currency cents
           example: 2500000
       required:
         - id
@@ -349,7 +371,7 @@ components:
         amount:
           type: integer
           format: int64
-          description: Transaction amount in para (1/100 RSD)
+          description: Transaction amount in currency cents
           example: 150000
         description:
           type: string
@@ -377,7 +399,7 @@ components:
         amount:
           type: integer
           format: int64
-          description: Transaction amount in para (1/100 RSD)
+          description: Transaction amount in currency cents
         description:
           type: string
         category:
