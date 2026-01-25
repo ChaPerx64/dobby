@@ -8,10 +8,30 @@ services:
       - homelab
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=homelab"
       - "traefik.http.routers.dobby-api.rule=Host(`api.dobby.homelab.chapar.tech`)"
       - "traefik.http.routers.dobby-api.entrypoints=websecure"
       - "traefik.http.routers.dobby-api.tls.certresolver=letsencrypt"
       - "traefik.http.services.dobby-api.loadbalancer.server.port=8080"
+
+  frontend:
+    build:
+      context: ./apps/frontend/
+      args:
+        - VITE_API_BASE_URL=https://api.dobby.homelab.chapar.tech
+    container_name: dobby-frontend
+    restart: unless-stopped
+    networks:
+      - homelab
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=homelab"
+      - "traefik.http.routers.dobby-frontend.rule=Host(`dobby.homelab.chapar.tech`)"
+      - "traefik.http.routers.dobby-frontend.entrypoints=websecure"
+      - "traefik.http.routers.dobby-frontend.tls.certresolver=letsencrypt"
+      - "traefik.http.services.dobby-frontend.loadbalancer.server.port=80"
+    depends_on:
+      - backend
 
 networks:
   homelab:
