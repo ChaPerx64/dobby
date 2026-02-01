@@ -100,4 +100,12 @@ func (h dobbyHandler) ListPeriods(ctx context.Context) ([]oas.Period, error) {
 	return []oas.Period{*p}, nil
 }
 
-// Implement other required methods by delegating to UnimplementedHandler (implicit)
+func (h dobbyHandler) NewError(ctx context.Context, err error) *oas.ErrorStatusCode {
+	return &oas.ErrorStatusCode{
+		StatusCode: 500,
+		Response: oas.Error{
+			Code:    500,
+			Message: err.Error(),
+		},
+	}
+}

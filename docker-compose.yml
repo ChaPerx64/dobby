@@ -13,6 +13,12 @@ services:
       - "traefik.http.routers.dobby-api.entrypoints=websecure"
       - "traefik.http.routers.dobby-api.tls.certresolver=letsencrypt"
       - "traefik.http.services.dobby-api.loadbalancer.server.port=8080"
+      - "traefik.http.middlewares.dobby-cors.headers.accesscontrolallowmethods=GET,OPTIONS,PUT,POST,DELETE"
+      - "traefik.http.middlewares.dobby-cors.headers.accesscontrolallowheaders=*"
+      - "traefik.http.middlewares.dobby-cors.headers.accesscontrolalloworiginlist=https://dobby.homelab.chapar.tech"
+      - "traefik.http.middlewares.dobby-cors.headers.accesscontrolmaxage=100"
+      - "traefik.http.middlewares.dobby-cors.headers.addvaryheader=true"
+      - "traefik.http.routers.dobby-api.middlewares=dobby-cors"
 
   frontend:
     build:

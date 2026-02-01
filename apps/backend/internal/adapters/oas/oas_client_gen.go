@@ -218,6 +218,7 @@ func (c *Client) sendCreateTransaction(ctx context.Context, request *CreateTrans
 		nextRequirement:
 			for _, requirement := range []bitset{
 				{0b00000001},
+				{},
 			} {
 				for i, mask := range requirement {
 					if satisfied[i]&mask != mask {
@@ -324,6 +325,7 @@ func (c *Client) sendGetCurrentPeriod(ctx context.Context) (res *Period, err err
 		nextRequirement:
 			for _, requirement := range []bitset{
 				{0b00000001},
+				{},
 			} {
 				for i, mask := range requirement {
 					if satisfied[i]&mask != mask {
@@ -430,6 +432,7 @@ func (c *Client) sendGetCurrentUser(ctx context.Context) (res *User, err error) 
 		nextRequirement:
 			for _, requirement := range []bitset{
 				{0b00000001},
+				{},
 			} {
 				for i, mask := range requirement {
 					if satisfied[i]&mask != mask {
@@ -554,6 +557,7 @@ func (c *Client) sendGetPeriod(ctx context.Context, params GetPeriodParams) (res
 		nextRequirement:
 			for _, requirement := range []bitset{
 				{0b00000001},
+				{},
 			} {
 				for i, mask := range requirement {
 					if satisfied[i]&mask != mask {
@@ -678,6 +682,7 @@ func (c *Client) sendGetTransaction(ctx context.Context, params GetTransactionPa
 		nextRequirement:
 			for _, requirement := range []bitset{
 				{0b00000001},
+				{},
 			} {
 				for i, mask := range requirement {
 					if satisfied[i]&mask != mask {
@@ -819,6 +824,7 @@ func (c *Client) sendListAllocations(ctx context.Context, params ListAllocations
 		nextRequirement:
 			for _, requirement := range []bitset{
 				{0b00000001},
+				{},
 			} {
 				for i, mask := range requirement {
 					if satisfied[i]&mask != mask {
@@ -925,6 +931,7 @@ func (c *Client) sendListEnvelopes(ctx context.Context) (res []Envelope, err err
 		nextRequirement:
 			for _, requirement := range []bitset{
 				{0b00000001},
+				{},
 			} {
 				for i, mask := range requirement {
 					if satisfied[i]&mask != mask {
@@ -1031,6 +1038,7 @@ func (c *Client) sendListPeriods(ctx context.Context) (res []Period, err error) 
 		nextRequirement:
 			for _, requirement := range []bitset{
 				{0b00000001},
+				{},
 			} {
 				for i, mask := range requirement {
 					if satisfied[i]&mask != mask {
@@ -1158,6 +1166,7 @@ func (c *Client) sendListTransactions(ctx context.Context, params ListTransactio
 		nextRequirement:
 			for _, requirement := range []bitset{
 				{0b00000001},
+				{},
 			} {
 				for i, mask := range requirement {
 					if satisfied[i]&mask != mask {
@@ -1264,6 +1273,7 @@ func (c *Client) sendListUsers(ctx context.Context) (res []User, err error) {
 		nextRequirement:
 			for _, requirement := range []bitset{
 				{0b00000001},
+				{},
 			} {
 				for i, mask := range requirement {
 					if satisfied[i]&mask != mask {
