@@ -18,7 +18,6 @@ export const mockPeriod: Period = {
   totalRemaining: 9700000, // 97'000.00 RSD
   totalSpent: 2300000, // 23'000.00 RSD
   projectedEndingBalance: -300000, // -3'000.00 RSD
-  allocations: [],
 };
 
 export const mockCategories: CategoryItem[] = [

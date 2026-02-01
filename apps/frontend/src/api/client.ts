@@ -32,8 +32,18 @@ export const apiClient = {
     return api.GET('/users');
   },
 
-  async getCurrentUserAllocations() {
-    return api.GET('/me/allocations');
+  // Envelopes
+  async listEnvelopes() {
+    return api.GET('/envelopes');
+  },
+
+  // Allocations
+  async listAllocations(periodId: string, userId?: string) {
+    return api.GET('/allocations', {
+      params: {
+        query: { periodId, userId },
+      },
+    });
   },
 
   // Periods
@@ -59,7 +69,7 @@ export const apiClient = {
   },
 
   async createTransaction(transaction: {
-    allocationId: string;
+    envelopeId: string;
     amount: number;
     description?: string;
     category?: string;

@@ -38,15 +38,32 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/me/allocations": {
+    "/allocations": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Get current user's allocation for current period */
-        get: operations["getCurrentUserAllocations"];
+        /** Get allocations for a period (and optional user) */
+        get: operations["listAllocations"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/envelopes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List all envelopes */
+        get: operations["listEnvelopes"];
         put?: never;
         post?: never;
         delete?: never;
@@ -157,6 +174,12 @@ export interface components {
              */
             currentBalance: number;
         };
+        Envelope: {
+            /** Format: uuid */
+            id: string;
+            /** @example Groceries */
+            name: string;
+        };
         Period: {
             /** Format: uuid */
             id: string;
@@ -189,32 +212,42 @@ export interface components {
              * @example -30000
              */
             projectedEndingBalance?: number;
-            allocations: components["schemas"]["Allocation"][];
         };
         Allocation: {
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description A virtual ID for the envelope summary
+             */
             id: string;
             /** Format: uuid */
             periodId: string;
             /** Format: uuid */
             userId: string;
-            /** @enum {string} */
-            purpose: "groceries" | "housekeeping" | "personal";
+            /**
+             * Format: uuid
+             * @description The ID of the budget bucket
+             */
+            envelopeId: string;
+            /**
+             * @description The name of the budget bucket (e.g., 'groceries')
+             * @example groceries
+             */
+            envelope: string;
             /**
              * Format: int64
-             * @description Allocated amount in currency cents
+             * @description Total funding allocated to this envelope in cents
              * @example 3000000
              */
             amount: number;
             /**
              * Format: int64
-             * @description Amount spent in currency cents
+             * @description Total amount spent from this envelope in cents
              * @example 500000
              */
             spent: number;
             /**
              * Format: int64
-             * @description Remaining amount in currency cents
+             * @description Current balance of the envelope in cents
              * @example 2500000
              */
             remaining: number;
@@ -226,30 +259,40 @@ export interface components {
             periodId: string;
             /** Format: uuid */
             userId: string;
-            /** Format: uuid */
-            allocationId: string;
+            /**
+             * Format: uuid
+             * @description The budget bucket this transaction belongs to
+             */
+            envelopeId: string;
             /**
              * Format: int64
-             * @description Transaction amount in currency cents
-             * @example 150000
+             * @description Transaction amount in currency cents. Positive for income/funding, negative for expenses.
+             * @example -150000
              */
             amount: number;
             /** @example Weekly groceries */
             description?: string;
             /** Format: date-time */
             date: string;
-            /** @example food */
+            /**
+             * @description Analytics tag (what was bought)
+             * @example food
+             */
             category?: string;
         };
         CreateTransaction: {
-            /** Format: uuid */
-            allocationId: string;
+            /**
+             * Format: uuid
+             * @description The budget bucket this transaction belongs to
+             */
+            envelopeId: string;
             /**
              * Format: int64
-             * @description Transaction amount in currency cents
+             * @description Transaction amount in currency cents. Use negative values for expenses.
              */
             amount: number;
             description?: string;
+            /** @description Analytics tag (what was bought) */
             category?: string;
         };
         Error: {
@@ -323,7 +366,41 @@ export interface operations {
             };
         };
     };
-    getCurrentUserAllocations: {
+    listAllocations: {
+        parameters: {
+            query: {
+                /** @description The financial period to inspect */
+                periodId: string;
+                /** @description Filter by specific user (defaults to all users if omitted) */
+                userId?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description List of allocations */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Allocation"][];
+                };
+            };
+            /** @description Error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    listEnvelopes: {
         parameters: {
             query?: never;
             header?: never;
@@ -332,13 +409,13 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description User's allocations */
+            /** @description List of envelopes */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Allocation"][];
+                    "application/json": components["schemas"]["Envelope"][];
                 };
             };
             /** @description Error response */
