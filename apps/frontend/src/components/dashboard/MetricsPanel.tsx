@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Item, ItemContent, ItemTitle, ItemDescription, ItemGroup } from '@/components/ui/item';
 import { formatCurrency } from '@/lib/format';
 
 interface MetricsPanelProps {
@@ -26,25 +26,25 @@ export function MetricsPanel({
   ];
 
   return (
-    <div className="w-80 bg-background p-6 flex flex-col gap-4">
-      {metrics.map((metric, index) => (
-        <Card key={index}>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              {metric.label}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p
-              className={`text-2xl font-bold ${
-                metric.highlight ? 'text-destructive' : 'text-foreground'
-              }`}
-            >
-              {formatCurrency(metric.value)}
-            </p>
-          </CardContent>
-        </Card>
-      ))}
+    <div className="w-80 bg-background p-6">
+      <ItemGroup>
+        {metrics.map((metric, index) => (
+          <Item key={index} variant="muted">
+            <ItemContent>
+              <ItemTitle className="text-sm font-medium text-muted-foreground">
+                {metric.label}
+              </ItemTitle>
+              <ItemDescription
+                className={`text-2xl font-bold ${
+                  metric.highlight ? 'text-destructive' : 'text-foreground'
+                }`}
+              >
+                {formatCurrency(metric.value)}
+              </ItemDescription>
+            </ItemContent>
+          </Item>
+        ))}
+      </ItemGroup>
     </div>
   );
 }
