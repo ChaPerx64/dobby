@@ -34,8 +34,12 @@ func (s *Allocation) encodeFields(e *jx.Encoder) {
 		json.EncodeUUID(e, s.UserId)
 	}
 	{
-		e.FieldStart("purpose")
-		s.Purpose.Encode(e)
+		e.FieldStart("envelopeId")
+		json.EncodeUUID(e, s.EnvelopeId)
+	}
+	{
+		e.FieldStart("envelope")
+		e.Str(s.Envelope)
 	}
 	{
 		e.FieldStart("amount")
@@ -51,14 +55,15 @@ func (s *Allocation) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfAllocation = [7]string{
+var jsonFieldsNameOfAllocation = [8]string{
 	0: "id",
 	1: "periodId",
 	2: "userId",
-	3: "purpose",
-	4: "amount",
-	5: "spent",
-	6: "remaining",
+	3: "envelopeId",
+	4: "envelope",
+	5: "amount",
+	6: "spent",
+	7: "remaining",
 }
 
 // Decode decodes Allocation from json.
@@ -106,18 +111,32 @@ func (s *Allocation) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"userId\"")
 			}
-		case "purpose":
+		case "envelopeId":
 			requiredBitSet[0] |= 1 << 3
 			if err := func() error {
-				if err := s.Purpose.Decode(d); err != nil {
+				v, err := json.DecodeUUID(d)
+				s.EnvelopeId = v
+				if err != nil {
 					return err
 				}
 				return nil
 			}(); err != nil {
-				return errors.Wrap(err, "decode field \"purpose\"")
+				return errors.Wrap(err, "decode field \"envelopeId\"")
+			}
+		case "envelope":
+			requiredBitSet[0] |= 1 << 4
+			if err := func() error {
+				v, err := d.Str()
+				s.Envelope = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"envelope\"")
 			}
 		case "amount":
-			requiredBitSet[0] |= 1 << 4
+			requiredBitSet[0] |= 1 << 5
 			if err := func() error {
 				v, err := d.Int64()
 				s.Amount = int64(v)
@@ -129,7 +148,7 @@ func (s *Allocation) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"amount\"")
 			}
 		case "spent":
-			requiredBitSet[0] |= 1 << 5
+			requiredBitSet[0] |= 1 << 6
 			if err := func() error {
 				v, err := d.Int64()
 				s.Spent = int64(v)
@@ -141,7 +160,7 @@ func (s *Allocation) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"spent\"")
 			}
 		case "remaining":
-			requiredBitSet[0] |= 1 << 6
+			requiredBitSet[0] |= 1 << 7
 			if err := func() error {
 				v, err := d.Int64()
 				s.Remaining = int64(v)
@@ -162,7 +181,7 @@ func (s *Allocation) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b01111111,
+		0b11111111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -208,48 +227,6 @@ func (s *Allocation) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
-// Encode encodes AllocationPurpose as json.
-func (s AllocationPurpose) Encode(e *jx.Encoder) {
-	e.Str(string(s))
-}
-
-// Decode decodes AllocationPurpose from json.
-func (s *AllocationPurpose) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode AllocationPurpose to nil")
-	}
-	v, err := d.StrBytes()
-	if err != nil {
-		return err
-	}
-	// Try to use constant string.
-	switch AllocationPurpose(v) {
-	case AllocationPurposeGroceries:
-		*s = AllocationPurposeGroceries
-	case AllocationPurposeHousekeeping:
-		*s = AllocationPurposeHousekeeping
-	case AllocationPurposePersonal:
-		*s = AllocationPurposePersonal
-	default:
-		*s = AllocationPurpose(v)
-	}
-
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s AllocationPurpose) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *AllocationPurpose) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
 // Encode implements json.Marshaler.
 func (s *CreateTransaction) Encode(e *jx.Encoder) {
 	e.ObjStart()
@@ -260,8 +237,8 @@ func (s *CreateTransaction) Encode(e *jx.Encoder) {
 // encodeFields encodes fields.
 func (s *CreateTransaction) encodeFields(e *jx.Encoder) {
 	{
-		e.FieldStart("allocationId")
-		json.EncodeUUID(e, s.AllocationId)
+		e.FieldStart("envelopeId")
+		json.EncodeUUID(e, s.EnvelopeId)
 	}
 	{
 		e.FieldStart("amount")
@@ -282,7 +259,7 @@ func (s *CreateTransaction) encodeFields(e *jx.Encoder) {
 }
 
 var jsonFieldsNameOfCreateTransaction = [4]string{
-	0: "allocationId",
+	0: "envelopeId",
 	1: "amount",
 	2: "description",
 	3: "category",
@@ -297,17 +274,17 @@ func (s *CreateTransaction) Decode(d *jx.Decoder) error {
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
-		case "allocationId":
+		case "envelopeId":
 			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
 				v, err := json.DecodeUUID(d)
-				s.AllocationId = v
+				s.EnvelopeId = v
 				if err != nil {
 					return err
 				}
 				return nil
 			}(); err != nil {
-				return errors.Wrap(err, "decode field \"allocationId\"")
+				return errors.Wrap(err, "decode field \"envelopeId\"")
 			}
 		case "amount":
 			requiredBitSet[0] |= 1 << 1
@@ -393,6 +370,119 @@ func (s *CreateTransaction) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *CreateTransaction) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *Envelope) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *Envelope) encodeFields(e *jx.Encoder) {
+	{
+		e.FieldStart("id")
+		json.EncodeUUID(e, s.ID)
+	}
+	{
+		e.FieldStart("name")
+		e.Str(s.Name)
+	}
+}
+
+var jsonFieldsNameOfEnvelope = [2]string{
+	0: "id",
+	1: "name",
+}
+
+// Decode decodes Envelope from json.
+func (s *Envelope) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode Envelope to nil")
+	}
+	var requiredBitSet [1]uint8
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "id":
+			requiredBitSet[0] |= 1 << 0
+			if err := func() error {
+				v, err := json.DecodeUUID(d)
+				s.ID = v
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"id\"")
+			}
+		case "name":
+			requiredBitSet[0] |= 1 << 1
+			if err := func() error {
+				v, err := d.Str()
+				s.Name = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"name\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode Envelope")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00000011,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfEnvelope) {
+					name = jsonFieldsNameOfEnvelope[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *Envelope) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *Envelope) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -510,6 +600,41 @@ func (s *Error) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
+// Encode encodes int64 as json.
+func (o OptInt64) Encode(e *jx.Encoder) {
+	if !o.Set {
+		return
+	}
+	e.Int64(int64(o.Value))
+}
+
+// Decode decodes int64 from json.
+func (o *OptInt64) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode OptInt64 to nil")
+	}
+	o.Set = true
+	v, err := d.Int64()
+	if err != nil {
+		return err
+	}
+	o.Value = int64(v)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s OptInt64) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OptInt64) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode encodes string as json.
 func (o OptString) Encode(e *jx.Encoder) {
 	if !o.Set {
@@ -575,20 +700,18 @@ func (s *Period) encodeFields(e *jx.Encoder) {
 		e.Int64(s.TotalBudget)
 	}
 	{
-		e.FieldStart("lastKnownRemain")
-		e.Int64(s.LastKnownRemain)
+		e.FieldStart("totalRemaining")
+		e.Int64(s.TotalRemaining)
 	}
 	{
 		e.FieldStart("totalSpent")
 		e.Int64(s.TotalSpent)
 	}
 	{
-		e.FieldStart("allocations")
-		e.ArrStart()
-		for _, elem := range s.Allocations {
-			elem.Encode(e)
+		if s.ProjectedEndingBalance.Set {
+			e.FieldStart("projectedEndingBalance")
+			s.ProjectedEndingBalance.Encode(e)
 		}
-		e.ArrEnd()
 	}
 }
 
@@ -598,9 +721,9 @@ var jsonFieldsNameOfPeriod = [8]string{
 	2: "endDate",
 	3: "isActive",
 	4: "totalBudget",
-	5: "lastKnownRemain",
+	5: "totalRemaining",
 	6: "totalSpent",
-	7: "allocations",
+	7: "projectedEndingBalance",
 }
 
 // Decode decodes Period from json.
@@ -672,17 +795,17 @@ func (s *Period) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"totalBudget\"")
 			}
-		case "lastKnownRemain":
+		case "totalRemaining":
 			requiredBitSet[0] |= 1 << 5
 			if err := func() error {
 				v, err := d.Int64()
-				s.LastKnownRemain = int64(v)
+				s.TotalRemaining = int64(v)
 				if err != nil {
 					return err
 				}
 				return nil
 			}(); err != nil {
-				return errors.Wrap(err, "decode field \"lastKnownRemain\"")
+				return errors.Wrap(err, "decode field \"totalRemaining\"")
 			}
 		case "totalSpent":
 			requiredBitSet[0] |= 1 << 6
@@ -696,23 +819,15 @@ func (s *Period) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"totalSpent\"")
 			}
-		case "allocations":
-			requiredBitSet[0] |= 1 << 7
+		case "projectedEndingBalance":
 			if err := func() error {
-				s.Allocations = make([]Allocation, 0)
-				if err := d.Arr(func(d *jx.Decoder) error {
-					var elem Allocation
-					if err := elem.Decode(d); err != nil {
-						return err
-					}
-					s.Allocations = append(s.Allocations, elem)
-					return nil
-				}); err != nil {
+				s.ProjectedEndingBalance.Reset()
+				if err := s.ProjectedEndingBalance.Decode(d); err != nil {
 					return err
 				}
 				return nil
 			}(); err != nil {
-				return errors.Wrap(err, "decode field \"allocations\"")
+				return errors.Wrap(err, "decode field \"projectedEndingBalance\"")
 			}
 		default:
 			return d.Skip()
@@ -724,7 +839,7 @@ func (s *Period) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b11111111,
+		0b01111111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -792,8 +907,8 @@ func (s *Transaction) encodeFields(e *jx.Encoder) {
 		json.EncodeUUID(e, s.UserId)
 	}
 	{
-		e.FieldStart("allocationId")
-		json.EncodeUUID(e, s.AllocationId)
+		e.FieldStart("envelopeId")
+		json.EncodeUUID(e, s.EnvelopeId)
 	}
 	{
 		e.FieldStart("amount")
@@ -821,7 +936,7 @@ var jsonFieldsNameOfTransaction = [8]string{
 	0: "id",
 	1: "periodId",
 	2: "userId",
-	3: "allocationId",
+	3: "envelopeId",
 	4: "amount",
 	5: "description",
 	6: "date",
@@ -873,17 +988,17 @@ func (s *Transaction) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"userId\"")
 			}
-		case "allocationId":
+		case "envelopeId":
 			requiredBitSet[0] |= 1 << 3
 			if err := func() error {
 				v, err := json.DecodeUUID(d)
-				s.AllocationId = v
+				s.EnvelopeId = v
 				if err != nil {
 					return err
 				}
 				return nil
 			}(); err != nil {
-				return errors.Wrap(err, "decode field \"allocationId\"")
+				return errors.Wrap(err, "decode field \"envelopeId\"")
 			}
 		case "amount":
 			requiredBitSet[0] |= 1 << 4

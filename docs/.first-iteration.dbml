@@ -1,0 +1,45 @@
+// First Iteration DB Schema (Ledger/Envelope Pattern)
+// Money is stored as BIGINT in cents throughout the system.
+
+Table users {
+  id uuid [primary key]
+  name varchar(255)
+}
+
+Table financial_periods {
+  id uuid [primary key]
+  name varchar(255) [null]
+  start_dt datetime
+  end_dt datetime
+}
+
+// Defines the budget bucket (e.g. "Groceries", "Pocket Money")
+// Owned by a user (or household), distinct from the period.
+Table envelopes {
+  id uuid [primary key]
+  user_id uuid [ref: > users.id]
+  name varchar(255)
+  // Future: icon, color, monthly_cap, is_archived
+}
+
+Table transactions {
+  id uuid [primary key]
+  financial_period_id uuid [ref: > financial_periods.id]
+  user_id uuid [ref: > users.id]
+  
+  // Link to the specific Envelope entity
+  envelope_id uuid [ref: > envelopes.id]
+
+  // The 'Category' is the analytics tag (What was bought)
+  // e.g. 'Snacks', 'Cosmetics', 'Vegetables'
+  // Kept as string for maximum flexibility in analytics
+  category varchar(255) 
+  
+  // Amount in cents (Integer)
+  // Positive = Income / Funding the envelope
+  // Negative = Expense / Spending from the envelope
+  amount bigint 
+  
+  description text
+  date datetime
+}

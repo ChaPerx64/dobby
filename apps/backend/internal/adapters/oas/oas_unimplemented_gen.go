@@ -40,15 +40,6 @@ func (UnimplementedHandler) GetCurrentUser(ctx context.Context) (r *User, _ erro
 	return r, ht.ErrNotImplemented
 }
 
-// GetCurrentUserAllocations implements getCurrentUserAllocations operation.
-//
-// Get current user's allocation for current period.
-//
-// GET /me/allocations
-func (UnimplementedHandler) GetCurrentUserAllocations(ctx context.Context) (r []Allocation, _ error) {
-	return r, ht.ErrNotImplemented
-}
-
 // GetPeriod implements getPeriod operation.
 //
 // Get period by ID.
@@ -64,6 +55,24 @@ func (UnimplementedHandler) GetPeriod(ctx context.Context, params GetPeriodParam
 //
 // GET /transactions/{transactionId}
 func (UnimplementedHandler) GetTransaction(ctx context.Context, params GetTransactionParams) (r GetTransactionRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// ListAllocations implements listAllocations operation.
+//
+// Get allocations for a period (and optional user).
+//
+// GET /allocations
+func (UnimplementedHandler) ListAllocations(ctx context.Context, params ListAllocationsParams) (r []Allocation, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// ListEnvelopes implements listEnvelopes operation.
+//
+// List all envelopes.
+//
+// GET /envelopes
+func (UnimplementedHandler) ListEnvelopes(ctx context.Context) (r []Envelope, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

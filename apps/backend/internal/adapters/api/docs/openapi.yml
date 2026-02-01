@@ -58,21 +58,58 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /me/allocations:
+  /allocations:
     get:
-      summary: Get current user's allocation for current period
-      operationId: getCurrentUserAllocations
+      summary: Get allocations for a period (and optional user)
+      operationId: listAllocations
       tags:
         - Allocations
+      parameters:
+        - name: periodId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The financial period to inspect
+        - name: userId
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+          description: Filter by specific user (defaults to all users if omitted)
       responses:
         '200':
-          description: User's allocations
+          description: List of allocations
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Allocation'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /envelopes:
+    get:
+      summary: List all envelopes
+      operationId: listEnvelopes
+      tags:
+        - Envelopes
+      responses:
+        '200':
+          description: List of envelopes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Envelope'
         default:
           description: Error response
           content:
@@ -263,6 +300,19 @@ components:
         - name
         - currentBalance
 
+    Envelope:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: Groceries
+      required:
+        - id
+        - name
+
     Period:
       type: object
       properties:
@@ -297,17 +347,12 @@ components:
           format: int64
           description: Projected balance at the end of the period in currency cents
           example: -30000
-        allocations:
-          type: array
-          items:
-            $ref: '#/components/schemas/Allocation'
       required:
         - id
         - startDate
         - endDate
         - isActive
         - totalBudget
-        - allocations
         - totalRemaining
         - totalSpent
 
@@ -317,38 +362,42 @@ components:
         id:
           type: string
           format: uuid
+          description: A virtual ID for the envelope summary
         periodId:
           type: string
           format: uuid
         userId:
           type: string
           format: uuid
-        purpose:
+        envelopeId:
           type: string
-          enum:
-            - groceries
-            - housekeeping
-            - personal
+          format: uuid
+          description: The ID of the budget bucket
+        envelope:
+          type: string
+          description: The name of the budget bucket (e.g., 'groceries')
+          example: groceries
         amount:
           type: integer
           format: int64
-          description: Allocated amount in currency cents
+          description: Total funding allocated to this envelope in cents
           example: 3000000
         spent:
           type: integer
           format: int64
-          description: Amount spent in currency cents
+          description: Total amount spent from this envelope in cents
           example: 500000
         remaining:
           type: integer
           format: int64
-          description: Remaining amount in currency cents
+          description: Current balance of the envelope in cents
           example: 2500000
       required:
         - id
         - periodId
         - userId
-        - purpose
+        - envelopeId
+        - envelope
         - amount
         - spent
         - remaining
@@ -365,14 +414,15 @@ components:
         userId:
           type: string
           format: uuid
-        allocationId:
+        envelopeId:
           type: string
           format: uuid
+          description: The budget bucket this transaction belongs to
         amount:
           type: integer
           format: int64
-          description: Transaction amount in currency cents
-          example: 150000
+          description: Transaction amount in currency cents. Positive for income/funding, negative for expenses.
+          example: -150000
         description:
           type: string
           example: Weekly groceries
@@ -381,31 +431,34 @@ components:
           format: date-time
         category:
           type: string
+          description: Analytics tag (what was bought)
           example: food
       required:
         - id
         - periodId
         - userId
-        - allocationId
+        - envelopeId
         - amount
         - date
 
     CreateTransaction:
       type: object
       properties:
-        allocationId:
+        envelopeId:
           type: string
           format: uuid
+          description: The budget bucket this transaction belongs to
         amount:
           type: integer
           format: int64
-          description: Transaction amount in currency cents
+          description: Transaction amount in currency cents. Use negative values for expenses.
         description:
           type: string
         category:
           type: string
+          description: Analytics tag (what was bought)
       required:
-        - allocationId
+        - envelopeId
         - amount
 
     Error:

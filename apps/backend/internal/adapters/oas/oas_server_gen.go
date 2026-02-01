@@ -26,12 +26,6 @@ type Handler interface {
 	//
 	// GET /me
 	GetCurrentUser(ctx context.Context) (*User, error)
-	// GetCurrentUserAllocations implements getCurrentUserAllocations operation.
-	//
-	// Get current user's allocation for current period.
-	//
-	// GET /me/allocations
-	GetCurrentUserAllocations(ctx context.Context) ([]Allocation, error)
 	// GetPeriod implements getPeriod operation.
 	//
 	// Get period by ID.
@@ -44,6 +38,18 @@ type Handler interface {
 	//
 	// GET /transactions/{transactionId}
 	GetTransaction(ctx context.Context, params GetTransactionParams) (GetTransactionRes, error)
+	// ListAllocations implements listAllocations operation.
+	//
+	// Get allocations for a period (and optional user).
+	//
+	// GET /allocations
+	ListAllocations(ctx context.Context, params ListAllocationsParams) ([]Allocation, error)
+	// ListEnvelopes implements listEnvelopes operation.
+	//
+	// List all envelopes.
+	//
+	// GET /envelopes
+	ListEnvelopes(ctx context.Context) ([]Envelope, error)
 	// ListPeriods implements listPeriods operation.
 	//
 	// List all financial periods.

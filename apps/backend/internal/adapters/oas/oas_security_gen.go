@@ -34,15 +34,16 @@ func findAuthorization(h http.Header, prefix string) (string, bool) {
 }
 
 var operationRolesBearerAuth = map[string][]string{
-	CreateTransactionOperation:         []string{},
-	GetCurrentPeriodOperation:          []string{},
-	GetCurrentUserOperation:            []string{},
-	GetCurrentUserAllocationsOperation: []string{},
-	GetPeriodOperation:                 []string{},
-	GetTransactionOperation:            []string{},
-	ListPeriodsOperation:               []string{},
-	ListTransactionsOperation:          []string{},
-	ListUsersOperation:                 []string{},
+	CreateTransactionOperation: []string{},
+	GetCurrentPeriodOperation:  []string{},
+	GetCurrentUserOperation:    []string{},
+	GetPeriodOperation:         []string{},
+	GetTransactionOperation:    []string{},
+	ListAllocationsOperation:   []string{},
+	ListEnvelopesOperation:     []string{},
+	ListPeriodsOperation:       []string{},
+	ListTransactionsOperation:  []string{},
+	ListUsersOperation:         []string{},
 }
 
 func (s *Server) securityBearerAuth(ctx context.Context, operationName OperationName, req *http.Request) (context.Context, bool, error) {
