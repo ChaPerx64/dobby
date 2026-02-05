@@ -6,19 +6,24 @@ export const api = createClient<paths>({
   baseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080',
 });
 
+let authToken: string | null = null;
+
 // Middleware for JWT authentication
+api.use({
+  async onRequest({ request }) {
+    if (authToken) {
+      request.headers.set('Authorization', `Bearer ${authToken}`);
+    }
+    return request;
+  },
+});
+
 export function setAuthToken(token: string) {
-  api.use({
-    async onRequest({ request }) {
-      request.headers.set('Authorization', `Bearer ${token}`);
-      return request;
-    },
-  });
+  authToken = token;
 }
 
-// Clear auth token
 export function clearAuthToken() {
-  api.use({ onRequest: async ({ request }) => request });
+  authToken = null;
 }
 
 // Type-safe API methods
