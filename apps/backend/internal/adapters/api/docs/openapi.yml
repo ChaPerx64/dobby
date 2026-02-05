@@ -14,7 +14,6 @@ servers:
 
 security:
   - bearerAuth: []
-  - {}
 
 paths:
   /users:

@@ -5,9 +5,10 @@ services:
     container_name: dobby-backend
     restart: unless-stopped
     environment:
-      - ZITADEL_ISSUER=${ZITADEL_ISSUER}
-      - ZITADEL_CLIENT_ID=${ZITADEL_CLIENT_ID}
-      - FRONTEND_URL=https://${FRONTEND_HOST}
+      - OIDC_AUTHORITY
+      - OIDC_BACKEND_CLIENT_ID
+      - OIDC_BACKEND_CLIENT_SECRET
+      - FRONTEND_HOST
     networks:
       - homelab
     labels:
@@ -29,8 +30,8 @@ services:
       context: ./apps/frontend/
       args:
         - VITE_API_BASE_URL=https://${BACKEND_HOST}
-        - VITE_ZITADEL_AUTHORITY=${ZITADEL_ISSUER}
-        - VITE_ZITADEL_CLIENT_ID=${ZITADEL_CLIENT_ID}
+        - VITE_OIDC_AUTHORITY=${OIDC_AUTHORITY}
+        - VITE_OIDC_CLIENT_ID=${OIDC_FRONTEND_CLIENT_ID}
     container_name: dobby-frontend
     restart: unless-stopped
     networks:

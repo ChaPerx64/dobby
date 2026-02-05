@@ -14,9 +14,25 @@ var _ oas.Handler = (*dobbyHandler)(nil)
 
 func (h dobbyHandler) GetCurrentUser(ctx context.Context) (*oas.User, error) {
 	log.Println("Got a request @/me")
+
+	idStr, ok := GetUserID(ctx)
+	userID := uuid.MustParse("00000000-0000-0000-0000-000000000001")
+	userName := "TheMan"
+
+	if ok {
+		log.Printf("Authenticated User ID: %s\n", idStr)
+		// Attempt to parse ZITADEL subject as UUID if possible, 
+		// otherwise keep mock UUID for schema compatibility but note the real ID
+		if parsed, err := uuid.Parse(idStr); err == nil {
+			userID = parsed
+		}
+		// In a real app, we'd fetch the user's display name from ZITADEL or our DB
+		userName = "Authenticated User"
+	}
+
 	return &oas.User{
-		ID:             uuid.MustParse("00000000-0000-0000-0000-000000000001"),
-		Name:           "TheMan",
+		ID:             userID,
+		Name:           userName,
 		CurrentBalance: 10000,
 	}, nil
 }

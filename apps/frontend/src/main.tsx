@@ -6,8 +6,8 @@ import './index.css'
 import App from './App.tsx'
 
 const oidcConfig: AuthProviderProps = {
-  authority: import.meta.env.VITE_ZITADEL_AUTHORITY || "https://auth.homelab.chapar.tech",
-  client_id: import.meta.env.VITE_ZITADEL_CLIENT_ID || "358141840966287363",
+  authority: import.meta.env.VITE_OIDC_AUTHORITY,
+  client_id: import.meta.env.VITE_OIDC_CLIENT_ID,
   redirect_uri: window.location.origin,
   post_logout_redirect_uri: window.location.origin,
   scope: "openid profile email",

@@ -133,7 +133,6 @@ func (s *Server) handleCreateTransactionRequest(args [0]string, argsEscaped bool
 		nextRequirement:
 			for _, requirement := range []bitset{
 				{0b00000001},
-				{},
 			} {
 				for i, mask := range requirement {
 					if satisfied[i]&mask != mask {
@@ -332,7 +331,6 @@ func (s *Server) handleGetCurrentPeriodRequest(args [0]string, argsEscaped bool,
 		nextRequirement:
 			for _, requirement := range []bitset{
 				{0b00000001},
-				{},
 			} {
 				for i, mask := range requirement {
 					if satisfied[i]&mask != mask {
@@ -516,7 +514,6 @@ func (s *Server) handleGetCurrentUserRequest(args [0]string, argsEscaped bool, w
 		nextRequirement:
 			for _, requirement := range []bitset{
 				{0b00000001},
-				{},
 			} {
 				for i, mask := range requirement {
 					if satisfied[i]&mask != mask {
@@ -700,7 +697,6 @@ func (s *Server) handleGetPeriodRequest(args [1]string, argsEscaped bool, w http
 		nextRequirement:
 			for _, requirement := range []bitset{
 				{0b00000001},
-				{},
 			} {
 				for i, mask := range requirement {
 					if satisfied[i]&mask != mask {
@@ -899,7 +895,6 @@ func (s *Server) handleGetTransactionRequest(args [1]string, argsEscaped bool, w
 		nextRequirement:
 			for _, requirement := range []bitset{
 				{0b00000001},
-				{},
 			} {
 				for i, mask := range requirement {
 					if satisfied[i]&mask != mask {
@@ -1098,7 +1093,6 @@ func (s *Server) handleListAllocationsRequest(args [0]string, argsEscaped bool, 
 		nextRequirement:
 			for _, requirement := range []bitset{
 				{0b00000001},
-				{},
 			} {
 				for i, mask := range requirement {
 					if satisfied[i]&mask != mask {
@@ -1301,7 +1295,6 @@ func (s *Server) handleListEnvelopesRequest(args [0]string, argsEscaped bool, w 
 		nextRequirement:
 			for _, requirement := range []bitset{
 				{0b00000001},
-				{},
 			} {
 				for i, mask := range requirement {
 					if satisfied[i]&mask != mask {
@@ -1485,7 +1478,6 @@ func (s *Server) handleListPeriodsRequest(args [0]string, argsEscaped bool, w ht
 		nextRequirement:
 			for _, requirement := range []bitset{
 				{0b00000001},
-				{},
 			} {
 				for i, mask := range requirement {
 					if satisfied[i]&mask != mask {
@@ -1669,7 +1661,6 @@ func (s *Server) handleListTransactionsRequest(args [0]string, argsEscaped bool,
 		nextRequirement:
 			for _, requirement := range []bitset{
 				{0b00000001},
-				{},
 			} {
 				for i, mask := range requirement {
 					if satisfied[i]&mask != mask {
@@ -1868,7 +1859,6 @@ func (s *Server) handleListUsersRequest(args [0]string, argsEscaped bool, w http
 		nextRequirement:
 			for _, requirement := range []bitset{
 				{0b00000001},
-				{},
 			} {
 				for i, mask := range requirement {
 					if satisfied[i]&mask != mask {
