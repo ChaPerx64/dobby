@@ -2,8 +2,11 @@ package config
 
 import (
 	"log"
+	"log/slog"
 	"os"
 	"strings"
+
+	"github.com/joho/godotenv"
 )
 
 type Config struct {
@@ -15,6 +18,11 @@ type Config struct {
 }
 
 func Load() Config {
+	slog.Info("Loading configs...")
+	err := godotenv.Load("../../.env")
+	if err != nil {
+		slog.Warn("Error loading .env file. Parsing from environment")
+	}
 	return Config{
 		OIDCAuthority:           requireEnv("OIDC_AUTHORITY"),
 		OIDCBackendClientID:     requireEnv("OIDC_BACKEND_CLIENT_ID"),

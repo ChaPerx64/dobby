@@ -8,6 +8,7 @@ require (
 	github.com/go-faster/errors v0.7.1
 	github.com/go-faster/jx v1.2.0
 	github.com/google/uuid v1.6.0
+	github.com/joho/godotenv v1.5.1
 	github.com/ogen-go/ogen v1.18.0
 	github.com/rs/cors v1.11.1
 	github.com/swaggest/swgui v1.8.5
