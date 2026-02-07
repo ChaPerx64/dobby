@@ -2,6 +2,8 @@ services:
   backend:
     build:
       context: ./apps/backend
+      args:
+       - GOMEMLIMIT
     container_name: dobby-backend
     restart: unless-stopped
     environment:
