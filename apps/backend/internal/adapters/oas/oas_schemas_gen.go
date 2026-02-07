@@ -13,104 +13,6 @@ func (s *ErrorStatusCode) Error() string {
 	return fmt.Sprintf("code %d: %+v", s.StatusCode, s.Response)
 }
 
-// Ref: #/components/schemas/Allocation
-type Allocation struct {
-	// A virtual ID for the envelope summary.
-	ID       uuid.UUID `json:"id"`
-	PeriodId uuid.UUID `json:"periodId"`
-	UserId   uuid.UUID `json:"userId"`
-	// The ID of the budget bucket.
-	EnvelopeId uuid.UUID `json:"envelopeId"`
-	// The name of the budget bucket (e.g., 'groceries').
-	Envelope string `json:"envelope"`
-	// Total funding allocated to this envelope in cents.
-	Amount int64 `json:"amount"`
-	// Total amount spent from this envelope in cents.
-	Spent int64 `json:"spent"`
-	// Current balance of the envelope in cents.
-	Remaining int64 `json:"remaining"`
-}
-
-// GetID returns the value of ID.
-func (s *Allocation) GetID() uuid.UUID {
-	return s.ID
-}
-
-// GetPeriodId returns the value of PeriodId.
-func (s *Allocation) GetPeriodId() uuid.UUID {
-	return s.PeriodId
-}
-
-// GetUserId returns the value of UserId.
-func (s *Allocation) GetUserId() uuid.UUID {
-	return s.UserId
-}
-
-// GetEnvelopeId returns the value of EnvelopeId.
-func (s *Allocation) GetEnvelopeId() uuid.UUID {
-	return s.EnvelopeId
-}
-
-// GetEnvelope returns the value of Envelope.
-func (s *Allocation) GetEnvelope() string {
-	return s.Envelope
-}
-
-// GetAmount returns the value of Amount.
-func (s *Allocation) GetAmount() int64 {
-	return s.Amount
-}
-
-// GetSpent returns the value of Spent.
-func (s *Allocation) GetSpent() int64 {
-	return s.Spent
-}
-
-// GetRemaining returns the value of Remaining.
-func (s *Allocation) GetRemaining() int64 {
-	return s.Remaining
-}
-
-// SetID sets the value of ID.
-func (s *Allocation) SetID(val uuid.UUID) {
-	s.ID = val
-}
-
-// SetPeriodId sets the value of PeriodId.
-func (s *Allocation) SetPeriodId(val uuid.UUID) {
-	s.PeriodId = val
-}
-
-// SetUserId sets the value of UserId.
-func (s *Allocation) SetUserId(val uuid.UUID) {
-	s.UserId = val
-}
-
-// SetEnvelopeId sets the value of EnvelopeId.
-func (s *Allocation) SetEnvelopeId(val uuid.UUID) {
-	s.EnvelopeId = val
-}
-
-// SetEnvelope sets the value of Envelope.
-func (s *Allocation) SetEnvelope(val string) {
-	s.Envelope = val
-}
-
-// SetAmount sets the value of Amount.
-func (s *Allocation) SetAmount(val int64) {
-	s.Amount = val
-}
-
-// SetSpent sets the value of Spent.
-func (s *Allocation) SetSpent(val int64) {
-	s.Spent = val
-}
-
-// SetRemaining sets the value of Remaining.
-func (s *Allocation) SetRemaining(val int64) {
-	s.Remaining = val
-}
-
 type BearerAuth struct {
 	Token string
 	Roles []string
@@ -192,30 +94,79 @@ type CreateTransactionBadRequest struct{}
 
 func (*CreateTransactionBadRequest) createTransactionRes() {}
 
-// Ref: #/components/schemas/Envelope
-type Envelope struct {
-	ID   uuid.UUID `json:"id"`
-	Name string    `json:"name"`
+// Ref: #/components/schemas/EnvelopeSummary
+type EnvelopeSummary struct {
+	UserId uuid.UUID `json:"userId"`
+	// The ID of the budget bucket.
+	EnvelopeId uuid.UUID `json:"envelopeId"`
+	// The name of the budget bucket (e.g., 'groceries').
+	Envelope string `json:"envelope"`
+	// Total funding allocated to this envelope in cents.
+	Amount int64 `json:"amount"`
+	// Total amount spent from this envelope in cents.
+	Spent int64 `json:"spent"`
+	// Current balance of the envelope in cents.
+	Remaining int64 `json:"remaining"`
 }
 
-// GetID returns the value of ID.
-func (s *Envelope) GetID() uuid.UUID {
-	return s.ID
+// GetUserId returns the value of UserId.
+func (s *EnvelopeSummary) GetUserId() uuid.UUID {
+	return s.UserId
 }
 
-// GetName returns the value of Name.
-func (s *Envelope) GetName() string {
-	return s.Name
+// GetEnvelopeId returns the value of EnvelopeId.
+func (s *EnvelopeSummary) GetEnvelopeId() uuid.UUID {
+	return s.EnvelopeId
 }
 
-// SetID sets the value of ID.
-func (s *Envelope) SetID(val uuid.UUID) {
-	s.ID = val
+// GetEnvelope returns the value of Envelope.
+func (s *EnvelopeSummary) GetEnvelope() string {
+	return s.Envelope
 }
 
-// SetName sets the value of Name.
-func (s *Envelope) SetName(val string) {
-	s.Name = val
+// GetAmount returns the value of Amount.
+func (s *EnvelopeSummary) GetAmount() int64 {
+	return s.Amount
+}
+
+// GetSpent returns the value of Spent.
+func (s *EnvelopeSummary) GetSpent() int64 {
+	return s.Spent
+}
+
+// GetRemaining returns the value of Remaining.
+func (s *EnvelopeSummary) GetRemaining() int64 {
+	return s.Remaining
+}
+
+// SetUserId sets the value of UserId.
+func (s *EnvelopeSummary) SetUserId(val uuid.UUID) {
+	s.UserId = val
+}
+
+// SetEnvelopeId sets the value of EnvelopeId.
+func (s *EnvelopeSummary) SetEnvelopeId(val uuid.UUID) {
+	s.EnvelopeId = val
+}
+
+// SetEnvelope sets the value of Envelope.
+func (s *EnvelopeSummary) SetEnvelope(val string) {
+	s.Envelope = val
+}
+
+// SetAmount sets the value of Amount.
+func (s *EnvelopeSummary) SetAmount(val int64) {
+	s.Amount = val
+}
+
+// SetSpent sets the value of Spent.
+func (s *EnvelopeSummary) SetSpent(val int64) {
+	s.Spent = val
+}
+
+// SetRemaining sets the value of Remaining.
+func (s *EnvelopeSummary) SetRemaining(val int64) {
+	s.Remaining = val
 }
 
 // Ref: #/components/schemas/Error
@@ -431,7 +382,8 @@ type Period struct {
 	// Total spendings for the period in currency cents.
 	TotalSpent int64 `json:"totalSpent"`
 	// Projected balance at the end of the period in currency cents.
-	ProjectedEndingBalance OptInt64 `json:"projectedEndingBalance"`
+	ProjectedEndingBalance OptInt64          `json:"projectedEndingBalance"`
+	EnvelopeSummaries      []EnvelopeSummary `json:"envelopeSummaries"`
 }
 
 // GetID returns the value of ID.
@@ -474,6 +426,11 @@ func (s *Period) GetProjectedEndingBalance() OptInt64 {
 	return s.ProjectedEndingBalance
 }
 
+// GetEnvelopeSummaries returns the value of EnvelopeSummaries.
+func (s *Period) GetEnvelopeSummaries() []EnvelopeSummary {
+	return s.EnvelopeSummaries
+}
+
 // SetID sets the value of ID.
 func (s *Period) SetID(val uuid.UUID) {
 	s.ID = val
@@ -514,7 +471,60 @@ func (s *Period) SetProjectedEndingBalance(val OptInt64) {
 	s.ProjectedEndingBalance = val
 }
 
+// SetEnvelopeSummaries sets the value of EnvelopeSummaries.
+func (s *Period) SetEnvelopeSummaries(val []EnvelopeSummary) {
+	s.EnvelopeSummaries = val
+}
+
 func (*Period) getPeriodRes() {}
+
+// Ref: #/components/schemas/PeriodListItem
+type PeriodListItem struct {
+	ID        uuid.UUID `json:"id"`
+	StartDate time.Time `json:"startDate"`
+	EndDate   time.Time `json:"endDate"`
+	IsActive  bool      `json:"isActive"`
+}
+
+// GetID returns the value of ID.
+func (s *PeriodListItem) GetID() uuid.UUID {
+	return s.ID
+}
+
+// GetStartDate returns the value of StartDate.
+func (s *PeriodListItem) GetStartDate() time.Time {
+	return s.StartDate
+}
+
+// GetEndDate returns the value of EndDate.
+func (s *PeriodListItem) GetEndDate() time.Time {
+	return s.EndDate
+}
+
+// GetIsActive returns the value of IsActive.
+func (s *PeriodListItem) GetIsActive() bool {
+	return s.IsActive
+}
+
+// SetID sets the value of ID.
+func (s *PeriodListItem) SetID(val uuid.UUID) {
+	s.ID = val
+}
+
+// SetStartDate sets the value of StartDate.
+func (s *PeriodListItem) SetStartDate(val time.Time) {
+	s.StartDate = val
+}
+
+// SetEndDate sets the value of EndDate.
+func (s *PeriodListItem) SetEndDate(val time.Time) {
+	s.EndDate = val
+}
+
+// SetIsActive sets the value of IsActive.
+func (s *PeriodListItem) SetIsActive(val bool) {
+	s.IsActive = val
+}
 
 // Ref: #/components/schemas/Transaction
 type Transaction struct {

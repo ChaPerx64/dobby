@@ -39,8 +39,6 @@ var operationRolesBearerAuth = map[string][]string{
 	GetCurrentUserOperation:    []string{},
 	GetPeriodOperation:         []string{},
 	GetTransactionOperation:    []string{},
-	ListAllocationsOperation:   []string{},
-	ListEnvelopesOperation:     []string{},
 	ListPeriodsOperation:       []string{},
 	ListTransactionsOperation:  []string{},
 	ListUsersOperation:         []string{},
