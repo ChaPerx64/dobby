@@ -21,12 +21,9 @@ func (h dobbyHandler) GetCurrentUser(ctx context.Context) (*oas.User, error) {
 
 	if ok {
 		log.Printf("Authenticated User ID: %s\n", idStr)
-		// Attempt to parse ZITADEL subject as UUID if possible, 
-		// otherwise keep mock UUID for schema compatibility but note the real ID
 		if parsed, err := uuid.Parse(idStr); err == nil {
 			userID = parsed
 		}
-		// In a real app, we'd fetch the user's display name from ZITADEL or our DB
 		userName = "Authenticated User"
 	}
 
@@ -39,56 +36,48 @@ func (h dobbyHandler) GetCurrentUser(ctx context.Context) (*oas.User, error) {
 
 func (h dobbyHandler) GetCurrentPeriod(ctx context.Context) (*oas.Period, error) {
 	log.Println("Got a request @/periods/current")
-	// For now, mock the response since service layer is not fully ready for the new schema
-	// financialPeriod, err := service.DobbyFinancierService{}.GetCurrentPeriod()
+	
+	groceriesID := uuid.MustParse("22222222-2222-2222-2222-222222222201")
+	pocketChaianID := uuid.MustParse("22222222-2222-2222-2222-222222222202")
+	userID := uuid.MustParse("00000000-0000-0000-0000-000000000001")
 
 	return &oas.Period{
-		ID:                     uuid.MustParse("11111111-1111-1111-1111-111111111111"),
-		StartDate:              time.Now().AddDate(0, 0, -5),
-		EndDate:                time.Now().AddDate(0, 1, -5),
-		IsActive:               true,
-		TotalBudget:            12000000,
-		TotalSpent:             2300000,
-		TotalRemaining:         9700000,
-		ProjectedEndingBalance: oas.NewOptInt64(-300000), // Optional field
+		ID:             uuid.MustParse("11111111-1111-1111-1111-111111111111"),
+		StartDate:      time.Now().AddDate(0, 0, -5),
+		EndDate:        time.Now().AddDate(0, 1, -5),
+		IsActive:       true,
+		TotalBudget:    12000000,
+		TotalSpent:     2300000,
+		TotalRemaining: 9700000,
+		ProjectedEndingBalance: oas.NewOptInt64(-300000),
+		EnvelopeSummaries: []oas.EnvelopeSummary{
+			{
+				UserId:     userID,
+				EnvelopeId: groceriesID,
+				Envelope:   "Groceries",
+				Amount:     5000000,
+				Spent:      1200000,
+				Remaining:  3800000,
+			},
+			{
+				UserId:     userID,
+				EnvelopeId: pocketChaianID,
+				Envelope:   "Chaian's pocket money",
+				Amount:     3500000,
+				Spent:      800000,
+				Remaining:  2700000,
+			},
+		},
 	}, nil
 }
 
-func (h dobbyHandler) ListAllocations(ctx context.Context, params oas.ListAllocationsParams) ([]oas.Allocation, error) {
-	log.Println("Got a request @/allocations")
+func (h dobbyHandler) GetPeriod(ctx context.Context, params oas.GetPeriodParams) (oas.GetPeriodRes, error) {
+	log.Printf("Got a request @/periods/%s\n", params.PeriodId)
 	
-	// Mock Envelopes
-	groceriesID := uuid.MustParse("22222222-2222-2222-2222-222222222201")
-	pocketChaianID := uuid.MustParse("22222222-2222-2222-2222-222222222202")
-	
-	periodID := params.PeriodId
-	userID := uuid.MustParse("00000000-0000-0000-0000-000000000001")
-	if params.UserId.IsSet() {
-		userID = params.UserId.Value
-	}
-
-	return []oas.Allocation{
-		{
-			ID:         uuid.New(),
-			PeriodId:   periodID,
-			UserId:     userID,
-			EnvelopeId: groceriesID,
-			Envelope:   "Groceries",
-			Amount:     5000000,
-			Spent:      1200000,
-			Remaining:  3800000,
-		},
-		{
-			ID:         uuid.New(),
-			PeriodId:   periodID,
-			UserId:     userID,
-			EnvelopeId: pocketChaianID,
-			Envelope:   "Chaian's pocket money",
-			Amount:     3500000,
-			Spent:      800000,
-			Remaining:  2700000,
-		},
-	}, nil
+	// For now, return the current period mock for any ID
+	p, _ := h.GetCurrentPeriod(ctx)
+	p.ID = params.PeriodId
+	return p, nil
 }
 
 func (h dobbyHandler) ListEnvelopes(ctx context.Context) ([]oas.Envelope, error) {
@@ -109,11 +98,17 @@ func (h dobbyHandler) ListEnvelopes(ctx context.Context) ([]oas.Envelope, error)
 	}, nil
 }
 
-// Stub other methods (optional, as UnimplementedHandler handles them, but explicit logging is nice)
-func (h dobbyHandler) ListPeriods(ctx context.Context) ([]oas.Period, error) {
+func (h dobbyHandler) ListPeriods(ctx context.Context) ([]oas.PeriodListItem, error) {
 	log.Println("Got a request @/periods")
 	p, _ := h.GetCurrentPeriod(ctx)
-	return []oas.Period{*p}, nil
+	return []oas.PeriodListItem{
+		{
+			ID:        p.ID,
+			StartDate: p.StartDate,
+			EndDate:   p.EndDate,
+			IsActive:  p.IsActive,
+		},
+	}, nil
 }
 
 func (h dobbyHandler) NewError(ctx context.Context, err error) *oas.ErrorStatusCode {

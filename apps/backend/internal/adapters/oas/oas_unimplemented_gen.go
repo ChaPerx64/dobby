@@ -58,30 +58,12 @@ func (UnimplementedHandler) GetTransaction(ctx context.Context, params GetTransa
 	return r, ht.ErrNotImplemented
 }
 
-// ListAllocations implements listAllocations operation.
-//
-// Get allocations for a period (and optional user).
-//
-// GET /allocations
-func (UnimplementedHandler) ListAllocations(ctx context.Context, params ListAllocationsParams) (r []Allocation, _ error) {
-	return r, ht.ErrNotImplemented
-}
-
-// ListEnvelopes implements listEnvelopes operation.
-//
-// List all envelopes.
-//
-// GET /envelopes
-func (UnimplementedHandler) ListEnvelopes(ctx context.Context) (r []Envelope, _ error) {
-	return r, ht.ErrNotImplemented
-}
-
 // ListPeriods implements listPeriods operation.
 //
 // List all financial periods.
 //
 // GET /periods
-func (UnimplementedHandler) ListPeriods(ctx context.Context) (r []Period, _ error) {
+func (UnimplementedHandler) ListPeriods(ctx context.Context) (r []PeriodListItem, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
