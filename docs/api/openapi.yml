@@ -58,65 +58,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /allocations:
-    get:
-      summary: Get allocations for a period (and optional user)
-      operationId: listAllocations
-      tags:
-        - Allocations
-      parameters:
-        - name: periodId
-          in: query
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: The financial period to inspect
-        - name: userId
-          in: query
-          required: false
-          schema:
-            type: string
-            format: uuid
-          description: Filter by specific user (defaults to all users if omitted)
-      responses:
-        '200':
-          description: List of allocations
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Allocation'
-        default:
-          description: Error response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-
-  /envelopes:
-    get:
-      summary: List all envelopes
-      operationId: listEnvelopes
-      tags:
-        - Envelopes
-      responses:
-        '200':
-          description: List of envelopes
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Envelope'
-        default:
-          description: Error response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-
   /periods:
     get:
       summary: List all financial periods
@@ -131,7 +72,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Period'
+                  $ref: '#/components/schemas/PeriodListItem'
         default:
           description: Error response
           content:
@@ -313,6 +254,26 @@ components:
         - id
         - name
 
+    PeriodListItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        isActive:
+          type: boolean
+      required:
+        - id
+        - startDate
+        - endDate
+        - isActive
+
     Period:
       type: object
       properties:
@@ -347,6 +308,10 @@ components:
           format: int64
           description: Projected balance at the end of the period in currency cents
           example: -30000
+        envelopeSummaries:
+          type: array
+          items:
+            $ref: '#/components/schemas/EnvelopeSummary'
       required:
         - id
         - startDate
@@ -355,17 +320,11 @@ components:
         - totalBudget
         - totalRemaining
         - totalSpent
+        - envelopeSummaries
 
-    Allocation:
+    EnvelopeSummary:
       type: object
       properties:
-        id:
-          type: string
-          format: uuid
-          description: A virtual ID for the envelope summary
-        periodId:
-          type: string
-          format: uuid
         userId:
           type: string
           format: uuid
@@ -393,8 +352,6 @@ components:
           description: Current balance of the envelope in cents
           example: 2500000
       required:
-        - id
-        - periodId
         - userId
         - envelopeId
         - envelope

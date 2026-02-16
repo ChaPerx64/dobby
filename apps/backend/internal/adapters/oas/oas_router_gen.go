@@ -61,46 +61,6 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				break
 			}
 			switch elem[0] {
-			case 'a': // Prefix: "allocations"
-
-				if l := len("allocations"); len(elem) >= l && elem[0:l] == "allocations" {
-					elem = elem[l:]
-				} else {
-					break
-				}
-
-				if len(elem) == 0 {
-					// Leaf node.
-					switch r.Method {
-					case "GET":
-						s.handleListAllocationsRequest([0]string{}, elemIsEscaped, w, r)
-					default:
-						s.notAllowed(w, r, "GET")
-					}
-
-					return
-				}
-
-			case 'e': // Prefix: "envelopes"
-
-				if l := len("envelopes"); len(elem) >= l && elem[0:l] == "envelopes" {
-					elem = elem[l:]
-				} else {
-					break
-				}
-
-				if len(elem) == 0 {
-					// Leaf node.
-					switch r.Method {
-					case "GET":
-						s.handleListEnvelopesRequest([0]string{}, elemIsEscaped, w, r)
-					default:
-						s.notAllowed(w, r, "GET")
-					}
-
-					return
-				}
-
 			case 'm': // Prefix: "me"
 
 				if l := len("me"); len(elem) >= l && elem[0:l] == "me" {
@@ -373,56 +333,6 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 				break
 			}
 			switch elem[0] {
-			case 'a': // Prefix: "allocations"
-
-				if l := len("allocations"); len(elem) >= l && elem[0:l] == "allocations" {
-					elem = elem[l:]
-				} else {
-					break
-				}
-
-				if len(elem) == 0 {
-					// Leaf node.
-					switch method {
-					case "GET":
-						r.name = ListAllocationsOperation
-						r.summary = "Get allocations for a period (and optional user)"
-						r.operationID = "listAllocations"
-						r.operationGroup = ""
-						r.pathPattern = "/allocations"
-						r.args = args
-						r.count = 0
-						return r, true
-					default:
-						return
-					}
-				}
-
-			case 'e': // Prefix: "envelopes"
-
-				if l := len("envelopes"); len(elem) >= l && elem[0:l] == "envelopes" {
-					elem = elem[l:]
-				} else {
-					break
-				}
-
-				if len(elem) == 0 {
-					// Leaf node.
-					switch method {
-					case "GET":
-						r.name = ListEnvelopesOperation
-						r.summary = "List all envelopes"
-						r.operationID = "listEnvelopes"
-						r.operationGroup = ""
-						r.pathPattern = "/envelopes"
-						r.args = args
-						r.count = 0
-						return r, true
-					default:
-						return
-					}
-				}
-
 			case 'm': // Prefix: "me"
 
 				if l := len("me"); len(elem) >= l && elem[0:l] == "me" {

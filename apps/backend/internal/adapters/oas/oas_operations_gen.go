@@ -11,8 +11,6 @@ const (
 	GetCurrentUserOperation    OperationName = "GetCurrentUser"
 	GetPeriodOperation         OperationName = "GetPeriod"
 	GetTransactionOperation    OperationName = "GetTransaction"
-	ListAllocationsOperation   OperationName = "ListAllocations"
-	ListEnvelopesOperation     OperationName = "ListEnvelopes"
 	ListPeriodsOperation       OperationName = "ListPeriods"
 	ListTransactionsOperation  OperationName = "ListTransactions"
 	ListUsersOperation         OperationName = "ListUsers"

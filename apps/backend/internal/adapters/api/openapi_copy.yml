@@ -1,0 +1,430 @@
+openapi: 3.0.3
+info:
+  title: Dobby API
+  description: |
+    Household management service API for managing finances and allocations.
+
+    **Note on Money Amounts:** All monetary values in this API are represented as integers in currency cents (1/100 of a unit).
+    The API is agnostic to the specific currency - it works with any currency by using cents as the base unit.
+    For example, 2500000 represents 25,000.00 in your chosen currency.
+  version: 1.0.0
+
+servers:
+  - url: /
+
+security:
+  - bearerAuth: []
+
+paths:
+  /users:
+    get:
+      summary: List all household users
+      operationId: listUsers
+      tags:
+        - Users
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /me:
+    get:
+      summary: Get current authenticated user
+      operationId: getCurrentUser
+      tags:
+        - Users
+      responses:
+        '200':
+          description: Current user details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /periods:
+    get:
+      summary: List all financial periods
+      operationId: listPeriods
+      tags:
+        - Periods
+      responses:
+        '200':
+          description: List of periods
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PeriodListItem'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /periods/current:
+    get:
+      summary: Get current active period
+      operationId: getCurrentPeriod
+      tags:
+        - Periods
+      responses:
+        '200':
+          description: Current period
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Period'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /periods/{periodId}:
+    get:
+      summary: Get period by ID
+      operationId: getPeriod
+      tags:
+        - Periods
+      parameters:
+        - name: periodId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Period details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Period'
+        '404':
+          description: Period not found
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /transactions:
+    get:
+      summary: List transactions
+      operationId: listTransactions
+      tags:
+        - Transactions
+      parameters:
+        - name: periodId
+          in: query
+          schema:
+            type: string
+            format: uuid
+          description: Filter by period
+      responses:
+        '200':
+          description: List of transactions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Transaction'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Create a new transaction
+      operationId: createTransaction
+      tags:
+        - Transactions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTransaction'
+      responses:
+        '201':
+          description: Transaction created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        '400':
+          description: Invalid request
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /transactions/{transactionId}:
+    get:
+      summary: Get transaction by ID
+      operationId: getTransaction
+      tags:
+        - Transactions
+      parameters:
+        - name: transactionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Transaction details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        '404':
+          description: Transaction not found
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: OIDC JWT token
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: TheMan
+        currentBalance:
+          type: integer
+          format: int64
+          description: Remaining balance for current period in currency cents
+          example: 2500000
+      required:
+        - id
+        - name
+        - currentBalance
+
+    Envelope:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: Groceries
+      required:
+        - id
+        - name
+
+    PeriodListItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        isActive:
+          type: boolean
+      required:
+        - id
+        - startDate
+        - endDate
+        - isActive
+
+    Period:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        isActive:
+          type: boolean
+        totalBudget:
+          type: integer
+          format: int64
+          description: Total household budget in currency cents
+          example: 600000
+        totalRemaining:
+          type: integer
+          format: int64
+          description: Last known remaining balance in currency cents
+          example: 19920
+        totalSpent:
+          type: integer
+          format: int64
+          description: Total spendings for the period in currency cents
+          example: 580080
+        projectedEndingBalance:
+          type: integer
+          format: int64
+          description: Projected balance at the end of the period in currency cents
+          example: -30000
+        envelopeSummaries:
+          type: array
+          items:
+            $ref: '#/components/schemas/EnvelopeSummary'
+      required:
+        - id
+        - startDate
+        - endDate
+        - isActive
+        - totalBudget
+        - totalRemaining
+        - totalSpent
+        - envelopeSummaries
+
+    EnvelopeSummary:
+      type: object
+      properties:
+        userId:
+          type: string
+          format: uuid
+        envelopeId:
+          type: string
+          format: uuid
+          description: The ID of the budget bucket
+        envelope:
+          type: string
+          description: The name of the budget bucket (e.g., 'groceries')
+          example: groceries
+        amount:
+          type: integer
+          format: int64
+          description: Total funding allocated to this envelope in cents
+          example: 3000000
+        spent:
+          type: integer
+          format: int64
+          description: Total amount spent from this envelope in cents
+          example: 500000
+        remaining:
+          type: integer
+          format: int64
+          description: Current balance of the envelope in cents
+          example: 2500000
+      required:
+        - userId
+        - envelopeId
+        - envelope
+        - amount
+        - spent
+        - remaining
+
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        periodId:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        envelopeId:
+          type: string
+          format: uuid
+          description: The budget bucket this transaction belongs to
+        amount:
+          type: integer
+          format: int64
+          description: Transaction amount in currency cents. Positive for income/funding, negative for expenses.
+          example: -150000
+        description:
+          type: string
+          example: Weekly groceries
+        date:
+          type: string
+          format: date-time
+        category:
+          type: string
+          description: Analytics tag (what was bought)
+          example: food
+      required:
+        - id
+        - periodId
+        - userId
+        - envelopeId
+        - amount
+        - date
+
+    CreateTransaction:
+      type: object
+      properties:
+        envelopeId:
+          type: string
+          format: uuid
+          description: The budget bucket this transaction belongs to
+        amount:
+          type: integer
+          format: int64
+          description: Transaction amount in currency cents. Use negative values for expenses.
+        description:
+          type: string
+        category:
+          type: string
+          description: Analytics tag (what was bought)
+      required:
+        - envelopeId
+        - amount
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+      required:
+        - code
+        - message

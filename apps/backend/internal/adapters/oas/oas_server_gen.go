@@ -38,24 +38,12 @@ type Handler interface {
 	//
 	// GET /transactions/{transactionId}
 	GetTransaction(ctx context.Context, params GetTransactionParams) (GetTransactionRes, error)
-	// ListAllocations implements listAllocations operation.
-	//
-	// Get allocations for a period (and optional user).
-	//
-	// GET /allocations
-	ListAllocations(ctx context.Context, params ListAllocationsParams) ([]Allocation, error)
-	// ListEnvelopes implements listEnvelopes operation.
-	//
-	// List all envelopes.
-	//
-	// GET /envelopes
-	ListEnvelopes(ctx context.Context) ([]Envelope, error)
 	// ListPeriods implements listPeriods operation.
 	//
 	// List all financial periods.
 	//
 	// GET /periods
-	ListPeriods(ctx context.Context) ([]Period, error)
+	ListPeriods(ctx context.Context) ([]PeriodListItem, error)
 	// ListTransactions implements listTransactions operation.
 	//
 	// List transactions.

@@ -7,7 +7,7 @@ import (
 	"github.com/swaggest/swgui/v5emb"
 )
 
-//go:embed docs/openapi.yml
+//go:embed openapi_copy.yml
 var openapiSpec []byte
 
 func SwaggerUIHandler() http.Handler {

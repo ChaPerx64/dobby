@@ -16,10 +16,11 @@ PostgreSQL (v17) is used for persistence.
 ### DB schema principles
 
 - Schema should be at least 3NF normal.
-- Database should generate NO data. Including, but not limiting to:
+- Database should generate NO data. Including, but not limited to:
   - No ID generation
   - No timestamp generation
   - No default values
+- Database is used for persistence and atomicity, so its schema should align closely with Service-level models
 
 ### Migrations
 
@@ -27,6 +28,8 @@ Schema migrations are managed by DBMate, running in Docker as a part of `docker-
 DBMate must not be installed as a local tooling/dependency, but be called in/from Docker container.
 
 Migrations MUST be in SQL, be idempotent and contain up and down directions.
+
+Migration files can be found in ./apps/db/migrations/
 
 Filename should adhere to this format: `YYYY-MM-DD_HH-MM_<short-description>.sql`
 
