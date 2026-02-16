@@ -6,12 +6,22 @@ package oas
 type OperationName = string
 
 const (
+	CreateEnvelopeOperation    OperationName = "CreateEnvelope"
+	CreatePeriodOperation      OperationName = "CreatePeriod"
 	CreateTransactionOperation OperationName = "CreateTransaction"
+	DeleteEnvelopeOperation    OperationName = "DeleteEnvelope"
+	DeletePeriodOperation      OperationName = "DeletePeriod"
+	DeleteTransactionOperation OperationName = "DeleteTransaction"
 	GetCurrentPeriodOperation  OperationName = "GetCurrentPeriod"
 	GetCurrentUserOperation    OperationName = "GetCurrentUser"
+	GetEnvelopeOperation       OperationName = "GetEnvelope"
 	GetPeriodOperation         OperationName = "GetPeriod"
 	GetTransactionOperation    OperationName = "GetTransaction"
+	ListEnvelopesOperation     OperationName = "ListEnvelopes"
 	ListPeriodsOperation       OperationName = "ListPeriods"
 	ListTransactionsOperation  OperationName = "ListTransactions"
 	ListUsersOperation         OperationName = "ListUsers"
+	UpdateEnvelopeOperation    OperationName = "UpdateEnvelope"
+	UpdatePeriodOperation      OperationName = "UpdatePeriod"
+	UpdateTransactionOperation OperationName = "UpdateTransaction"
 )

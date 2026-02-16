@@ -8,12 +8,42 @@ import (
 
 // Handler handles operations described by OpenAPI v3 specification.
 type Handler interface {
+	// CreateEnvelope implements createEnvelope operation.
+	//
+	// Create a new envelope.
+	//
+	// POST /envelopes
+	CreateEnvelope(ctx context.Context, req *CreateEnvelope) (*Envelope, error)
+	// CreatePeriod implements createPeriod operation.
+	//
+	// Create a new financial period.
+	//
+	// POST /periods
+	CreatePeriod(ctx context.Context, req *CreatePeriod) (*Period, error)
 	// CreateTransaction implements createTransaction operation.
 	//
 	// Create a new transaction.
 	//
 	// POST /transactions
 	CreateTransaction(ctx context.Context, req *CreateTransaction) (CreateTransactionRes, error)
+	// DeleteEnvelope implements deleteEnvelope operation.
+	//
+	// Delete an envelope.
+	//
+	// DELETE /envelopes/{envelopeId}
+	DeleteEnvelope(ctx context.Context, params DeleteEnvelopeParams) (DeleteEnvelopeRes, error)
+	// DeletePeriod implements deletePeriod operation.
+	//
+	// Delete a period.
+	//
+	// DELETE /periods/{periodId}
+	DeletePeriod(ctx context.Context, params DeletePeriodParams) (DeletePeriodRes, error)
+	// DeleteTransaction implements deleteTransaction operation.
+	//
+	// Delete a transaction.
+	//
+	// DELETE /transactions/{transactionId}
+	DeleteTransaction(ctx context.Context, params DeleteTransactionParams) (DeleteTransactionRes, error)
 	// GetCurrentPeriod implements getCurrentPeriod operation.
 	//
 	// Get current active period.
@@ -26,6 +56,12 @@ type Handler interface {
 	//
 	// GET /me
 	GetCurrentUser(ctx context.Context) (*User, error)
+	// GetEnvelope implements getEnvelope operation.
+	//
+	// Get envelope by ID.
+	//
+	// GET /envelopes/{envelopeId}
+	GetEnvelope(ctx context.Context, params GetEnvelopeParams) (GetEnvelopeRes, error)
 	// GetPeriod implements getPeriod operation.
 	//
 	// Get period by ID.
@@ -38,6 +74,12 @@ type Handler interface {
 	//
 	// GET /transactions/{transactionId}
 	GetTransaction(ctx context.Context, params GetTransactionParams) (GetTransactionRes, error)
+	// ListEnvelopes implements listEnvelopes operation.
+	//
+	// List all envelopes.
+	//
+	// GET /envelopes
+	ListEnvelopes(ctx context.Context) ([]Envelope, error)
 	// ListPeriods implements listPeriods operation.
 	//
 	// List all financial periods.
@@ -56,6 +98,24 @@ type Handler interface {
 	//
 	// GET /users
 	ListUsers(ctx context.Context) ([]User, error)
+	// UpdateEnvelope implements updateEnvelope operation.
+	//
+	// Update an envelope.
+	//
+	// PATCH /envelopes/{envelopeId}
+	UpdateEnvelope(ctx context.Context, req *UpdateEnvelope, params UpdateEnvelopeParams) (UpdateEnvelopeRes, error)
+	// UpdatePeriod implements updatePeriod operation.
+	//
+	// Update a period.
+	//
+	// PATCH /periods/{periodId}
+	UpdatePeriod(ctx context.Context, req *UpdatePeriod, params UpdatePeriodParams) (UpdatePeriodRes, error)
+	// UpdateTransaction implements updateTransaction operation.
+	//
+	// Update a transaction.
+	//
+	// PATCH /transactions/{transactionId}
+	UpdateTransaction(ctx context.Context, req *UpdateTransaction, params UpdateTransactionParams) (UpdateTransactionRes, error)
 	// NewError creates *ErrorStatusCode from error returned by handler.
 	//
 	// Used for common default response.

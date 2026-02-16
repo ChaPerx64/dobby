@@ -13,12 +13,57 @@ type UnimplementedHandler struct{}
 
 var _ Handler = UnimplementedHandler{}
 
+// CreateEnvelope implements createEnvelope operation.
+//
+// Create a new envelope.
+//
+// POST /envelopes
+func (UnimplementedHandler) CreateEnvelope(ctx context.Context, req *CreateEnvelope) (r *Envelope, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// CreatePeriod implements createPeriod operation.
+//
+// Create a new financial period.
+//
+// POST /periods
+func (UnimplementedHandler) CreatePeriod(ctx context.Context, req *CreatePeriod) (r *Period, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // CreateTransaction implements createTransaction operation.
 //
 // Create a new transaction.
 //
 // POST /transactions
 func (UnimplementedHandler) CreateTransaction(ctx context.Context, req *CreateTransaction) (r CreateTransactionRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// DeleteEnvelope implements deleteEnvelope operation.
+//
+// Delete an envelope.
+//
+// DELETE /envelopes/{envelopeId}
+func (UnimplementedHandler) DeleteEnvelope(ctx context.Context, params DeleteEnvelopeParams) (r DeleteEnvelopeRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// DeletePeriod implements deletePeriod operation.
+//
+// Delete a period.
+//
+// DELETE /periods/{periodId}
+func (UnimplementedHandler) DeletePeriod(ctx context.Context, params DeletePeriodParams) (r DeletePeriodRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// DeleteTransaction implements deleteTransaction operation.
+//
+// Delete a transaction.
+//
+// DELETE /transactions/{transactionId}
+func (UnimplementedHandler) DeleteTransaction(ctx context.Context, params DeleteTransactionParams) (r DeleteTransactionRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -40,6 +85,15 @@ func (UnimplementedHandler) GetCurrentUser(ctx context.Context) (r *User, _ erro
 	return r, ht.ErrNotImplemented
 }
 
+// GetEnvelope implements getEnvelope operation.
+//
+// Get envelope by ID.
+//
+// GET /envelopes/{envelopeId}
+func (UnimplementedHandler) GetEnvelope(ctx context.Context, params GetEnvelopeParams) (r GetEnvelopeRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // GetPeriod implements getPeriod operation.
 //
 // Get period by ID.
@@ -55,6 +109,15 @@ func (UnimplementedHandler) GetPeriod(ctx context.Context, params GetPeriodParam
 //
 // GET /transactions/{transactionId}
 func (UnimplementedHandler) GetTransaction(ctx context.Context, params GetTransactionParams) (r GetTransactionRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// ListEnvelopes implements listEnvelopes operation.
+//
+// List all envelopes.
+//
+// GET /envelopes
+func (UnimplementedHandler) ListEnvelopes(ctx context.Context) (r []Envelope, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -82,6 +145,33 @@ func (UnimplementedHandler) ListTransactions(ctx context.Context, params ListTra
 //
 // GET /users
 func (UnimplementedHandler) ListUsers(ctx context.Context) (r []User, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// UpdateEnvelope implements updateEnvelope operation.
+//
+// Update an envelope.
+//
+// PATCH /envelopes/{envelopeId}
+func (UnimplementedHandler) UpdateEnvelope(ctx context.Context, req *UpdateEnvelope, params UpdateEnvelopeParams) (r UpdateEnvelopeRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// UpdatePeriod implements updatePeriod operation.
+//
+// Update a period.
+//
+// PATCH /periods/{periodId}
+func (UnimplementedHandler) UpdatePeriod(ctx context.Context, req *UpdatePeriod, params UpdatePeriodParams) (r UpdatePeriodRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// UpdateTransaction implements updateTransaction operation.
+//
+// Update a transaction.
+//
+// PATCH /transactions/{transactionId}
+func (UnimplementedHandler) UpdateTransaction(ctx context.Context, req *UpdateTransaction, params UpdateTransactionParams) (r UpdateTransactionRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

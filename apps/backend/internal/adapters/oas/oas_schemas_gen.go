@@ -38,13 +38,66 @@ func (s *BearerAuth) SetRoles(val []string) {
 	s.Roles = val
 }
 
+// Ref: #/components/schemas/CreateEnvelope
+type CreateEnvelope struct {
+	Name string `json:"name"`
+}
+
+// GetName returns the value of Name.
+func (s *CreateEnvelope) GetName() string {
+	return s.Name
+}
+
+// SetName sets the value of Name.
+func (s *CreateEnvelope) SetName(val string) {
+	s.Name = val
+}
+
+// Ref: #/components/schemas/CreatePeriod
+type CreatePeriod struct {
+	StartDate   time.Time `json:"startDate"`
+	EndDate     time.Time `json:"endDate"`
+	TotalBudget int64     `json:"totalBudget"`
+}
+
+// GetStartDate returns the value of StartDate.
+func (s *CreatePeriod) GetStartDate() time.Time {
+	return s.StartDate
+}
+
+// GetEndDate returns the value of EndDate.
+func (s *CreatePeriod) GetEndDate() time.Time {
+	return s.EndDate
+}
+
+// GetTotalBudget returns the value of TotalBudget.
+func (s *CreatePeriod) GetTotalBudget() int64 {
+	return s.TotalBudget
+}
+
+// SetStartDate sets the value of StartDate.
+func (s *CreatePeriod) SetStartDate(val time.Time) {
+	s.StartDate = val
+}
+
+// SetEndDate sets the value of EndDate.
+func (s *CreatePeriod) SetEndDate(val time.Time) {
+	s.EndDate = val
+}
+
+// SetTotalBudget sets the value of TotalBudget.
+func (s *CreatePeriod) SetTotalBudget(val int64) {
+	s.TotalBudget = val
+}
+
 // Ref: #/components/schemas/CreateTransaction
 type CreateTransaction struct {
 	// The budget bucket this transaction belongs to.
 	EnvelopeId uuid.UUID `json:"envelopeId"`
 	// Transaction amount in currency cents. Use negative values for expenses.
-	Amount      int64     `json:"amount"`
-	Description OptString `json:"description"`
+	Amount      int64       `json:"amount"`
+	Description OptString   `json:"description"`
+	Date        OptDateTime `json:"date"`
 	// Analytics tag (what was bought).
 	Category OptString `json:"category"`
 }
@@ -62,6 +115,11 @@ func (s *CreateTransaction) GetAmount() int64 {
 // GetDescription returns the value of Description.
 func (s *CreateTransaction) GetDescription() OptString {
 	return s.Description
+}
+
+// GetDate returns the value of Date.
+func (s *CreateTransaction) GetDate() OptDateTime {
+	return s.Date
 }
 
 // GetCategory returns the value of Category.
@@ -84,6 +142,11 @@ func (s *CreateTransaction) SetDescription(val OptString) {
 	s.Description = val
 }
 
+// SetDate sets the value of Date.
+func (s *CreateTransaction) SetDate(val OptDateTime) {
+	s.Date = val
+}
+
 // SetCategory sets the value of Category.
 func (s *CreateTransaction) SetCategory(val OptString) {
 	s.Category = val
@@ -94,13 +157,71 @@ type CreateTransactionBadRequest struct{}
 
 func (*CreateTransactionBadRequest) createTransactionRes() {}
 
+// DeleteEnvelopeNoContent is response for DeleteEnvelope operation.
+type DeleteEnvelopeNoContent struct{}
+
+func (*DeleteEnvelopeNoContent) deleteEnvelopeRes() {}
+
+// DeleteEnvelopeNotFound is response for DeleteEnvelope operation.
+type DeleteEnvelopeNotFound struct{}
+
+func (*DeleteEnvelopeNotFound) deleteEnvelopeRes() {}
+
+// DeletePeriodNoContent is response for DeletePeriod operation.
+type DeletePeriodNoContent struct{}
+
+func (*DeletePeriodNoContent) deletePeriodRes() {}
+
+// DeletePeriodNotFound is response for DeletePeriod operation.
+type DeletePeriodNotFound struct{}
+
+func (*DeletePeriodNotFound) deletePeriodRes() {}
+
+// DeleteTransactionNoContent is response for DeleteTransaction operation.
+type DeleteTransactionNoContent struct{}
+
+func (*DeleteTransactionNoContent) deleteTransactionRes() {}
+
+// DeleteTransactionNotFound is response for DeleteTransaction operation.
+type DeleteTransactionNotFound struct{}
+
+func (*DeleteTransactionNotFound) deleteTransactionRes() {}
+
+// Ref: #/components/schemas/Envelope
+type Envelope struct {
+	ID   uuid.UUID `json:"id"`
+	Name string    `json:"name"`
+}
+
+// GetID returns the value of ID.
+func (s *Envelope) GetID() uuid.UUID {
+	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *Envelope) GetName() string {
+	return s.Name
+}
+
+// SetID sets the value of ID.
+func (s *Envelope) SetID(val uuid.UUID) {
+	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *Envelope) SetName(val string) {
+	s.Name = val
+}
+
+func (*Envelope) getEnvelopeRes()    {}
+func (*Envelope) updateEnvelopeRes() {}
+
 // Ref: #/components/schemas/EnvelopeSummary
 type EnvelopeSummary struct {
-	UserId uuid.UUID `json:"userId"`
 	// The ID of the budget bucket.
 	EnvelopeId uuid.UUID `json:"envelopeId"`
 	// The name of the budget bucket (e.g., 'groceries').
-	Envelope string `json:"envelope"`
+	EnvelopeName string `json:"envelopeName"`
 	// Total funding allocated to this envelope in cents.
 	Amount int64 `json:"amount"`
 	// Total amount spent from this envelope in cents.
@@ -109,19 +230,14 @@ type EnvelopeSummary struct {
 	Remaining int64 `json:"remaining"`
 }
 
-// GetUserId returns the value of UserId.
-func (s *EnvelopeSummary) GetUserId() uuid.UUID {
-	return s.UserId
-}
-
 // GetEnvelopeId returns the value of EnvelopeId.
 func (s *EnvelopeSummary) GetEnvelopeId() uuid.UUID {
 	return s.EnvelopeId
 }
 
-// GetEnvelope returns the value of Envelope.
-func (s *EnvelopeSummary) GetEnvelope() string {
-	return s.Envelope
+// GetEnvelopeName returns the value of EnvelopeName.
+func (s *EnvelopeSummary) GetEnvelopeName() string {
+	return s.EnvelopeName
 }
 
 // GetAmount returns the value of Amount.
@@ -139,19 +255,14 @@ func (s *EnvelopeSummary) GetRemaining() int64 {
 	return s.Remaining
 }
 
-// SetUserId sets the value of UserId.
-func (s *EnvelopeSummary) SetUserId(val uuid.UUID) {
-	s.UserId = val
-}
-
 // SetEnvelopeId sets the value of EnvelopeId.
 func (s *EnvelopeSummary) SetEnvelopeId(val uuid.UUID) {
 	s.EnvelopeId = val
 }
 
-// SetEnvelope sets the value of Envelope.
-func (s *EnvelopeSummary) SetEnvelope(val string) {
-	s.Envelope = val
+// SetEnvelopeName sets the value of EnvelopeName.
+func (s *EnvelopeSummary) SetEnvelopeName(val string) {
+	s.EnvelopeName = val
 }
 
 // SetAmount sets the value of Amount.
@@ -221,6 +332,11 @@ func (s *ErrorStatusCode) SetResponse(val Error) {
 	s.Response = val
 }
 
+// GetEnvelopeNotFound is response for GetEnvelope operation.
+type GetEnvelopeNotFound struct{}
+
+func (*GetEnvelopeNotFound) getEnvelopeRes() {}
+
 // GetPeriodNotFound is response for GetPeriod operation.
 type GetPeriodNotFound struct{}
 
@@ -230,6 +346,144 @@ func (*GetPeriodNotFound) getPeriodRes() {}
 type GetTransactionNotFound struct{}
 
 func (*GetTransactionNotFound) getTransactionRes() {}
+
+// NewOptBool returns new OptBool with value set to v.
+func NewOptBool(v bool) OptBool {
+	return OptBool{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptBool is optional bool.
+type OptBool struct {
+	Value bool
+	Set   bool
+}
+
+// IsSet returns true if OptBool was set.
+func (o OptBool) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptBool) Reset() {
+	var v bool
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptBool) SetTo(v bool) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptBool) Get() (v bool, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptBool) Or(d bool) bool {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptDate returns new OptDate with value set to v.
+func NewOptDate(v time.Time) OptDate {
+	return OptDate{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptDate is optional time.Time.
+type OptDate struct {
+	Value time.Time
+	Set   bool
+}
+
+// IsSet returns true if OptDate was set.
+func (o OptDate) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptDate) Reset() {
+	var v time.Time
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptDate) SetTo(v time.Time) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptDate) Get() (v time.Time, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptDate) Or(d time.Time) time.Time {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptDateTime returns new OptDateTime with value set to v.
+func NewOptDateTime(v time.Time) OptDateTime {
+	return OptDateTime{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptDateTime is optional time.Time.
+type OptDateTime struct {
+	Value time.Time
+	Set   bool
+}
+
+// IsSet returns true if OptDateTime was set.
+func (o OptDateTime) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptDateTime) Reset() {
+	var v time.Time
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptDateTime) SetTo(v time.Time) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptDateTime) Get() (v time.Time, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptDateTime) Or(d time.Time) time.Time {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
 
 // NewOptInt64 returns new OptInt64 with value set to v.
 func NewOptInt64(v int64) OptInt64 {
@@ -476,7 +730,8 @@ func (s *Period) SetEnvelopeSummaries(val []EnvelopeSummary) {
 	s.EnvelopeSummaries = val
 }
 
-func (*Period) getPeriodRes() {}
+func (*Period) getPeriodRes()    {}
+func (*Period) updatePeriodRes() {}
 
 // Ref: #/components/schemas/PeriodListItem
 type PeriodListItem struct {
@@ -530,7 +785,6 @@ func (s *PeriodListItem) SetIsActive(val bool) {
 type Transaction struct {
 	ID       uuid.UUID `json:"id"`
 	PeriodId uuid.UUID `json:"periodId"`
-	UserId   uuid.UUID `json:"userId"`
 	// The budget bucket this transaction belongs to.
 	EnvelopeId uuid.UUID `json:"envelopeId"`
 	// Transaction amount in currency cents. Positive for income/funding, negative for expenses.
@@ -549,11 +803,6 @@ func (s *Transaction) GetID() uuid.UUID {
 // GetPeriodId returns the value of PeriodId.
 func (s *Transaction) GetPeriodId() uuid.UUID {
 	return s.PeriodId
-}
-
-// GetUserId returns the value of UserId.
-func (s *Transaction) GetUserId() uuid.UUID {
-	return s.UserId
 }
 
 // GetEnvelopeId returns the value of EnvelopeId.
@@ -591,11 +840,6 @@ func (s *Transaction) SetPeriodId(val uuid.UUID) {
 	s.PeriodId = val
 }
 
-// SetUserId sets the value of UserId.
-func (s *Transaction) SetUserId(val uuid.UUID) {
-	s.UserId = val
-}
-
 // SetEnvelopeId sets the value of EnvelopeId.
 func (s *Transaction) SetEnvelopeId(val uuid.UUID) {
 	s.EnvelopeId = val
@@ -623,6 +867,144 @@ func (s *Transaction) SetCategory(val OptString) {
 
 func (*Transaction) createTransactionRes() {}
 func (*Transaction) getTransactionRes()    {}
+func (*Transaction) updateTransactionRes() {}
+
+// Ref: #/components/schemas/UpdateEnvelope
+type UpdateEnvelope struct {
+	Name OptString `json:"name"`
+}
+
+// GetName returns the value of Name.
+func (s *UpdateEnvelope) GetName() OptString {
+	return s.Name
+}
+
+// SetName sets the value of Name.
+func (s *UpdateEnvelope) SetName(val OptString) {
+	s.Name = val
+}
+
+// UpdateEnvelopeNotFound is response for UpdateEnvelope operation.
+type UpdateEnvelopeNotFound struct{}
+
+func (*UpdateEnvelopeNotFound) updateEnvelopeRes() {}
+
+// Ref: #/components/schemas/UpdatePeriod
+type UpdatePeriod struct {
+	StartDate   OptDate  `json:"startDate"`
+	EndDate     OptDate  `json:"endDate"`
+	IsActive    OptBool  `json:"isActive"`
+	TotalBudget OptInt64 `json:"totalBudget"`
+}
+
+// GetStartDate returns the value of StartDate.
+func (s *UpdatePeriod) GetStartDate() OptDate {
+	return s.StartDate
+}
+
+// GetEndDate returns the value of EndDate.
+func (s *UpdatePeriod) GetEndDate() OptDate {
+	return s.EndDate
+}
+
+// GetIsActive returns the value of IsActive.
+func (s *UpdatePeriod) GetIsActive() OptBool {
+	return s.IsActive
+}
+
+// GetTotalBudget returns the value of TotalBudget.
+func (s *UpdatePeriod) GetTotalBudget() OptInt64 {
+	return s.TotalBudget
+}
+
+// SetStartDate sets the value of StartDate.
+func (s *UpdatePeriod) SetStartDate(val OptDate) {
+	s.StartDate = val
+}
+
+// SetEndDate sets the value of EndDate.
+func (s *UpdatePeriod) SetEndDate(val OptDate) {
+	s.EndDate = val
+}
+
+// SetIsActive sets the value of IsActive.
+func (s *UpdatePeriod) SetIsActive(val OptBool) {
+	s.IsActive = val
+}
+
+// SetTotalBudget sets the value of TotalBudget.
+func (s *UpdatePeriod) SetTotalBudget(val OptInt64) {
+	s.TotalBudget = val
+}
+
+// UpdatePeriodNotFound is response for UpdatePeriod operation.
+type UpdatePeriodNotFound struct{}
+
+func (*UpdatePeriodNotFound) updatePeriodRes() {}
+
+// Ref: #/components/schemas/UpdateTransaction
+type UpdateTransaction struct {
+	EnvelopeId  OptUUID     `json:"envelopeId"`
+	Amount      OptInt64    `json:"amount"`
+	Description OptString   `json:"description"`
+	Date        OptDateTime `json:"date"`
+	Category    OptString   `json:"category"`
+}
+
+// GetEnvelopeId returns the value of EnvelopeId.
+func (s *UpdateTransaction) GetEnvelopeId() OptUUID {
+	return s.EnvelopeId
+}
+
+// GetAmount returns the value of Amount.
+func (s *UpdateTransaction) GetAmount() OptInt64 {
+	return s.Amount
+}
+
+// GetDescription returns the value of Description.
+func (s *UpdateTransaction) GetDescription() OptString {
+	return s.Description
+}
+
+// GetDate returns the value of Date.
+func (s *UpdateTransaction) GetDate() OptDateTime {
+	return s.Date
+}
+
+// GetCategory returns the value of Category.
+func (s *UpdateTransaction) GetCategory() OptString {
+	return s.Category
+}
+
+// SetEnvelopeId sets the value of EnvelopeId.
+func (s *UpdateTransaction) SetEnvelopeId(val OptUUID) {
+	s.EnvelopeId = val
+}
+
+// SetAmount sets the value of Amount.
+func (s *UpdateTransaction) SetAmount(val OptInt64) {
+	s.Amount = val
+}
+
+// SetDescription sets the value of Description.
+func (s *UpdateTransaction) SetDescription(val OptString) {
+	s.Description = val
+}
+
+// SetDate sets the value of Date.
+func (s *UpdateTransaction) SetDate(val OptDateTime) {
+	s.Date = val
+}
+
+// SetCategory sets the value of Category.
+func (s *UpdateTransaction) SetCategory(val OptString) {
+	s.Category = val
+}
+
+// UpdateTransactionNotFound is response for UpdateTransaction operation.
+type UpdateTransactionNotFound struct{}
+
+func (*UpdateTransactionNotFound) updateTransactionRes() {}
 
 // Ref: #/components/schemas/User
 type User struct {

@@ -79,6 +79,30 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+    post:
+      summary: Create a new financial period
+      operationId: createPeriod
+      tags:
+        - Periods
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePeriod'
+      responses:
+        '201':
+          description: Period created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Period'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /periods/current:
     get:
@@ -122,6 +146,193 @@ paths:
                 $ref: '#/components/schemas/Period'
         '404':
           description: Period not found
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      summary: Update a period
+      operationId: updatePeriod
+      tags:
+        - Periods
+      parameters:
+        - name: periodId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePeriod'
+      responses:
+        '200':
+          description: Period updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Period'
+        '404':
+          description: Period not found
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Delete a period
+      operationId: deletePeriod
+      tags:
+        - Periods
+      parameters:
+        - name: periodId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Period deleted
+        '404':
+          description: Period not found
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /envelopes:
+    get:
+      summary: List all envelopes
+      operationId: listEnvelopes
+      tags:
+        - Envelopes
+      responses:
+        '200':
+          description: List of envelopes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Envelope'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Create a new envelope
+      operationId: createEnvelope
+      tags:
+        - Envelopes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEnvelope'
+      responses:
+        '201':
+          description: Envelope created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Envelope'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /envelopes/{envelopeId}:
+    get:
+      summary: Get envelope by ID
+      operationId: getEnvelope
+      tags:
+        - Envelopes
+      parameters:
+        - name: envelopeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Envelope details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Envelope'
+        '404':
+          description: Envelope not found
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      summary: Update an envelope
+      operationId: updateEnvelope
+      tags:
+        - Envelopes
+      parameters:
+        - name: envelopeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEnvelope'
+      responses:
+        '200':
+          description: Envelope updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Envelope'
+        '404':
+          description: Envelope not found
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Delete an envelope
+      operationId: deleteEnvelope
+      tags:
+        - Envelopes
+      parameters:
+        - name: envelopeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Envelope deleted
+        '404':
+          description: Envelope not found
         default:
           description: Error response
           content:
@@ -212,6 +423,62 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+    patch:
+      summary: Update a transaction
+      operationId: updateTransaction
+      tags:
+        - Transactions
+      parameters:
+        - name: transactionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTransaction'
+      responses:
+        '200':
+          description: Transaction updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        '404':
+          description: Transaction not found
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Delete a transaction
+      operationId: deleteTransaction
+      tags:
+        - Transactions
+      parameters:
+        - name: transactionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Transaction deleted
+        '404':
+          description: Transaction not found
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
 components:
   securitySchemes:
@@ -253,6 +520,20 @@ components:
       required:
         - id
         - name
+
+    CreateEnvelope:
+      type: object
+      properties:
+        name:
+          type: string
+      required:
+        - name
+
+    UpdateEnvelope:
+      type: object
+      properties:
+        name:
+          type: string
 
     PeriodListItem:
       type: object
@@ -322,17 +603,46 @@ components:
         - totalSpent
         - envelopeSummaries
 
+    CreatePeriod:
+      type: object
+      properties:
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        totalBudget:
+          type: integer
+          format: int64
+      required:
+        - startDate
+        - endDate
+        - totalBudget
+
+    UpdatePeriod:
+      type: object
+      properties:
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        isActive:
+          type: boolean
+        totalBudget:
+          type: integer
+          format: int64
+
     EnvelopeSummary:
       type: object
       properties:
-        userId:
-          type: string
-          format: uuid
         envelopeId:
           type: string
           format: uuid
           description: The ID of the budget bucket
-        envelope:
+        envelopeName:
           type: string
           description: The name of the budget bucket (e.g., 'groceries')
           example: groceries
@@ -352,9 +662,8 @@ components:
           description: Current balance of the envelope in cents
           example: 2500000
       required:
-        - userId
         - envelopeId
-        - envelope
+        - envelopeName
         - amount
         - spent
         - remaining
@@ -366,9 +675,6 @@ components:
           type: string
           format: uuid
         periodId:
-          type: string
-          format: uuid
-        userId:
           type: string
           format: uuid
         envelopeId:
@@ -393,7 +699,6 @@ components:
       required:
         - id
         - periodId
-        - userId
         - envelopeId
         - amount
         - date
@@ -411,12 +716,32 @@ components:
           description: Transaction amount in currency cents. Use negative values for expenses.
         description:
           type: string
+        date:
+          type: string
+          format: date-time
         category:
           type: string
           description: Analytics tag (what was bought)
       required:
         - envelopeId
         - amount
+
+    UpdateTransaction:
+      type: object
+      properties:
+        envelopeId:
+          type: string
+          format: uuid
+        amount:
+          type: integer
+          format: int64
+        description:
+          type: string
+        date:
+          type: string
+          format: date-time
+        category:
+          type: string
 
     Error:
       type: object

@@ -61,6 +61,68 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				break
 			}
 			switch elem[0] {
+			case 'e': // Prefix: "envelopes"
+
+				if l := len("envelopes"); len(elem) >= l && elem[0:l] == "envelopes" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					switch r.Method {
+					case "GET":
+						s.handleListEnvelopesRequest([0]string{}, elemIsEscaped, w, r)
+					case "POST":
+						s.handleCreateEnvelopeRequest([0]string{}, elemIsEscaped, w, r)
+					default:
+						s.notAllowed(w, r, "GET,POST")
+					}
+
+					return
+				}
+				switch elem[0] {
+				case '/': // Prefix: "/"
+
+					if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					// Param: "envelopeId"
+					// Leaf parameter, slashes are prohibited
+					idx := strings.IndexByte(elem, '/')
+					if idx >= 0 {
+						break
+					}
+					args[0] = elem
+					elem = ""
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch r.Method {
+						case "DELETE":
+							s.handleDeleteEnvelopeRequest([1]string{
+								args[0],
+							}, elemIsEscaped, w, r)
+						case "GET":
+							s.handleGetEnvelopeRequest([1]string{
+								args[0],
+							}, elemIsEscaped, w, r)
+						case "PATCH":
+							s.handleUpdateEnvelopeRequest([1]string{
+								args[0],
+							}, elemIsEscaped, w, r)
+						default:
+							s.notAllowed(w, r, "DELETE,GET,PATCH")
+						}
+
+						return
+					}
+
+				}
+
 			case 'm': // Prefix: "me"
 
 				if l := len("me"); len(elem) >= l && elem[0:l] == "me" {
@@ -93,8 +155,10 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					switch r.Method {
 					case "GET":
 						s.handleListPeriodsRequest([0]string{}, elemIsEscaped, w, r)
+					case "POST":
+						s.handleCreatePeriodRequest([0]string{}, elemIsEscaped, w, r)
 					default:
-						s.notAllowed(w, r, "GET")
+						s.notAllowed(w, r, "GET,POST")
 					}
 
 					return
@@ -146,12 +210,20 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					if len(elem) == 0 {
 						// Leaf node.
 						switch r.Method {
+						case "DELETE":
+							s.handleDeletePeriodRequest([1]string{
+								args[0],
+							}, elemIsEscaped, w, r)
 						case "GET":
 							s.handleGetPeriodRequest([1]string{
 								args[0],
 							}, elemIsEscaped, w, r)
+						case "PATCH":
+							s.handleUpdatePeriodRequest([1]string{
+								args[0],
+							}, elemIsEscaped, w, r)
 						default:
-							s.notAllowed(w, r, "GET")
+							s.notAllowed(w, r, "DELETE,GET,PATCH")
 						}
 
 						return
@@ -200,12 +272,20 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					if len(elem) == 0 {
 						// Leaf node.
 						switch r.Method {
+						case "DELETE":
+							s.handleDeleteTransactionRequest([1]string{
+								args[0],
+							}, elemIsEscaped, w, r)
 						case "GET":
 							s.handleGetTransactionRequest([1]string{
 								args[0],
 							}, elemIsEscaped, w, r)
+						case "PATCH":
+							s.handleUpdateTransactionRequest([1]string{
+								args[0],
+							}, elemIsEscaped, w, r)
 						default:
-							s.notAllowed(w, r, "GET")
+							s.notAllowed(w, r, "DELETE,GET,PATCH")
 						}
 
 						return
@@ -333,6 +413,93 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 				break
 			}
 			switch elem[0] {
+			case 'e': // Prefix: "envelopes"
+
+				if l := len("envelopes"); len(elem) >= l && elem[0:l] == "envelopes" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					switch method {
+					case "GET":
+						r.name = ListEnvelopesOperation
+						r.summary = "List all envelopes"
+						r.operationID = "listEnvelopes"
+						r.operationGroup = ""
+						r.pathPattern = "/envelopes"
+						r.args = args
+						r.count = 0
+						return r, true
+					case "POST":
+						r.name = CreateEnvelopeOperation
+						r.summary = "Create a new envelope"
+						r.operationID = "createEnvelope"
+						r.operationGroup = ""
+						r.pathPattern = "/envelopes"
+						r.args = args
+						r.count = 0
+						return r, true
+					default:
+						return
+					}
+				}
+				switch elem[0] {
+				case '/': // Prefix: "/"
+
+					if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					// Param: "envelopeId"
+					// Leaf parameter, slashes are prohibited
+					idx := strings.IndexByte(elem, '/')
+					if idx >= 0 {
+						break
+					}
+					args[0] = elem
+					elem = ""
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch method {
+						case "DELETE":
+							r.name = DeleteEnvelopeOperation
+							r.summary = "Delete an envelope"
+							r.operationID = "deleteEnvelope"
+							r.operationGroup = ""
+							r.pathPattern = "/envelopes/{envelopeId}"
+							r.args = args
+							r.count = 1
+							return r, true
+						case "GET":
+							r.name = GetEnvelopeOperation
+							r.summary = "Get envelope by ID"
+							r.operationID = "getEnvelope"
+							r.operationGroup = ""
+							r.pathPattern = "/envelopes/{envelopeId}"
+							r.args = args
+							r.count = 1
+							return r, true
+						case "PATCH":
+							r.name = UpdateEnvelopeOperation
+							r.summary = "Update an envelope"
+							r.operationID = "updateEnvelope"
+							r.operationGroup = ""
+							r.pathPattern = "/envelopes/{envelopeId}"
+							r.args = args
+							r.count = 1
+							return r, true
+						default:
+							return
+						}
+					}
+
+				}
+
 			case 'm': // Prefix: "me"
 
 				if l := len("me"); len(elem) >= l && elem[0:l] == "me" {
@@ -372,6 +539,15 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						r.name = ListPeriodsOperation
 						r.summary = "List all financial periods"
 						r.operationID = "listPeriods"
+						r.operationGroup = ""
+						r.pathPattern = "/periods"
+						r.args = args
+						r.count = 0
+						return r, true
+					case "POST":
+						r.name = CreatePeriodOperation
+						r.summary = "Create a new financial period"
+						r.operationID = "createPeriod"
 						r.operationGroup = ""
 						r.pathPattern = "/periods"
 						r.args = args
@@ -433,10 +609,28 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 					if len(elem) == 0 {
 						// Leaf node.
 						switch method {
+						case "DELETE":
+							r.name = DeletePeriodOperation
+							r.summary = "Delete a period"
+							r.operationID = "deletePeriod"
+							r.operationGroup = ""
+							r.pathPattern = "/periods/{periodId}"
+							r.args = args
+							r.count = 1
+							return r, true
 						case "GET":
 							r.name = GetPeriodOperation
 							r.summary = "Get period by ID"
 							r.operationID = "getPeriod"
+							r.operationGroup = ""
+							r.pathPattern = "/periods/{periodId}"
+							r.args = args
+							r.count = 1
+							return r, true
+						case "PATCH":
+							r.name = UpdatePeriodOperation
+							r.summary = "Update a period"
+							r.operationID = "updatePeriod"
 							r.operationGroup = ""
 							r.pathPattern = "/periods/{periodId}"
 							r.args = args
@@ -502,10 +696,28 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 					if len(elem) == 0 {
 						// Leaf node.
 						switch method {
+						case "DELETE":
+							r.name = DeleteTransactionOperation
+							r.summary = "Delete a transaction"
+							r.operationID = "deleteTransaction"
+							r.operationGroup = ""
+							r.pathPattern = "/transactions/{transactionId}"
+							r.args = args
+							r.count = 1
+							return r, true
 						case "GET":
 							r.name = GetTransactionOperation
 							r.summary = "Get transaction by ID"
 							r.operationID = "getTransaction"
+							r.operationGroup = ""
+							r.pathPattern = "/transactions/{transactionId}"
+							r.args = args
+							r.count = 1
+							return r, true
+						case "PATCH":
+							r.name = UpdateTransactionOperation
+							r.summary = "Update a transaction"
+							r.operationID = "updateTransaction"
 							r.operationGroup = ""
 							r.pathPattern = "/transactions/{transactionId}"
 							r.args = args

@@ -5,10 +5,38 @@ type CreateTransactionRes interface {
 	createTransactionRes()
 }
 
+type DeleteEnvelopeRes interface {
+	deleteEnvelopeRes()
+}
+
+type DeletePeriodRes interface {
+	deletePeriodRes()
+}
+
+type DeleteTransactionRes interface {
+	deleteTransactionRes()
+}
+
+type GetEnvelopeRes interface {
+	getEnvelopeRes()
+}
+
 type GetPeriodRes interface {
 	getPeriodRes()
 }
 
 type GetTransactionRes interface {
 	getTransactionRes()
+}
+
+type UpdateEnvelopeRes interface {
+	updateEnvelopeRes()
+}
+
+type UpdatePeriodRes interface {
+	updatePeriodRes()
+}
+
+type UpdateTransactionRes interface {
+	updateTransactionRes()
 }

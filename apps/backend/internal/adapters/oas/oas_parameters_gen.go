@@ -15,6 +15,266 @@ import (
 	"github.com/ogen-go/ogen/validate"
 )
 
+// DeleteEnvelopeParams is parameters of deleteEnvelope operation.
+type DeleteEnvelopeParams struct {
+	EnvelopeId uuid.UUID
+}
+
+func unpackDeleteEnvelopeParams(packed middleware.Parameters) (params DeleteEnvelopeParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "envelopeId",
+			In:   "path",
+		}
+		params.EnvelopeId = packed[key].(uuid.UUID)
+	}
+	return params
+}
+
+func decodeDeleteEnvelopeParams(args [1]string, argsEscaped bool, r *http.Request) (params DeleteEnvelopeParams, _ error) {
+	// Decode path: envelopeId.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "envelopeId",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToUUID(val)
+				if err != nil {
+					return err
+				}
+
+				params.EnvelopeId = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "envelopeId",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// DeletePeriodParams is parameters of deletePeriod operation.
+type DeletePeriodParams struct {
+	PeriodId uuid.UUID
+}
+
+func unpackDeletePeriodParams(packed middleware.Parameters) (params DeletePeriodParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "periodId",
+			In:   "path",
+		}
+		params.PeriodId = packed[key].(uuid.UUID)
+	}
+	return params
+}
+
+func decodeDeletePeriodParams(args [1]string, argsEscaped bool, r *http.Request) (params DeletePeriodParams, _ error) {
+	// Decode path: periodId.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "periodId",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToUUID(val)
+				if err != nil {
+					return err
+				}
+
+				params.PeriodId = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "periodId",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// DeleteTransactionParams is parameters of deleteTransaction operation.
+type DeleteTransactionParams struct {
+	TransactionId uuid.UUID
+}
+
+func unpackDeleteTransactionParams(packed middleware.Parameters) (params DeleteTransactionParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "transactionId",
+			In:   "path",
+		}
+		params.TransactionId = packed[key].(uuid.UUID)
+	}
+	return params
+}
+
+func decodeDeleteTransactionParams(args [1]string, argsEscaped bool, r *http.Request) (params DeleteTransactionParams, _ error) {
+	// Decode path: transactionId.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "transactionId",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToUUID(val)
+				if err != nil {
+					return err
+				}
+
+				params.TransactionId = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "transactionId",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// GetEnvelopeParams is parameters of getEnvelope operation.
+type GetEnvelopeParams struct {
+	EnvelopeId uuid.UUID
+}
+
+func unpackGetEnvelopeParams(packed middleware.Parameters) (params GetEnvelopeParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "envelopeId",
+			In:   "path",
+		}
+		params.EnvelopeId = packed[key].(uuid.UUID)
+	}
+	return params
+}
+
+func decodeGetEnvelopeParams(args [1]string, argsEscaped bool, r *http.Request) (params GetEnvelopeParams, _ error) {
+	// Decode path: envelopeId.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "envelopeId",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToUUID(val)
+				if err != nil {
+					return err
+				}
+
+				params.EnvelopeId = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "envelopeId",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // GetPeriodParams is parameters of getPeriod operation.
 type GetPeriodParams struct {
 	PeriodId uuid.UUID
@@ -204,6 +464,201 @@ func decodeListTransactionsParams(args [0]string, argsEscaped bool, r *http.Requ
 		return params, &ogenerrors.DecodeParamError{
 			Name: "periodId",
 			In:   "query",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// UpdateEnvelopeParams is parameters of updateEnvelope operation.
+type UpdateEnvelopeParams struct {
+	EnvelopeId uuid.UUID
+}
+
+func unpackUpdateEnvelopeParams(packed middleware.Parameters) (params UpdateEnvelopeParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "envelopeId",
+			In:   "path",
+		}
+		params.EnvelopeId = packed[key].(uuid.UUID)
+	}
+	return params
+}
+
+func decodeUpdateEnvelopeParams(args [1]string, argsEscaped bool, r *http.Request) (params UpdateEnvelopeParams, _ error) {
+	// Decode path: envelopeId.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "envelopeId",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToUUID(val)
+				if err != nil {
+					return err
+				}
+
+				params.EnvelopeId = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "envelopeId",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// UpdatePeriodParams is parameters of updatePeriod operation.
+type UpdatePeriodParams struct {
+	PeriodId uuid.UUID
+}
+
+func unpackUpdatePeriodParams(packed middleware.Parameters) (params UpdatePeriodParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "periodId",
+			In:   "path",
+		}
+		params.PeriodId = packed[key].(uuid.UUID)
+	}
+	return params
+}
+
+func decodeUpdatePeriodParams(args [1]string, argsEscaped bool, r *http.Request) (params UpdatePeriodParams, _ error) {
+	// Decode path: periodId.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "periodId",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToUUID(val)
+				if err != nil {
+					return err
+				}
+
+				params.PeriodId = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "periodId",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// UpdateTransactionParams is parameters of updateTransaction operation.
+type UpdateTransactionParams struct {
+	TransactionId uuid.UUID
+}
+
+func unpackUpdateTransactionParams(packed middleware.Parameters) (params UpdateTransactionParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "transactionId",
+			In:   "path",
+		}
+		params.TransactionId = packed[key].(uuid.UUID)
+	}
+	return params
+}
+
+func decodeUpdateTransactionParams(args [1]string, argsEscaped bool, r *http.Request) (params UpdateTransactionParams, _ error) {
+	// Decode path: transactionId.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "transactionId",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToUUID(val)
+				if err != nil {
+					return err
+				}
+
+				params.TransactionId = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "transactionId",
+			In:   "path",
 			Err:  err,
 		}
 	}
