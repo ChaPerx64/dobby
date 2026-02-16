@@ -793,41 +793,6 @@ func (s *Error) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
-// Encode encodes bool as json.
-func (o OptBool) Encode(e *jx.Encoder) {
-	if !o.Set {
-		return
-	}
-	e.Bool(bool(o.Value))
-}
-
-// Decode decodes bool from json.
-func (o *OptBool) Decode(d *jx.Decoder) error {
-	if o == nil {
-		return errors.New("invalid: unable to decode OptBool to nil")
-	}
-	o.Set = true
-	v, err := d.Bool()
-	if err != nil {
-		return err
-	}
-	o.Value = bool(v)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s OptBool) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *OptBool) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
 // Encode encodes time.Time as json.
 func (o OptDate) Encode(e *jx.Encoder, format func(*jx.Encoder, time.Time)) {
 	if !o.Set {
@@ -1025,10 +990,6 @@ func (s *Period) encodeFields(e *jx.Encoder) {
 		json.EncodeDate(e, s.EndDate)
 	}
 	{
-		e.FieldStart("isActive")
-		e.Bool(s.IsActive)
-	}
-	{
 		e.FieldStart("totalBudget")
 		e.Int64(s.TotalBudget)
 	}
@@ -1056,16 +1017,15 @@ func (s *Period) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfPeriod = [9]string{
+var jsonFieldsNameOfPeriod = [8]string{
 	0: "id",
 	1: "startDate",
 	2: "endDate",
-	3: "isActive",
-	4: "totalBudget",
-	5: "totalRemaining",
-	6: "totalSpent",
-	7: "projectedEndingBalance",
-	8: "envelopeSummaries",
+	3: "totalBudget",
+	4: "totalRemaining",
+	5: "totalSpent",
+	6: "projectedEndingBalance",
+	7: "envelopeSummaries",
 }
 
 // Decode decodes Period from json.
@@ -1073,7 +1033,7 @@ func (s *Period) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode Period to nil")
 	}
-	var requiredBitSet [2]uint8
+	var requiredBitSet [1]uint8
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
@@ -1113,20 +1073,8 @@ func (s *Period) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"endDate\"")
 			}
-		case "isActive":
-			requiredBitSet[0] |= 1 << 3
-			if err := func() error {
-				v, err := d.Bool()
-				s.IsActive = bool(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"isActive\"")
-			}
 		case "totalBudget":
-			requiredBitSet[0] |= 1 << 4
+			requiredBitSet[0] |= 1 << 3
 			if err := func() error {
 				v, err := d.Int64()
 				s.TotalBudget = int64(v)
@@ -1138,7 +1086,7 @@ func (s *Period) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"totalBudget\"")
 			}
 		case "totalRemaining":
-			requiredBitSet[0] |= 1 << 5
+			requiredBitSet[0] |= 1 << 4
 			if err := func() error {
 				v, err := d.Int64()
 				s.TotalRemaining = int64(v)
@@ -1150,7 +1098,7 @@ func (s *Period) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"totalRemaining\"")
 			}
 		case "totalSpent":
-			requiredBitSet[0] |= 1 << 6
+			requiredBitSet[0] |= 1 << 5
 			if err := func() error {
 				v, err := d.Int64()
 				s.TotalSpent = int64(v)
@@ -1172,7 +1120,7 @@ func (s *Period) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"projectedEndingBalance\"")
 			}
 		case "envelopeSummaries":
-			requiredBitSet[1] |= 1 << 0
+			requiredBitSet[0] |= 1 << 7
 			if err := func() error {
 				s.EnvelopeSummaries = make([]EnvelopeSummary, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
@@ -1198,9 +1146,8 @@ func (s *Period) Decode(d *jx.Decoder) error {
 	}
 	// Validate required fields.
 	var failures []validate.FieldError
-	for i, mask := range [2]uint8{
-		0b01111111,
-		0b00000001,
+	for i, mask := range [1]uint8{
+		0b10111111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -1267,17 +1214,12 @@ func (s *PeriodListItem) encodeFields(e *jx.Encoder) {
 		e.FieldStart("endDate")
 		json.EncodeDate(e, s.EndDate)
 	}
-	{
-		e.FieldStart("isActive")
-		e.Bool(s.IsActive)
-	}
 }
 
-var jsonFieldsNameOfPeriodListItem = [4]string{
+var jsonFieldsNameOfPeriodListItem = [3]string{
 	0: "id",
 	1: "startDate",
 	2: "endDate",
-	3: "isActive",
 }
 
 // Decode decodes PeriodListItem from json.
@@ -1325,18 +1267,6 @@ func (s *PeriodListItem) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"endDate\"")
 			}
-		case "isActive":
-			requiredBitSet[0] |= 1 << 3
-			if err := func() error {
-				v, err := d.Bool()
-				s.IsActive = bool(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"isActive\"")
-			}
 		default:
 			return d.Skip()
 		}
@@ -1347,7 +1277,7 @@ func (s *PeriodListItem) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00001111,
+		0b00000111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -1676,12 +1606,6 @@ func (s *UpdatePeriod) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
-		if s.IsActive.Set {
-			e.FieldStart("isActive")
-			s.IsActive.Encode(e)
-		}
-	}
-	{
 		if s.TotalBudget.Set {
 			e.FieldStart("totalBudget")
 			s.TotalBudget.Encode(e)
@@ -1689,11 +1613,10 @@ func (s *UpdatePeriod) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfUpdatePeriod = [4]string{
+var jsonFieldsNameOfUpdatePeriod = [3]string{
 	0: "startDate",
 	1: "endDate",
-	2: "isActive",
-	3: "totalBudget",
+	2: "totalBudget",
 }
 
 // Decode decodes UpdatePeriod from json.
@@ -1723,16 +1646,6 @@ func (s *UpdatePeriod) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"endDate\"")
-			}
-		case "isActive":
-			if err := func() error {
-				s.IsActive.Reset()
-				if err := s.IsActive.Decode(d); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"isActive\"")
 			}
 		case "totalBudget":
 			if err := func() error {
@@ -1916,16 +1829,11 @@ func (s *User) encodeFields(e *jx.Encoder) {
 		e.FieldStart("name")
 		e.Str(s.Name)
 	}
-	{
-		e.FieldStart("currentBalance")
-		e.Int64(s.CurrentBalance)
-	}
 }
 
-var jsonFieldsNameOfUser = [3]string{
+var jsonFieldsNameOfUser = [2]string{
 	0: "id",
 	1: "name",
-	2: "currentBalance",
 }
 
 // Decode decodes User from json.
@@ -1961,18 +1869,6 @@ func (s *User) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"name\"")
 			}
-		case "currentBalance":
-			requiredBitSet[0] |= 1 << 2
-			if err := func() error {
-				v, err := d.Int64()
-				s.CurrentBalance = int64(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"currentBalance\"")
-			}
 		default:
 			return d.Skip()
 		}
@@ -1983,7 +1879,7 @@ func (s *User) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000111,
+		0b00000011,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.

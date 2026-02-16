@@ -347,52 +347,6 @@ type GetTransactionNotFound struct{}
 
 func (*GetTransactionNotFound) getTransactionRes() {}
 
-// NewOptBool returns new OptBool with value set to v.
-func NewOptBool(v bool) OptBool {
-	return OptBool{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptBool is optional bool.
-type OptBool struct {
-	Value bool
-	Set   bool
-}
-
-// IsSet returns true if OptBool was set.
-func (o OptBool) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptBool) Reset() {
-	var v bool
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptBool) SetTo(v bool) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptBool) Get() (v bool, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptBool) Or(d bool) bool {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
 // NewOptDate returns new OptDate with value set to v.
 func NewOptDate(v time.Time) OptDate {
 	return OptDate{
@@ -628,7 +582,6 @@ type Period struct {
 	ID        uuid.UUID `json:"id"`
 	StartDate time.Time `json:"startDate"`
 	EndDate   time.Time `json:"endDate"`
-	IsActive  bool      `json:"isActive"`
 	// Total household budget in currency cents.
 	TotalBudget int64 `json:"totalBudget"`
 	// Last known remaining balance in currency cents.
@@ -653,11 +606,6 @@ func (s *Period) GetStartDate() time.Time {
 // GetEndDate returns the value of EndDate.
 func (s *Period) GetEndDate() time.Time {
 	return s.EndDate
-}
-
-// GetIsActive returns the value of IsActive.
-func (s *Period) GetIsActive() bool {
-	return s.IsActive
 }
 
 // GetTotalBudget returns the value of TotalBudget.
@@ -700,11 +648,6 @@ func (s *Period) SetEndDate(val time.Time) {
 	s.EndDate = val
 }
 
-// SetIsActive sets the value of IsActive.
-func (s *Period) SetIsActive(val bool) {
-	s.IsActive = val
-}
-
 // SetTotalBudget sets the value of TotalBudget.
 func (s *Period) SetTotalBudget(val int64) {
 	s.TotalBudget = val
@@ -738,7 +681,6 @@ type PeriodListItem struct {
 	ID        uuid.UUID `json:"id"`
 	StartDate time.Time `json:"startDate"`
 	EndDate   time.Time `json:"endDate"`
-	IsActive  bool      `json:"isActive"`
 }
 
 // GetID returns the value of ID.
@@ -756,11 +698,6 @@ func (s *PeriodListItem) GetEndDate() time.Time {
 	return s.EndDate
 }
 
-// GetIsActive returns the value of IsActive.
-func (s *PeriodListItem) GetIsActive() bool {
-	return s.IsActive
-}
-
 // SetID sets the value of ID.
 func (s *PeriodListItem) SetID(val uuid.UUID) {
 	s.ID = val
@@ -774,11 +711,6 @@ func (s *PeriodListItem) SetStartDate(val time.Time) {
 // SetEndDate sets the value of EndDate.
 func (s *PeriodListItem) SetEndDate(val time.Time) {
 	s.EndDate = val
-}
-
-// SetIsActive sets the value of IsActive.
-func (s *PeriodListItem) SetIsActive(val bool) {
-	s.IsActive = val
 }
 
 // Ref: #/components/schemas/Transaction
@@ -893,7 +825,6 @@ func (*UpdateEnvelopeNotFound) updateEnvelopeRes() {}
 type UpdatePeriod struct {
 	StartDate   OptDate  `json:"startDate"`
 	EndDate     OptDate  `json:"endDate"`
-	IsActive    OptBool  `json:"isActive"`
 	TotalBudget OptInt64 `json:"totalBudget"`
 }
 
@@ -905,11 +836,6 @@ func (s *UpdatePeriod) GetStartDate() OptDate {
 // GetEndDate returns the value of EndDate.
 func (s *UpdatePeriod) GetEndDate() OptDate {
 	return s.EndDate
-}
-
-// GetIsActive returns the value of IsActive.
-func (s *UpdatePeriod) GetIsActive() OptBool {
-	return s.IsActive
 }
 
 // GetTotalBudget returns the value of TotalBudget.
@@ -925,11 +851,6 @@ func (s *UpdatePeriod) SetStartDate(val OptDate) {
 // SetEndDate sets the value of EndDate.
 func (s *UpdatePeriod) SetEndDate(val OptDate) {
 	s.EndDate = val
-}
-
-// SetIsActive sets the value of IsActive.
-func (s *UpdatePeriod) SetIsActive(val OptBool) {
-	s.IsActive = val
 }
 
 // SetTotalBudget sets the value of TotalBudget.
@@ -1010,8 +931,6 @@ func (*UpdateTransactionNotFound) updateTransactionRes() {}
 type User struct {
 	ID   uuid.UUID `json:"id"`
 	Name string    `json:"name"`
-	// Remaining balance for current period in currency cents.
-	CurrentBalance int64 `json:"currentBalance"`
 }
 
 // GetID returns the value of ID.
@@ -1024,11 +943,6 @@ func (s *User) GetName() string {
 	return s.Name
 }
 
-// GetCurrentBalance returns the value of CurrentBalance.
-func (s *User) GetCurrentBalance() int64 {
-	return s.CurrentBalance
-}
-
 // SetID sets the value of ID.
 func (s *User) SetID(val uuid.UUID) {
 	s.ID = val
@@ -1037,9 +951,4 @@ func (s *User) SetID(val uuid.UUID) {
 // SetName sets the value of Name.
 func (s *User) SetName(val string) {
 	s.Name = val
-}
-
-// SetCurrentBalance sets the value of CurrentBalance.
-func (s *User) SetCurrentBalance(val int64) {
-	s.CurrentBalance = val
 }

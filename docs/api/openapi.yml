@@ -498,15 +498,9 @@ components:
         name:
           type: string
           example: TheMan
-        currentBalance:
-          type: integer
-          format: int64
-          description: Remaining balance for current period in currency cents
-          example: 2500000
       required:
         - id
         - name
-        - currentBalance
 
     Envelope:
       type: object
@@ -547,13 +541,10 @@ components:
         endDate:
           type: string
           format: date
-        isActive:
-          type: boolean
       required:
         - id
         - startDate
         - endDate
-        - isActive
 
     Period:
       type: object
@@ -567,8 +558,6 @@ components:
         endDate:
           type: string
           format: date
-        isActive:
-          type: boolean
         totalBudget:
           type: integer
           format: int64
@@ -597,7 +586,6 @@ components:
         - id
         - startDate
         - endDate
-        - isActive
         - totalBudget
         - totalRemaining
         - totalSpent
@@ -629,8 +617,6 @@ components:
         endDate:
           type: string
           format: date
-        isActive:
-          type: boolean
         totalBudget:
           type: integer
           format: int64
