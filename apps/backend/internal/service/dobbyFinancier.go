@@ -48,9 +48,10 @@ func (s *dobbyFinancier) CreatePeriod(ctx context.Context, start, end *time.Time
 }
 
 func calculateNextPeriodStartTime(referenceTime time.Time) (time.Time, error) {
-	nextPeriodStart := referenceTime.AddDate(0, 1, 0)
+	y, m, _ := referenceTime.Date()
+	nextPeriodStart := time.Date(y, time.Month(m+1), 5, 0, 0, 0, 0, &time.Location{})
 	weekday := nextPeriodStart.Weekday()
-	var moveByDays int
+	moveByDays := 0
 	if weekday > 5 {
 		moveByDays = int(weekday) - 5
 	}
@@ -132,11 +133,10 @@ func (s *dobbyFinancier) ListPeriods(ctx context.Context) ([]Period, error) {
 	return s.repo.ListPeriods(ctx)
 }
 
-func (s *dobbyFinancier) RecordTransaction(ctx context.Context, userID uuid.UUID, t Transaction) (*Transaction, error) {
+func (s *dobbyFinancier) RecordTransaction(ctx context.Context, t Transaction) (*Transaction, error) {
 	if t.ID == uuid.Nil {
 		t.ID = uuid.New()
 	}
-	t.UserID = userID
 
 	err := s.txManager.WithTx(ctx, func(ctx context.Context) error {
 		return s.repo.SaveTransaction(ctx, &t)
@@ -148,11 +148,10 @@ func (s *dobbyFinancier) RecordTransaction(ctx context.Context, userID uuid.UUID
 	return &t, nil
 }
 
-func (s *dobbyFinancier) CreateEnvelope(ctx context.Context, userID uuid.UUID, name string) (*Envelope, error) {
+func (s *dobbyFinancier) CreateEnvelope(ctx context.Context, name string) (*Envelope, error) {
 	e := &Envelope{
-		ID:     uuid.New(),
-		UserID: userID,
-		Name:   name,
+		ID:   uuid.New(),
+		Name: name,
 	}
 	if err := s.repo.SaveEnvelope(ctx, e); err != nil {
 		return nil, err

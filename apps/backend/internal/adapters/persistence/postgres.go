@@ -130,14 +130,14 @@ func (r *psqlRepo) ListPeriods(ctx context.Context) ([]service.Period, error) {
 }
 
 func (r *psqlRepo) SaveEnvelope(ctx context.Context, e *service.Envelope) error {
-	query := `INSERT INTO envelopes (id, user_id, name) VALUES ($1, $2, $3)
-              ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, user_id = EXCLUDED.user_id`
-	_, err := r.getDB(ctx).Exec(ctx, query, e.ID, e.UserID, e.Name)
+	query := `INSERT INTO envelopes (id, name) VALUES ($1, $2)
+              ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name`
+	_, err := r.getDB(ctx).Exec(ctx, query, e.ID, e.Name)
 	return err
 }
 
 func (r *psqlRepo) ListEnvelopes(ctx context.Context) ([]service.Envelope, error) {
-	query := `SELECT id, user_id, name FROM envelopes`
+	query := `SELECT id, name FROM envelopes`
 	rows, err := r.getDB(ctx).Query(ctx, query)
 	if err != nil {
 		return nil, err
@@ -147,7 +147,7 @@ func (r *psqlRepo) ListEnvelopes(ctx context.Context) ([]service.Envelope, error
 	var res []service.Envelope
 	for rows.Next() {
 		var e service.Envelope
-		if err := rows.Scan(&e.ID, &e.UserID, &e.Name); err != nil {
+		if err := rows.Scan(&e.ID, &e.Name); err != nil {
 			return nil, err
 		}
 		res = append(res, e)
@@ -156,22 +156,21 @@ func (r *psqlRepo) ListEnvelopes(ctx context.Context) ([]service.Envelope, error
 }
 
 func (r *psqlRepo) SaveTransaction(ctx context.Context, t *service.Transaction) error {
-	query := `INSERT INTO transactions (id, financial_period_id, user_id, envelope_id, category, amount, description, date)
-              VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+	query := `INSERT INTO transactions (id, financial_period_id, envelope_id, category, amount, description, date)
+              VALUES ($1, $2, $3, $4, $5, $6, $7)
               ON CONFLICT (id) DO UPDATE SET 
                 financial_period_id = EXCLUDED.financial_period_id,
-                user_id = EXCLUDED.user_id,
                 envelope_id = EXCLUDED.envelope_id,
                 category = EXCLUDED.category,
                 amount = EXCLUDED.amount,
                 description = EXCLUDED.description,
                 date = EXCLUDED.date`
-	_, err := r.getDB(ctx).Exec(ctx, query, t.ID, t.PeriodID, t.UserID, t.EnvelopeID, t.Category, t.Amount, t.Description, t.Date)
+	_, err := r.getDB(ctx).Exec(ctx, query, t.ID, t.PeriodID, t.EnvelopeID, t.Category, t.Amount, t.Description, t.Date)
 	return err
 }
 
 func (r *psqlRepo) ListTransactions(ctx context.Context, filter service.TransactionFilter) ([]service.Transaction, error) {
-	query := `SELECT id, financial_period_id, user_id, envelope_id, category, amount, description, date FROM transactions WHERE 1=1`
+	query := `SELECT id, financial_period_id, envelope_id, category, amount, description, date FROM transactions WHERE 1=1`
 	var args []interface{}
 	argCount := 1
 
@@ -197,7 +196,7 @@ func (r *psqlRepo) ListTransactions(ctx context.Context, filter service.Transact
 	var res []service.Transaction
 	for rows.Next() {
 		var t service.Transaction
-		if err := rows.Scan(&t.ID, &t.PeriodID, &t.UserID, &t.EnvelopeID, &t.Category, &t.Amount, &t.Description, &t.Date); err != nil {
+		if err := rows.Scan(&t.ID, &t.PeriodID, &t.EnvelopeID, &t.Category, &t.Amount, &t.Description, &t.Date); err != nil {
 			return nil, err
 		}
 		res = append(res, t)

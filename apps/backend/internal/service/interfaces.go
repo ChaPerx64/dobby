@@ -23,10 +23,10 @@ type FinanceService interface {
 	ListPeriods(ctx context.Context) ([]Period, error)
 
 	// Transaction Operations
-	RecordTransaction(ctx context.Context, userID uuid.UUID, t Transaction) (*Transaction, error)
+	RecordTransaction(ctx context.Context, t Transaction) (*Transaction, error)
 
 	// Envelope Operations
-	CreateEnvelope(ctx context.Context, userID uuid.UUID, name string) (*Envelope, error)
+	CreateEnvelope(ctx context.Context, name string) (*Envelope, error)
 	ListEnvelopes(ctx context.Context) ([]Envelope, error)
 }
 

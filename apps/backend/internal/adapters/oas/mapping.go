@@ -5,7 +5,7 @@ import (
 )
 
 // ToLogicModel converts CreateEnvelope DTO to logic parameters.
-// We only return name because ID and UserID are handled by service/handler.
+// We only return name because ID is handled by service/handler.
 func (req *CreateEnvelope) ToLogicModel() string {
 	return req.Name
 }

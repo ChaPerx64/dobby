@@ -95,23 +95,9 @@ func (h *dobbyHandler) ListPeriods(ctx context.Context) ([]oas.PeriodListItem, e
 	return res, nil
 }
 
-func (h *dobbyHandler) getUserID(ctx context.Context) uuid.UUID {
-	idStr, ok := GetUserID(ctx)
-	if !ok {
-		// Default user for now if not authenticated, or we could return error
-		return uuid.MustParse("00000000-0000-0000-0000-000000000001")
-	}
-	parsed, err := uuid.Parse(idStr)
-	if err != nil {
-		return uuid.MustParse("00000000-0000-0000-0000-000000000001")
-	}
-	return parsed
-}
-
 func (h *dobbyHandler) CreateEnvelope(ctx context.Context, req *oas.CreateEnvelope) (*oas.Envelope, error) {
 	log.Println("Got a request POST /envelopes")
-	userID := h.getUserID(ctx)
-	env, err := h.financeService.CreateEnvelope(ctx, userID, req.ToLogicModel())
+	env, err := h.financeService.CreateEnvelope(ctx, req.ToLogicModel())
 	if err != nil {
 		return nil, h.NewError(ctx, err)
 	}
@@ -162,8 +148,7 @@ func (h *dobbyHandler) CreateTransaction(ctx context.Context, req *oas.CreateTra
 	}
 
 	t.PeriodID = periodID
-	userID := h.getUserID(ctx)
-	recorded, err := h.financeService.RecordTransaction(ctx, userID, t)
+	recorded, err := h.financeService.RecordTransaction(ctx, t)
 	if err != nil {
 		return nil, h.NewError(ctx, err)
 	}
