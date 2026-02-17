@@ -25,7 +25,6 @@ SET default_table_access_method = heap;
 
 CREATE TABLE public.envelopes (
     id uuid NOT NULL,
-    user_id uuid NOT NULL,
     name character varying(255) NOT NULL
 );
 
@@ -58,7 +57,6 @@ CREATE TABLE public.schema_migrations (
 CREATE TABLE public.transactions (
     id uuid NOT NULL,
     financial_period_id uuid NOT NULL,
-    user_id uuid NOT NULL,
     envelope_id uuid NOT NULL,
     category character varying(255) NOT NULL,
     amount bigint NOT NULL,
@@ -118,13 +116,6 @@ ALTER TABLE ONLY public.users
 
 
 --
--- Name: idx_envelopes_user_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX idx_envelopes_user_id ON public.envelopes USING btree (user_id);
-
-
---
 -- Name: idx_transactions_envelope_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -136,21 +127,6 @@ CREATE INDEX idx_transactions_envelope_id ON public.transactions USING btree (en
 --
 
 CREATE INDEX idx_transactions_period_id ON public.transactions USING btree (financial_period_id);
-
-
---
--- Name: idx_transactions_user_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX idx_transactions_user_id ON public.transactions USING btree (user_id);
-
-
---
--- Name: envelopes fk_envelopes_user; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.envelopes
-    ADD CONSTRAINT fk_envelopes_user FOREIGN KEY (user_id) REFERENCES public.users(id);
 
 
 --
@@ -170,14 +146,6 @@ ALTER TABLE ONLY public.transactions
 
 
 --
--- Name: transactions fk_transactions_user; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.transactions
-    ADD CONSTRAINT fk_transactions_user FOREIGN KEY (user_id) REFERENCES public.users(id);
-
-
---
 -- PostgreSQL database dump complete
 --
 
@@ -189,4 +157,5 @@ ALTER TABLE ONLY public.transactions
 --
 
 INSERT INTO public.schema_migrations (version) VALUES
-    ('2026');
+    ('20260217174202'),
+    ('20260217174257');

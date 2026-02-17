@@ -31,7 +31,7 @@ Migrations MUST be in SQL, be idempotent and contain up and down directions.
 
 Migration files can be found in ./apps/db/migrations/
 
-Filename should adhere to this format: `YYYY-MM-DD_HH-MM_<short-description>.sql`
+DO NOT CREATE migration files manually, but start from generating a template by running `docker compose run --rm dbmate n <migration_name>`.
 
 For other information, consult: https://github.com/amacneil/dbmate/blob/main/README.md
 
