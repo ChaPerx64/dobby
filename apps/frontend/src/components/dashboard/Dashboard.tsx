@@ -3,14 +3,12 @@ import { Sidebar } from './Sidebar';
 import { MetricsPanel } from './MetricsPanel';
 import { SpendingChart } from './SpendingChart';
 import { apiClient } from '@/api/client';
-import type { Period, Allocation } from '@/types/api';
+import type { Period } from '@/types/api';
 import type { CategoryItem } from '@/types/dashboard';
-import { mockChartData } from '@/data/mockData';
 
 export function Dashboard() {
   const [selectedCategory, setSelectedCategory] = useState('total');
   const [period, setPeriod] = useState<Period | null>(null);
-  const [allocations, setAllocations] = useState<Allocation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -23,11 +21,6 @@ export function Dashboard() {
         if (!periodData) throw new Error('No period data received');
         
         setPeriod(periodData);
-
-        const { data: allocData, error: allocError } = await apiClient.listAllocations(periodData.id);
-        if (allocError) throw new Error(allocError.message || 'Failed to fetch allocations');
-        
-        setAllocations(allocData || []);
       } catch (err: any) {
         console.error(err);
         setError(err.message || 'An error occurred');
@@ -63,12 +56,12 @@ export function Dashboard() {
     remaining: period.totalRemaining,
   };
 
-  const allocationCategories: CategoryItem[] = allocations.map(a => ({
-    id: a.envelopeId,
-    name: a.envelope,
-    allocated: a.amount,
-    spent: a.spent,
-    remaining: a.remaining,
+  const allocationCategories: CategoryItem[] = period.envelopeSummaries.map(s => ({
+    id: s.envelopeId,
+    name: s.envelopeName,
+    allocated: s.amount,
+    spent: s.spent,
+    remaining: s.remaining,
   }));
 
   const categories = [totalCategory, ...allocationCategories];
@@ -90,7 +83,7 @@ export function Dashboard() {
         remaining={currentCategory.remaining}
         projectedBalance={period.projectedEndingBalance ?? 0}
       />
-      <SpendingChart data={mockChartData} />
+      <SpendingChart data={[]} />
     </div>
   );
 }

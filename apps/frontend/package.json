@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "generate:api": "openapi-typescript ../backend/internal/adapters/api/docs/openapi.yml -o ./src/api/types.ts",
-    "generate:api:watch": "openapi-typescript ../backend/internal/adapters/api/docs/openapi.yml -o ./src/api/types.ts --watch",
+    "generate:api": "openapi-typescript ../../docs/api/openapi.yml -o ./src/api/types.ts",
+    "generate:api:watch": "openapi-typescript ../../docs/api/openapi.yml -o ./src/api/types.ts --watch",
     "lint": "eslint .",
     "preview": "vite preview"
   },

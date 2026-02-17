@@ -38,40 +38,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/allocations": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get allocations for a period (and optional user) */
-        get: operations["listAllocations"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/envelopes": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List all envelopes */
-        get: operations["listEnvelopes"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/periods": {
         parameters: {
             query?: never;
@@ -82,7 +48,8 @@ export interface paths {
         /** List all financial periods */
         get: operations["listPeriods"];
         put?: never;
-        post?: never;
+        /** Create a new financial period */
+        post: operations["createPeriod"];
         delete?: never;
         options?: never;
         head?: never;
@@ -117,10 +84,49 @@ export interface paths {
         get: operations["getPeriod"];
         put?: never;
         post?: never;
+        /** Delete a period */
+        delete: operations["deletePeriod"];
+        options?: never;
+        head?: never;
+        /** Update a period */
+        patch: operations["updatePeriod"];
+        trace?: never;
+    };
+    "/envelopes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List all envelopes */
+        get: operations["listEnvelopes"];
+        put?: never;
+        /** Create a new envelope */
+        post: operations["createEnvelope"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/envelopes/{envelopeId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get envelope by ID */
+        get: operations["getEnvelope"];
+        put?: never;
+        post?: never;
+        /** Delete an envelope */
+        delete: operations["deleteEnvelope"];
+        options?: never;
+        head?: never;
+        /** Update an envelope */
+        patch: operations["updateEnvelope"];
         trace?: never;
     };
     "/transactions": {
@@ -152,10 +158,12 @@ export interface paths {
         get: operations["getTransaction"];
         put?: never;
         post?: never;
-        delete?: never;
+        /** Delete a transaction */
+        delete: operations["deleteTransaction"];
         options?: never;
         head?: never;
-        patch?: never;
+        /** Update a transaction */
+        patch: operations["updateTransaction"];
         trace?: never;
     };
 }
@@ -167,12 +175,6 @@ export interface components {
             id: string;
             /** @example TheMan */
             name: string;
-            /**
-             * Format: int64
-             * @description Remaining balance for current period in currency cents
-             * @example 2500000
-             */
-            currentBalance: number;
         };
         Envelope: {
             /** Format: uuid */
@@ -180,14 +182,27 @@ export interface components {
             /** @example Groceries */
             name: string;
         };
-        Period: {
+        CreateEnvelope: {
+            name: string;
+        };
+        UpdateEnvelope: {
+            name?: string;
+        };
+        PeriodListItem: {
             /** Format: uuid */
             id: string;
             /** Format: date */
             startDate: string;
             /** Format: date */
             endDate: string;
-            isActive: boolean;
+        };
+        PeriodSummary: {
+            /** Format: uuid */
+            id: string;
+            /** Format: date */
+            startDate: string;
+            /** Format: date */
+            endDate: string;
             /**
              * Format: int64
              * @description Total household budget in currency cents
@@ -212,17 +227,25 @@ export interface components {
              * @example -30000
              */
             projectedEndingBalance?: number;
+            envelopeSummaries: components["schemas"]["EnvelopeSummary"][];
         };
-        Allocation: {
-            /**
-             * Format: uuid
-             * @description A virtual ID for the envelope summary
-             */
-            id: string;
-            /** Format: uuid */
-            periodId: string;
-            /** Format: uuid */
-            userId: string;
+        CreatePeriod: {
+            /** Format: date */
+            startDate: string;
+            /** Format: date */
+            endDate: string;
+            /** Format: int64 */
+            totalBudget: number;
+        };
+        UpdatePeriod: {
+            /** Format: date */
+            startDate?: string;
+            /** Format: date */
+            endDate?: string;
+            /** Format: int64 */
+            totalBudget?: number;
+        };
+        EnvelopeSummary: {
             /**
              * Format: uuid
              * @description The ID of the budget bucket
@@ -232,7 +255,7 @@ export interface components {
              * @description The name of the budget bucket (e.g., 'groceries')
              * @example groceries
              */
-            envelope: string;
+            envelopeName: string;
             /**
              * Format: int64
              * @description Total funding allocated to this envelope in cents
@@ -257,8 +280,6 @@ export interface components {
             id: string;
             /** Format: uuid */
             periodId: string;
-            /** Format: uuid */
-            userId: string;
             /**
              * Format: uuid
              * @description The budget bucket this transaction belongs to
@@ -292,7 +313,19 @@ export interface components {
              */
             amount: number;
             description?: string;
+            /** Format: date-time */
+            date?: string;
             /** @description Analytics tag (what was bought) */
+            category?: string;
+        };
+        UpdateTransaction: {
+            /** Format: uuid */
+            envelopeId?: string;
+            /** Format: int64 */
+            amount?: number;
+            description?: string;
+            /** Format: date-time */
+            date?: string;
             category?: string;
         };
         Error: {
@@ -366,28 +399,201 @@ export interface operations {
             };
         };
     };
-    listAllocations: {
+    listPeriods: {
         parameters: {
-            query: {
-                /** @description The financial period to inspect */
-                periodId: string;
-                /** @description Filter by specific user (defaults to all users if omitted) */
-                userId?: string;
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description List of allocations */
+            /** @description List of periods */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Allocation"][];
+                    "application/json": components["schemas"]["PeriodListItem"][];
                 };
+            };
+            /** @description Error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    createPeriod: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreatePeriod"];
+            };
+        };
+        responses: {
+            /** @description Period created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PeriodSummary"];
+                };
+            };
+            /** @description Error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    getCurrentPeriod: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Current period */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PeriodSummary"];
+                };
+            };
+            /** @description Error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    getPeriod: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                periodId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Period details */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PeriodSummary"];
+                };
+            };
+            /** @description Period not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    deletePeriod: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                periodId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Period deleted */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Period not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    updatePeriod: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                periodId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdatePeriod"];
+            };
+        };
+        responses: {
+            /** @description Period updated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PeriodSummary"];
+                };
+            };
+            /** @description Period not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Error response */
             default: {
@@ -429,22 +635,26 @@ export interface operations {
             };
         };
     };
-    listPeriods: {
+    createEnvelope: {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateEnvelope"];
+            };
+        };
         responses: {
-            /** @description List of periods */
-            200: {
+            /** @description Envelope created */
+            201: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Period"][];
+                    "application/json": components["schemas"]["Envelope"];
                 };
             };
             /** @description Error response */
@@ -458,56 +668,105 @@ export interface operations {
             };
         };
     };
-    getCurrentPeriod: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Current period */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Period"];
-                };
-            };
-            /** @description Error response */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    getPeriod: {
+    getEnvelope: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                periodId: string;
+                envelopeId: string;
             };
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description Period details */
+            /** @description Envelope details */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Period"];
+                    "application/json": components["schemas"]["Envelope"];
                 };
             };
-            /** @description Period not found */
+            /** @description Envelope not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    deleteEnvelope: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                envelopeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Envelope deleted */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Envelope not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    updateEnvelope: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                envelopeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateEnvelope"];
+            };
+        };
+        responses: {
+            /** @description Envelope updated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope"];
+                };
+            };
+            /** @description Envelope not found */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -609,6 +868,84 @@ export interface operations {
         requestBody?: never;
         responses: {
             /** @description Transaction details */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Transaction"];
+                };
+            };
+            /** @description Transaction not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    deleteTransaction: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                transactionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Transaction deleted */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Transaction not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    updateTransaction: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                transactionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateTransaction"];
+            };
+        };
+        responses: {
+            /** @description Transaction updated */
             200: {
                 headers: {
                     [name: string]: unknown;

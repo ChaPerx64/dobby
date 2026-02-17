@@ -42,15 +42,6 @@ export const apiClient = {
     return api.GET('/envelopes');
   },
 
-  // Allocations
-  async listAllocations(periodId: string, userId?: string) {
-    return api.GET('/allocations', {
-      params: {
-        query: { periodId, userId },
-      },
-    });
-  },
-
   // Periods
   async getCurrentPeriod() {
     return api.GET('/periods/current');
