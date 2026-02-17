@@ -12,6 +12,11 @@ services:
       - POSTGRES_DB
     volumes:
       - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     networks:
       - homelab
 
@@ -26,7 +31,8 @@ services:
       - homelab
     command: ["up"]
     depends_on:
-      - dobby-db
+      dobby-db:
+        condition: service_healthy
 
   backend:
     build:
@@ -58,8 +64,10 @@ services:
       - "traefik.http.middlewares.dobby-cors.headers.addvaryheader=true"
       - "traefik.http.routers.dobby-api.middlewares=dobby-cors"
     depends_on:
-      - dobby-db
-      - dbmate
+      dobby-db:
+        condition: service_healthy
+      dbmate:
+        condition: service_completed_successfully
 
   frontend:
     build:
