@@ -13,6 +13,7 @@ var (
 	ErrValidation        = errors.New("validation error")
 	ErrPeriodOverlap     = errors.New("period dates overlap with existing period")
 	ErrInsufficientFunds = errors.New("insufficient funds")
+	ErrConflict          = errors.New("resource conflict")
 )
 
 type FinanceService interface {
@@ -28,6 +29,7 @@ type FinanceService interface {
 	// Envelope Operations
 	CreateEnvelope(ctx context.Context, name string) (*Envelope, error)
 	ListEnvelopes(ctx context.Context) ([]Envelope, error)
+	DeleteEnvelope(ctx context.Context, id uuid.UUID) error
 }
 
 type TransactionFilter struct {
@@ -51,6 +53,7 @@ type Repository interface {
 
 	SaveEnvelope(ctx context.Context, e *Envelope) error
 	ListEnvelopes(ctx context.Context) ([]Envelope, error)
+	DeleteEnvelope(ctx context.Context, id uuid.UUID) error
 
 	SaveTransaction(ctx context.Context, t *Transaction) error
 	ListTransactions(ctx context.Context, filter TransactionFilter) ([]Transaction, error)

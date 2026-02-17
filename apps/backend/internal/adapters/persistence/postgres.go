@@ -2,6 +2,7 @@ package persistence
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/ChaPerx64/dobby/apps/backend/internal/service"
@@ -153,6 +154,22 @@ func (r *psqlRepo) ListEnvelopes(ctx context.Context) ([]service.Envelope, error
 		res = append(res, e)
 	}
 	return res, nil
+}
+
+func (r *psqlRepo) DeleteEnvelope(ctx context.Context, id uuid.UUID) error {
+	query := `DELETE FROM envelopes WHERE id = $1`
+	result, err := r.getDB(ctx).Exec(ctx, query, id)
+	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == "23503" { // foreign_key_violation
+			return service.ErrConflict
+		}
+		return err
+	}
+	if result.RowsAffected() == 0 {
+		return service.ErrNotFound
+	}
+	return nil
 }
 
 func (r *psqlRepo) SaveTransaction(ctx context.Context, t *service.Transaction) error {

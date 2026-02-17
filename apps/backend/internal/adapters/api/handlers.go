@@ -107,6 +107,20 @@ func (h *dobbyHandler) CreateEnvelope(ctx context.Context, req *oas.CreateEnvelo
 	}, nil
 }
 
+func (h *dobbyHandler) DeleteEnvelope(ctx context.Context, params oas.DeleteEnvelopeParams) (oas.DeleteEnvelopeRes, error) {
+	log.Printf("Got a request DELETE /envelopes/%s\n", params.EnvelopeId)
+
+	err := h.financeService.DeleteEnvelope(ctx, params.EnvelopeId)
+	if err != nil {
+		if errors.Is(err, service.ErrNotFound) {
+			return &oas.DeleteEnvelopeNotFound{}, nil
+		}
+		return nil, h.NewError(ctx, err)
+	}
+
+	return &oas.DeleteEnvelopeNoContent{}, nil
+}
+
 func (h *dobbyHandler) CreatePeriod(ctx context.Context, req *oas.CreatePeriod) (*oas.PeriodSummary, error) {
 	log.Println("Got a request POST /periods")
 	p, err := h.financeService.CreatePeriod(ctx, &req.StartDate, &req.EndDate)
@@ -195,7 +209,7 @@ func (h *dobbyHandler) NewError(ctx context.Context, err error) *oas.ErrorStatus
 		code = 404
 	case errors.Is(err, service.ErrValidation):
 		code = 400
-	case errors.Is(err, service.ErrPeriodOverlap):
+	case errors.Is(err, service.ErrPeriodOverlap), errors.Is(err, service.ErrConflict):
 		code = 409
 	case errors.Is(err, service.ErrInsufficientFunds):
 		code = 422

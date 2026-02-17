@@ -162,3 +162,7 @@ func (s *dobbyFinancier) CreateEnvelope(ctx context.Context, name string) (*Enve
 func (s *dobbyFinancier) ListEnvelopes(ctx context.Context) ([]Envelope, error) {
 	return s.repo.ListEnvelopes(ctx)
 }
+
+func (s *dobbyFinancier) DeleteEnvelope(ctx context.Context, id uuid.UUID) error {
+	return s.repo.DeleteEnvelope(ctx, id)
+}
