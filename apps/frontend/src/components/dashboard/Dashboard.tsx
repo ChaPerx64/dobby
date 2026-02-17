@@ -12,6 +12,26 @@ export function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const handleEnvelopeCreated = (newEnvelope: { id: string; name: string }) => {
+    if (!period) return;
+
+    // Check if it already exists in the summaries to avoid duplicates
+    if (period.envelopeSummaries.some(s => s.envelopeId === newEnvelope.id)) return;
+
+    const newSummary = {
+      envelopeId: newEnvelope.id,
+      envelopeName: newEnvelope.name,
+      amount: 0,
+      spent: 0,
+      remaining: 0,
+    };
+
+    setPeriod({
+      ...period,
+      envelopeSummaries: [...period.envelopeSummaries, newSummary],
+    });
+  };
+
   useEffect(() => {
     async function loadData() {
       try {
@@ -76,6 +96,7 @@ export function Dashboard() {
         categories={categories}
         selectedCategory={selectedCategory}
         onSelectCategory={setSelectedCategory}
+        onEnvelopeCreated={handleEnvelopeCreated}
       />
       <MetricsPanel
         allocated={currentCategory.allocated}

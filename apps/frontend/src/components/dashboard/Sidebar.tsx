@@ -3,12 +3,15 @@ import { Separator } from '@/components/ui/separator';
 import type { CategoryItem } from '@/types/dashboard';
 import { getMonthName, formatDateRange } from '@/lib/format';
 import { LogOut } from 'lucide-react';
+import { CreateEnvelopeModal } from './CreateEnvelopeModal';
+import type { components } from '@/api/types';
 
 interface SidebarProps {
   period: { startDate: string; endDate: string };
   categories: CategoryItem[];
   selectedCategory: string;
   onSelectCategory: (categoryId: string) => void;
+  onEnvelopeCreated: (envelope: components["schemas"]["Envelope"]) => void;
 }
 
 export function Sidebar({
@@ -16,6 +19,7 @@ export function Sidebar({
   categories,
   selectedCategory,
   onSelectCategory,
+  onEnvelopeCreated,
 }: SidebarProps) {
   const auth = useAuth();
   const monthName = getMonthName(period.startDate);
@@ -35,6 +39,9 @@ export function Sidebar({
       <Separator className="mb-4" />
 
       <nav className="flex-1 overflow-y-auto">
+        <div className="mb-2">
+          <CreateEnvelopeModal onEnvelopeCreated={onEnvelopeCreated} />
+        </div>
         <ul className="space-y-1">
           {categories.map((category) => (
             <li key={category.id}>

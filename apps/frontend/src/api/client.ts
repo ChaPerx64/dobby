@@ -42,6 +42,12 @@ export const apiClient = {
     return api.GET('/envelopes');
   },
 
+  async createEnvelope(envelope: { name: string }) {
+    return api.POST('/envelopes', {
+      body: envelope,
+    });
+  },
+
   // Periods
   async getCurrentPeriod() {
     return api.GET('/periods/current');
