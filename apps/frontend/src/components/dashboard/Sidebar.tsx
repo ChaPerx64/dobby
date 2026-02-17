@@ -4,6 +4,7 @@ import type { CategoryItem } from '@/types/dashboard';
 import { getMonthName, formatDateRange } from '@/lib/format';
 import { LogOut } from 'lucide-react';
 import { CreateEnvelopeModal } from './CreateEnvelopeModal';
+import { CreateAllocationModal } from './CreateAllocationModal';
 import type { components } from '@/api/types';
 
 interface SidebarProps {
@@ -12,6 +13,7 @@ interface SidebarProps {
   selectedCategory: string;
   onSelectCategory: (categoryId: string) => void;
   onEnvelopeCreated: (envelope: components["schemas"]["Envelope"]) => void;
+  onAllocationCreated: () => void;
 }
 
 export function Sidebar({
@@ -20,6 +22,7 @@ export function Sidebar({
   selectedCategory,
   onSelectCategory,
   onEnvelopeCreated,
+  onAllocationCreated,
 }: SidebarProps) {
   const auth = useAuth();
   const monthName = getMonthName(period.startDate);
@@ -28,6 +31,13 @@ export function Sidebar({
   const handleLogout = () => {
     auth.signoutRedirect();
   };
+
+  // Filter out the 'Total' category for the allocation modal
+  const envelopes = categories
+    .filter((cat) => cat.id !== 'total')
+    .map((cat) => ({ id: cat.id, name: cat.name }));
+
+  const defaultEnvelopeId = selectedCategory !== 'total' ? selectedCategory : undefined;
 
   return (
     <div className="w-64 bg-card border-r border-border p-6 flex flex-col">
@@ -39,8 +49,13 @@ export function Sidebar({
       <Separator className="mb-4" />
 
       <nav className="flex-1 overflow-y-auto">
-        <div className="mb-2">
+        <div className="mb-2 space-y-1">
           <CreateEnvelopeModal onEnvelopeCreated={onEnvelopeCreated} />
+          <CreateAllocationModal
+            envelopes={envelopes}
+            onAllocationCreated={onAllocationCreated}
+            defaultEnvelopeId={defaultEnvelopeId}
+          />
         </div>
         <ul className="space-y-1">
           {categories.map((category) => (

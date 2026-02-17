@@ -12,6 +12,19 @@ export function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const loadData = async () => {
+    try {
+      const { data: periodData, error: periodError } = await apiClient.getCurrentPeriod();
+      if (periodError) throw new Error(periodError.message || 'Failed to fetch period');
+      if (!periodData) throw new Error('No period data received');
+      
+      setPeriod(periodData);
+    } catch (err: unknown) {
+      console.error(err);
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    }
+  };
+
   const handleEnvelopeCreated = (newEnvelope: { id: string; name: string }) => {
     if (!period) return;
 
@@ -33,22 +46,12 @@ export function Dashboard() {
   };
 
   useEffect(() => {
-    async function loadData() {
-      try {
-        setLoading(true);
-        const { data: periodData, error: periodError } = await apiClient.getCurrentPeriod();
-        if (periodError) throw new Error(periodError.message || 'Failed to fetch period');
-        if (!periodData) throw new Error('No period data received');
-        
-        setPeriod(periodData);
-      } catch (err: any) {
-        console.error(err);
-        setError(err.message || 'An error occurred');
-      } finally {
-        setLoading(false);
-      }
+    async function init() {
+      setLoading(true);
+      await loadData();
+      setLoading(false);
     }
-    loadData();
+    init();
   }, []);
 
   if (loading) {
@@ -97,6 +100,7 @@ export function Dashboard() {
         selectedCategory={selectedCategory}
         onSelectCategory={setSelectedCategory}
         onEnvelopeCreated={handleEnvelopeCreated}
+        onAllocationCreated={loadData}
       />
       <MetricsPanel
         allocated={currentCategory.allocated}

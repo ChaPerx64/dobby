@@ -1,5 +1,5 @@
 import createClient from 'openapi-fetch';
-import type { paths } from './types';
+import type { paths, components } from './types';
 
 // Create base client
 export const api = createClient<paths>({
@@ -70,12 +70,7 @@ export const apiClient = {
     });
   },
 
-  async createTransaction(transaction: {
-    envelopeId: string;
-    amount: number;
-    description?: string;
-    category?: string;
-  }) {
+  async createTransaction(transaction: components['schemas']['CreateTransaction']) {
     return api.POST('/transactions', {
       body: transaction,
     });
