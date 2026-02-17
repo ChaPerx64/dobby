@@ -41,7 +41,7 @@ PostgreSQL instance is run in a Docker container as a part of docker-compose env
 
 For development, you must run it (or ensure it is running) with `docker compose up -d dobby-db`.
 
-To apply migrations to this DB, run `docker compose run --rm dobby-dbmate`
+To apply migrations to this DB, run `docker compose run --rm dbmate`
 
 ## Back-end (`apps/backend/`)
 

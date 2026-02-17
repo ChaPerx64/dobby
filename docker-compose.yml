@@ -1,4 +1,33 @@
+x-common-variables: &common
+  DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?sslmode=disable
+
 services:
+  db:
+    image: postgres:17-alpine
+    container_name: dobby-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - homelab
+
+  dbmate:
+    image: amacneil/dbmate
+    container_name: dobby-dbmate
+    volumes:
+      - ./apps/db:/db
+    environment:
+      <<: *common
+    networks:
+      - homelab
+    command: ["up"]
+    depends_on:
+      - db
+
   backend:
     build:
       context: ./apps/backend
@@ -7,11 +36,12 @@ services:
     container_name: dobby-backend
     restart: unless-stopped
     environment:
-      - OIDC_AUTHORITY
-      - OIDC_BACKEND_CLIENT_ID
-      - OIDC_BACKEND_CLIENT_SECRET
-      - BACKEND_PORT
-      - ALLOWED_ORIGINS
+      OIDC_AUTHORITY:
+      OIDC_BACKEND_CLIENT_ID:
+      OIDC_BACKEND_CLIENT_SECRET:
+      BACKEND_PORT:
+      ALLOWED_ORIGINS:
+      <<: *common
     networks:
       - homelab
     labels:
@@ -27,6 +57,9 @@ services:
       - "traefik.http.middlewares.dobby-cors.headers.accesscontrolmaxage=100"
       - "traefik.http.middlewares.dobby-cors.headers.addvaryheader=true"
       - "traefik.http.routers.dobby-api.middlewares=dobby-cors"
+    depends_on:
+      - db
+      - dbmate
 
   frontend:
     build:
@@ -52,3 +85,6 @@ services:
 networks:
   homelab:
     external: true
+
+volumes:
+  db-data:
