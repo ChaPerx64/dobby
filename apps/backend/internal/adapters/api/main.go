@@ -9,12 +9,15 @@ import (
 	"time"
 
 	"github.com/ChaPerx64/dobby/apps/backend/internal/adapters/oas"
+	"github.com/ChaPerx64/dobby/apps/backend/internal/adapters/persistence"
 	"github.com/ChaPerx64/dobby/apps/backend/internal/config"
+	"github.com/ChaPerx64/dobby/apps/backend/internal/service"
 	"github.com/rs/cors"
 )
 
 type dobbyHandler struct {
 	oas.UnimplementedHandler // automatically implement all methods
+	financeService           service.FinanceService
 }
 
 // Compile-time check for Handler.
@@ -56,7 +59,10 @@ func RunServer(cfg config.Config) {
 	security.clientSecret = clientSecret
 	slog.Info("OIDC security initialized", "introspection_url", security.introspectionURL)
 
-	srv, err := oas.NewServer(dobbyHandler{}, security)
+	repo := persistence.NewMemoryRepository()
+	svc := service.NewDobbyFinancier(repo)
+
+	srv, err := oas.NewServer(&dobbyHandler{financeService: svc}, security)
 	if err != nil {
 		log.Fatal(err)
 	}

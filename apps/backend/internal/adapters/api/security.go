@@ -62,7 +62,6 @@ func (s *dobbySecurity) HandleBearerAuth(ctx context.Context, operationName oas.
 		return nil, fmt.Errorf("failed to decode introspection response: %w", err)
 	}
 
-
 	if !ir.Active {
 		return nil, fmt.Errorf("invalid token")
 	}
