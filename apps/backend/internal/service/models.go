@@ -21,13 +21,15 @@ type Period struct {
 
 // Envelope represents a budget category/bucket (e.g., "Groceries").
 type Envelope struct {
-	ID   uuid.UUID
-	Name string
+	ID     uuid.UUID
+	UserID uuid.UUID
+	Name   string
 }
 
 // Transaction represents a financial movement.
 type Transaction struct {
 	ID          uuid.UUID
+	UserID      uuid.UUID
 	PeriodID    uuid.UUID
 	EnvelopeID  uuid.UUID
 	Amount      int64 // Stored in cents. Positive = Income (Budget), Negative = Expense.

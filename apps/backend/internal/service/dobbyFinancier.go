@@ -8,12 +8,14 @@ import (
 )
 
 type dobbyFinancier struct {
-	repo Repository
+	repo      Repository
+	txManager TransactionManager
 }
 
-func NewDobbyFinancier(repo Repository) FinanceService {
+func NewDobbyFinancier(repo Repository, txManager TransactionManager) FinanceService {
 	return &dobbyFinancier{
-		repo: repo,
+		repo:      repo,
+		txManager: txManager,
 	}
 }
 
@@ -86,20 +88,27 @@ func (s *dobbyFinancier) ListPeriods(ctx context.Context) ([]Period, error) {
 	return s.repo.ListPeriods(ctx)
 }
 
-func (s *dobbyFinancier) RecordTransaction(ctx context.Context, t Transaction) (*Transaction, error) {
+func (s *dobbyFinancier) RecordTransaction(ctx context.Context, userID uuid.UUID, t Transaction) (*Transaction, error) {
 	if t.ID == uuid.Nil {
 		t.ID = uuid.New()
 	}
-	if err := s.repo.SaveTransaction(ctx, &t); err != nil {
+	t.UserID = userID
+
+	err := s.txManager.WithTx(ctx, func(ctx context.Context) error {
+		return s.repo.SaveTransaction(ctx, &t)
+	})
+
+	if err != nil {
 		return nil, err
 	}
 	return &t, nil
 }
 
-func (s *dobbyFinancier) CreateEnvelope(ctx context.Context, name string) (*Envelope, error) {
+func (s *dobbyFinancier) CreateEnvelope(ctx context.Context, userID uuid.UUID, name string) (*Envelope, error) {
 	e := &Envelope{
-		ID:   uuid.New(),
-		Name: name,
+		ID:     uuid.New(),
+		UserID: userID,
+		Name:   name,
 	}
 	if err := s.repo.SaveEnvelope(ctx, e); err != nil {
 		return nil, err

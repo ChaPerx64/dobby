@@ -22,10 +22,10 @@ type FinanceService interface {
 	ListPeriods(ctx context.Context) ([]Period, error)
 
 	// Transaction Operations
-	RecordTransaction(ctx context.Context, t Transaction) (*Transaction, error)
+	RecordTransaction(ctx context.Context, userID uuid.UUID, t Transaction) (*Transaction, error)
 
 	// Envelope Operations
-	CreateEnvelope(ctx context.Context, name string) (*Envelope, error)
+	CreateEnvelope(ctx context.Context, userID uuid.UUID, name string) (*Envelope, error)
 	ListEnvelopes(ctx context.Context) ([]Envelope, error)
 }
 
@@ -34,10 +34,11 @@ type TransactionFilter struct {
 	EnvelopeID *uuid.UUID
 }
 
-type Repository interface {
-	// Transactional support
-	WithTx(ctx context.Context, fn func(repo Repository) error) error
+type TransactionManager interface {
+	WithTx(ctx context.Context, fn func(ctx context.Context) error) error
+}
 
+type Repository interface {
 	// Domain methods
 	SaveUser(ctx context.Context, u *User) error
 	GetUser(ctx context.Context, id uuid.UUID) (*User, error)

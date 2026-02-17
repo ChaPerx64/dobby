@@ -1,6 +1,7 @@
 package api
 
 import (
+	"database/sql"
 	"encoding/json"
 	"log"
 	"log/slog"
@@ -13,6 +14,8 @@ import (
 	"github.com/ChaPerx64/dobby/apps/backend/internal/config"
 	"github.com/ChaPerx64/dobby/apps/backend/internal/service"
 	"github.com/rs/cors"
+
+	_ "github.com/lib/pq"
 )
 
 type dobbyHandler struct {
@@ -59,8 +62,18 @@ func RunServer(cfg config.Config) {
 	security.clientSecret = clientSecret
 	slog.Info("OIDC security initialized", "introspection_url", security.introspectionURL)
 
-	repo := persistence.NewMemoryRepository()
-	svc := service.NewDobbyFinancier(repo)
+	db, err := sql.Open("postgres", cfg.DatabaseURL)
+	if err != nil {
+		log.Fatalf("failed to open database: %v", err)
+	}
+	if err := db.Ping(); err != nil {
+		log.Fatalf("failed to ping database: %v", err)
+	}
+	slog.Info("Connected to PostgreSQL")
+
+	repo := persistence.NewPostgresRepository(db)
+	txManager := persistence.NewPostgresTransactionManager(db)
+	svc := service.NewDobbyFinancier(repo, txManager)
 
 	srv, err := oas.NewServer(&dobbyHandler{financeService: svc}, security)
 	if err != nil {

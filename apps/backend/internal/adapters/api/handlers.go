@@ -115,9 +115,23 @@ func (h *dobbyHandler) ListPeriods(ctx context.Context) ([]oas.PeriodListItem, e
 	return res, nil
 }
 
+func (h *dobbyHandler) getUserID(ctx context.Context) uuid.UUID {
+	idStr, ok := GetUserID(ctx)
+	if !ok {
+		// Default user for now if not authenticated, or we could return error
+		return uuid.MustParse("00000000-0000-0000-0000-000000000001")
+	}
+	parsed, err := uuid.Parse(idStr)
+	if err != nil {
+		return uuid.MustParse("00000000-0000-0000-0000-000000000001")
+	}
+	return parsed
+}
+
 func (h *dobbyHandler) CreateEnvelope(ctx context.Context, req *oas.CreateEnvelope) (*oas.Envelope, error) {
 	log.Println("Got a request POST /envelopes")
-	env, err := h.financeService.CreateEnvelope(ctx, req.Name)
+	userID := h.getUserID(ctx)
+	env, err := h.financeService.CreateEnvelope(ctx, userID, req.ToLogicModel())
 	if err != nil {
 		return nil, h.NewError(ctx, err)
 	}
@@ -145,14 +159,9 @@ func (h *dobbyHandler) CreatePeriod(ctx context.Context, req *oas.CreatePeriod) 
 func (h *dobbyHandler) CreateTransaction(ctx context.Context, req *oas.CreateTransaction) (oas.CreateTransactionRes, error) {
 	log.Println("Got a request POST /transactions")
 
-	// We need to find which period this transaction belongs to.
-	// For now, let's assume it belongs to the period covering its date.
-	// Or just use the current period if we don't have a lookup.
-	// The service.Transaction model needs a PeriodID.
-
-	tDate := time.Now()
-	if v, ok := req.Date.Get(); ok {
-		tDate = v
+	t := req.ToLogicModel()
+	if t.Date.IsZero() {
+		t.Date = time.Now()
 	}
 
 	periods, err := h.financeService.ListPeriods(ctx)
@@ -162,7 +171,7 @@ func (h *dobbyHandler) CreateTransaction(ctx context.Context, req *oas.CreateTra
 
 	var periodID uuid.UUID
 	for _, p := range periods {
-		if (tDate.After(p.StartDate) || tDate.Equal(p.StartDate)) && (tDate.Before(p.EndDate) || tDate.Equal(p.EndDate)) {
+		if (t.Date.After(p.StartDate) || t.Date.Equal(p.StartDate)) && (t.Date.Before(p.EndDate) || t.Date.Equal(p.EndDate)) {
 			periodID = p.ID
 			break
 		}
@@ -172,26 +181,21 @@ func (h *dobbyHandler) CreateTransaction(ctx context.Context, req *oas.CreateTra
 		return nil, h.NewError(ctx, errors.New("no period found for transaction date"))
 	}
 
-	t, err := h.financeService.RecordTransaction(ctx, service.Transaction{
-		PeriodID:    periodID,
-		EnvelopeID:  req.EnvelopeId,
-		Amount:      req.Amount,
-		Description: req.Description.Or(""),
-		Date:        tDate,
-		Category:    req.Category.Or(""),
-	})
+	t.PeriodID = periodID
+	userID := h.getUserID(ctx)
+	recorded, err := h.financeService.RecordTransaction(ctx, userID, t)
 	if err != nil {
 		return nil, h.NewError(ctx, err)
 	}
 
 	return &oas.Transaction{
-		ID:          t.ID,
-		PeriodId:    t.PeriodID,
-		EnvelopeId:  t.EnvelopeID,
-		Amount:      t.Amount,
-		Description: oas.NewOptString(t.Description),
-		Date:        t.Date,
-		Category:    oas.NewOptString(t.Category),
+		ID:          recorded.ID,
+		PeriodId:    recorded.PeriodID,
+		EnvelopeId:  recorded.EnvelopeID,
+		Amount:      recorded.Amount,
+		Description: oas.NewOptString(recorded.Description),
+		Date:        recorded.Date,
+		Category:    oas.NewOptString(recorded.Category),
 	}, nil
 }
 
@@ -219,11 +223,24 @@ func mapPeriodSummaryToOAS(s *service.PeriodSummary) *oas.Period {
 	}
 }
 
-func (h dobbyHandler) NewError(ctx context.Context, err error) *oas.ErrorStatusCode {
+func (h *dobbyHandler) NewError(ctx context.Context, err error) *oas.ErrorStatusCode {
+	var code int
+	switch {
+	case errors.Is(err, service.ErrNotFound):
+		code = 404
+	case errors.Is(err, service.ErrValidation):
+		code = 400
+	case errors.Is(err, service.ErrPeriodOverlap):
+		code = 409
+	case errors.Is(err, service.ErrInsufficientFunds):
+		code = 422
+	default:
+		code = 500
+	}
 	return &oas.ErrorStatusCode{
-		StatusCode: 500,
+		StatusCode: code,
 		Response: oas.Error{
-			Code:    500,
+			Code:    code,
 			Message: err.Error(),
 		},
 	}

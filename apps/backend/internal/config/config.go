@@ -15,6 +15,7 @@ type Config struct {
 	OIDCBackendClientSecret string
 	BackendPort             string
 	AllowedOrigins          []string
+	DatabaseURL             string
 }
 
 func Load() Config {
@@ -29,6 +30,7 @@ func Load() Config {
 		OIDCBackendClientSecret: requireEnv("OIDC_BACKEND_CLIENT_SECRET"),
 		BackendPort:             requireEnv("BACKEND_PORT"),
 		AllowedOrigins:          getEnvAsSlice("ALLOWED_ORIGINS", []string{"*"}),
+		DatabaseURL:             requireEnv("DATABASE_URL"),
 	}
 }
 
