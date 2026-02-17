@@ -123,7 +123,7 @@ func (h *dobbyHandler) CreateEnvelope(ctx context.Context, req *oas.CreateEnvelo
 
 func (h *dobbyHandler) CreatePeriod(ctx context.Context, req *oas.CreatePeriod) (*oas.PeriodSummary, error) {
 	log.Println("Got a request POST /periods")
-	p, err := h.financeService.CreatePeriod(ctx, req.StartDate, req.EndDate)
+	p, err := h.financeService.CreatePeriod(ctx, &req.StartDate, &req.EndDate)
 	if err != nil {
 		return nil, h.NewError(ctx, err)
 	}

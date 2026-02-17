@@ -2,79 +2,80 @@ package persistence
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 
 	"github.com/ChaPerx64/dobby/apps/backend/internal/service"
 	"github.com/google/uuid"
-	_ "github.com/lib/pq"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type uowKey struct{}
 
 type psqlRepo struct {
-	db *sql.DB
+	db *pgxpool.Pool
 }
 
 type DB interface {
-	ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error)
-	QueryContext(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error)
-	QueryRowContext(ctx context.Context, query string, args ...interface{}) *sql.Row
+	Exec(ctx context.Context, query string, args ...interface{}) (pgconn.CommandTag, error)
+	Query(ctx context.Context, query string, args ...interface{}) (pgx.Rows, error)
+	QueryRow(ctx context.Context, query string, args ...interface{}) pgx.Row
 }
 
-func NewPostgresRepository(db *sql.DB) service.Repository {
+func NewPostgresRepository(db *pgxpool.Pool) service.Repository {
 	return &psqlRepo{db: db}
 }
 
 func (r *psqlRepo) getDB(ctx context.Context) DB {
-	if tx, ok := ctx.Value(uowKey{}).(*sql.Tx); ok {
+	if tx, ok := ctx.Value(uowKey{}).(pgx.Tx); ok {
 		return tx
 	}
 	return r.db
 }
 
 type psqlTxManager struct {
-	db *sql.DB
+	db *pgxpool.Pool
 }
 
-func NewPostgresTransactionManager(db *sql.DB) service.TransactionManager {
+func NewPostgresTransactionManager(db *pgxpool.Pool) service.TransactionManager {
 	return &psqlTxManager{db: db}
 }
 
 func (m *psqlTxManager) WithTx(ctx context.Context, fn func(ctx context.Context) error) error {
-	tx, err := m.db.BeginTx(ctx, nil)
+	tx, err := m.db.Begin(ctx)
 	if err != nil {
 		return err
 	}
 
 	defer func() {
 		if p := recover(); p != nil {
-			tx.Rollback()
+			_ = tx.Rollback(ctx)
 			panic(p)
 		}
 	}()
 
 	ctxWithTx := context.WithValue(ctx, uowKey{}, tx)
 	if err := fn(ctxWithTx); err != nil {
-		tx.Rollback()
+		_ = tx.Rollback(ctx)
 		return err
 	}
 
-	return tx.Commit()
+	return tx.Commit(ctx)
 }
 
 func (r *psqlRepo) SaveUser(ctx context.Context, u *service.User) error {
 	query := `INSERT INTO users (id, name) VALUES ($1, $2)
               ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name`
-	_, err := r.getDB(ctx).ExecContext(ctx, query, u.ID, u.Name)
+	_, err := r.getDB(ctx).Exec(ctx, query, u.ID, u.Name)
 	return err
 }
 
 func (r *psqlRepo) GetUser(ctx context.Context, id uuid.UUID) (*service.User, error) {
 	query := `SELECT id, name FROM users WHERE id = $1`
 	u := &service.User{}
-	err := r.getDB(ctx).QueryRowContext(ctx, query, id).Scan(&u.ID, &u.Name)
-	if err == sql.ErrNoRows {
+	err := r.getDB(ctx).QueryRow(ctx, query, id).Scan(&u.ID, &u.Name)
+	if err == pgx.ErrNoRows {
 		return nil, service.ErrNotFound
 	}
 	return u, err
@@ -83,15 +84,15 @@ func (r *psqlRepo) GetUser(ctx context.Context, id uuid.UUID) (*service.User, er
 func (r *psqlRepo) SavePeriod(ctx context.Context, p *service.Period) error {
 	query := `INSERT INTO financial_periods (id, start_dt, end_dt) VALUES ($1, $2, $3)
               ON CONFLICT (id) DO UPDATE SET start_dt = EXCLUDED.start_dt, end_dt = EXCLUDED.end_dt`
-	_, err := r.getDB(ctx).ExecContext(ctx, query, p.ID, p.StartDate, p.EndDate)
+	_, err := r.getDB(ctx).Exec(ctx, query, p.ID, p.StartDate, p.EndDate)
 	return err
 }
 
 func (r *psqlRepo) GetPeriod(ctx context.Context, id uuid.UUID) (*service.Period, error) {
 	query := `SELECT id, start_dt, end_dt FROM financial_periods WHERE id = $1`
 	p := &service.Period{}
-	err := r.getDB(ctx).QueryRowContext(ctx, query, id).Scan(&p.ID, &p.StartDate, &p.EndDate)
-	if err == sql.ErrNoRows {
+	err := r.getDB(ctx).QueryRow(ctx, query, id).Scan(&p.ID, &p.StartDate, &p.EndDate)
+	if err == pgx.ErrNoRows {
 		return nil, service.ErrNotFound
 	}
 	return p, err
@@ -102,8 +103,8 @@ func (r *psqlRepo) GetCurrentPeriod(ctx context.Context) (*service.Period, error
               WHERE NOW() BETWEEN start_dt AND end_dt 
               ORDER BY start_dt ASC LIMIT 1`
 	p := &service.Period{}
-	err := r.getDB(ctx).QueryRowContext(ctx, query).Scan(&p.ID, &p.StartDate, &p.EndDate)
-	if err == sql.ErrNoRows {
+	err := r.getDB(ctx).QueryRow(ctx, query).Scan(&p.ID, &p.StartDate, &p.EndDate)
+	if err == pgx.ErrNoRows {
 		return nil, service.ErrNotFound
 	}
 	return p, err
@@ -111,7 +112,7 @@ func (r *psqlRepo) GetCurrentPeriod(ctx context.Context) (*service.Period, error
 
 func (r *psqlRepo) ListPeriods(ctx context.Context) ([]service.Period, error) {
 	query := `SELECT id, start_dt, end_dt FROM financial_periods ORDER BY start_dt DESC`
-	rows, err := r.getDB(ctx).QueryContext(ctx, query)
+	rows, err := r.getDB(ctx).Query(ctx, query)
 	if err != nil {
 		return nil, err
 	}
@@ -131,13 +132,13 @@ func (r *psqlRepo) ListPeriods(ctx context.Context) ([]service.Period, error) {
 func (r *psqlRepo) SaveEnvelope(ctx context.Context, e *service.Envelope) error {
 	query := `INSERT INTO envelopes (id, user_id, name) VALUES ($1, $2, $3)
               ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, user_id = EXCLUDED.user_id`
-	_, err := r.getDB(ctx).ExecContext(ctx, query, e.ID, e.UserID, e.Name)
+	_, err := r.getDB(ctx).Exec(ctx, query, e.ID, e.UserID, e.Name)
 	return err
 }
 
 func (r *psqlRepo) ListEnvelopes(ctx context.Context) ([]service.Envelope, error) {
 	query := `SELECT id, user_id, name FROM envelopes`
-	rows, err := r.getDB(ctx).QueryContext(ctx, query)
+	rows, err := r.getDB(ctx).Query(ctx, query)
 	if err != nil {
 		return nil, err
 	}
@@ -165,7 +166,7 @@ func (r *psqlRepo) SaveTransaction(ctx context.Context, t *service.Transaction) 
                 amount = EXCLUDED.amount,
                 description = EXCLUDED.description,
                 date = EXCLUDED.date`
-	_, err := r.getDB(ctx).ExecContext(ctx, query, t.ID, t.PeriodID, t.UserID, t.EnvelopeID, t.Category, t.Amount, t.Description, t.Date)
+	_, err := r.getDB(ctx).Exec(ctx, query, t.ID, t.PeriodID, t.UserID, t.EnvelopeID, t.Category, t.Amount, t.Description, t.Date)
 	return err
 }
 
@@ -187,7 +188,7 @@ func (r *psqlRepo) ListTransactions(ctx context.Context, filter service.Transact
 
 	query += " ORDER BY date DESC"
 
-	rows, err := r.getDB(ctx).QueryContext(ctx, query, args...)
+	rows, err := r.getDB(ctx).Query(ctx, query, args...)
 	if err != nil {
 		return nil, err
 	}

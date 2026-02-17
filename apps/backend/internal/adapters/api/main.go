@@ -1,7 +1,7 @@
 package api
 
 import (
-	"database/sql"
+	"context"
 	"encoding/json"
 	"log"
 	"log/slog"
@@ -13,9 +13,8 @@ import (
 	"github.com/ChaPerx64/dobby/apps/backend/internal/adapters/persistence"
 	"github.com/ChaPerx64/dobby/apps/backend/internal/config"
 	"github.com/ChaPerx64/dobby/apps/backend/internal/service"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/rs/cors"
-
-	_ "github.com/lib/pq"
 )
 
 type dobbyHandler struct {
@@ -62,14 +61,17 @@ func RunServer(cfg config.Config) {
 	security.clientSecret = clientSecret
 	slog.Info("OIDC security initialized", "introspection_url", security.introspectionURL)
 
-	db, err := sql.Open("postgres", cfg.DatabaseURL)
+	ctx := context.Background()
+	db, err := pgxpool.New(ctx, cfg.DatabaseURL)
 	if err != nil {
-		log.Fatalf("failed to open database: %v", err)
+		log.Fatalf("failed to create connection pool: %v", err)
 	}
-	if err := db.Ping(); err != nil {
+	defer db.Close()
+
+	if err := db.Ping(ctx); err != nil {
 		log.Fatalf("failed to ping database: %v", err)
 	}
-	slog.Info("Connected to PostgreSQL")
+	slog.Info("Connected to PostgreSQL (pgx)")
 
 	repo := persistence.NewPostgresRepository(db)
 	txManager := persistence.NewPostgresTransactionManager(db)

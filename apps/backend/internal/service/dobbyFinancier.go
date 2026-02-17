@@ -2,6 +2,8 @@ package service
 
 import (
 	"context"
+	"errors"
+	"log/slog"
 	"time"
 
 	"github.com/google/uuid"
@@ -19,11 +21,25 @@ func NewDobbyFinancier(repo Repository, txManager TransactionManager) FinanceSer
 	}
 }
 
-func (s *dobbyFinancier) CreatePeriod(ctx context.Context, start, end time.Time) (*Period, error) {
+func (s *dobbyFinancier) CreatePeriod(ctx context.Context, start, end *time.Time) (*Period, error) {
+	if start == nil {
+		startTime, err := calculateNextPeriodStartTime(time.Now().AddDate(0, -1, 0))
+		if err != nil {
+			return nil, err
+		}
+		start = &startTime
+	}
+	if end == nil {
+		endTime, err := calculateNextPeriodStartTime(time.Now())
+		if err != nil {
+			return nil, err
+		}
+		end = &endTime
+	}
 	p := &Period{
 		ID:        uuid.New(),
-		StartDate: start,
-		EndDate:   end,
+		StartDate: *start,
+		EndDate:   *end,
 	}
 	if err := s.repo.SavePeriod(ctx, p); err != nil {
 		return nil, err
@@ -31,9 +47,29 @@ func (s *dobbyFinancier) CreatePeriod(ctx context.Context, start, end time.Time)
 	return p, nil
 }
 
+func calculateNextPeriodStartTime(referenceTime time.Time) (time.Time, error) {
+	nextPeriodStart := referenceTime.AddDate(0, 1, 0)
+	weekday := nextPeriodStart.Weekday()
+	var moveByDays int
+	if weekday > 5 {
+		moveByDays = int(weekday) - 5
+	}
+	if moveByDays == 0 {
+		return nextPeriodStart, nil
+	}
+	return nextPeriodStart.AddDate(0, 0, -moveByDays), nil
+}
+
 func (s *dobbyFinancier) GetCurrentPeriod(ctx context.Context) (*PeriodSummary, error) {
 	p, err := s.repo.GetCurrentPeriod(ctx)
-	if err != nil {
+	if errors.Is(err, ErrNotFound) {
+		slog.Warn("Failed to get current period, creating a new one", "error", err)
+		p, err = s.CreatePeriod(ctx, nil, nil)
+		if err != nil {
+			return nil, err
+		}
+		return s.GetPeriodSummary(ctx, p.ID)
+	} else if err != nil {
 		return nil, err
 	}
 	return s.GetPeriodSummary(ctx, p.ID)
