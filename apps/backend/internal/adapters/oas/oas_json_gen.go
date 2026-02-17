@@ -969,231 +969,6 @@ func (s *OptUUID) UnmarshalJSON(data []byte) error {
 }
 
 // Encode implements json.Marshaler.
-func (s *Period) Encode(e *jx.Encoder) {
-	e.ObjStart()
-	s.encodeFields(e)
-	e.ObjEnd()
-}
-
-// encodeFields encodes fields.
-func (s *Period) encodeFields(e *jx.Encoder) {
-	{
-		e.FieldStart("id")
-		json.EncodeUUID(e, s.ID)
-	}
-	{
-		e.FieldStart("startDate")
-		json.EncodeDate(e, s.StartDate)
-	}
-	{
-		e.FieldStart("endDate")
-		json.EncodeDate(e, s.EndDate)
-	}
-	{
-		e.FieldStart("totalBudget")
-		e.Int64(s.TotalBudget)
-	}
-	{
-		e.FieldStart("totalRemaining")
-		e.Int64(s.TotalRemaining)
-	}
-	{
-		e.FieldStart("totalSpent")
-		e.Int64(s.TotalSpent)
-	}
-	{
-		if s.ProjectedEndingBalance.Set {
-			e.FieldStart("projectedEndingBalance")
-			s.ProjectedEndingBalance.Encode(e)
-		}
-	}
-	{
-		e.FieldStart("envelopeSummaries")
-		e.ArrStart()
-		for _, elem := range s.EnvelopeSummaries {
-			elem.Encode(e)
-		}
-		e.ArrEnd()
-	}
-}
-
-var jsonFieldsNameOfPeriod = [8]string{
-	0: "id",
-	1: "startDate",
-	2: "endDate",
-	3: "totalBudget",
-	4: "totalRemaining",
-	5: "totalSpent",
-	6: "projectedEndingBalance",
-	7: "envelopeSummaries",
-}
-
-// Decode decodes Period from json.
-func (s *Period) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode Period to nil")
-	}
-	var requiredBitSet [1]uint8
-
-	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
-		switch string(k) {
-		case "id":
-			requiredBitSet[0] |= 1 << 0
-			if err := func() error {
-				v, err := json.DecodeUUID(d)
-				s.ID = v
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"id\"")
-			}
-		case "startDate":
-			requiredBitSet[0] |= 1 << 1
-			if err := func() error {
-				v, err := json.DecodeDate(d)
-				s.StartDate = v
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"startDate\"")
-			}
-		case "endDate":
-			requiredBitSet[0] |= 1 << 2
-			if err := func() error {
-				v, err := json.DecodeDate(d)
-				s.EndDate = v
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"endDate\"")
-			}
-		case "totalBudget":
-			requiredBitSet[0] |= 1 << 3
-			if err := func() error {
-				v, err := d.Int64()
-				s.TotalBudget = int64(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"totalBudget\"")
-			}
-		case "totalRemaining":
-			requiredBitSet[0] |= 1 << 4
-			if err := func() error {
-				v, err := d.Int64()
-				s.TotalRemaining = int64(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"totalRemaining\"")
-			}
-		case "totalSpent":
-			requiredBitSet[0] |= 1 << 5
-			if err := func() error {
-				v, err := d.Int64()
-				s.TotalSpent = int64(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"totalSpent\"")
-			}
-		case "projectedEndingBalance":
-			if err := func() error {
-				s.ProjectedEndingBalance.Reset()
-				if err := s.ProjectedEndingBalance.Decode(d); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"projectedEndingBalance\"")
-			}
-		case "envelopeSummaries":
-			requiredBitSet[0] |= 1 << 7
-			if err := func() error {
-				s.EnvelopeSummaries = make([]EnvelopeSummary, 0)
-				if err := d.Arr(func(d *jx.Decoder) error {
-					var elem EnvelopeSummary
-					if err := elem.Decode(d); err != nil {
-						return err
-					}
-					s.EnvelopeSummaries = append(s.EnvelopeSummaries, elem)
-					return nil
-				}); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"envelopeSummaries\"")
-			}
-		default:
-			return d.Skip()
-		}
-		return nil
-	}); err != nil {
-		return errors.Wrap(err, "decode Period")
-	}
-	// Validate required fields.
-	var failures []validate.FieldError
-	for i, mask := range [1]uint8{
-		0b10111111,
-	} {
-		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
-			// Mask only required fields and check equality to mask using XOR.
-			//
-			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
-			// Bits of fields which would be set are actually bits of missed fields.
-			missed := bits.OnesCount8(result)
-			for bitN := 0; bitN < missed; bitN++ {
-				bitIdx := bits.TrailingZeros8(result)
-				fieldIdx := i*8 + bitIdx
-				var name string
-				if fieldIdx < len(jsonFieldsNameOfPeriod) {
-					name = jsonFieldsNameOfPeriod[fieldIdx]
-				} else {
-					name = strconv.Itoa(fieldIdx)
-				}
-				failures = append(failures, validate.FieldError{
-					Name:  name,
-					Error: validate.ErrFieldRequired,
-				})
-				// Reset bit.
-				result &^= 1 << bitIdx
-			}
-		}
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *Period) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *Period) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode implements json.Marshaler.
 func (s *PeriodListItem) Encode(e *jx.Encoder) {
 	e.ObjStart()
 	s.encodeFields(e)
@@ -1319,6 +1094,231 @@ func (s *PeriodListItem) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *PeriodListItem) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *PeriodSummary) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *PeriodSummary) encodeFields(e *jx.Encoder) {
+	{
+		e.FieldStart("id")
+		json.EncodeUUID(e, s.ID)
+	}
+	{
+		e.FieldStart("startDate")
+		json.EncodeDate(e, s.StartDate)
+	}
+	{
+		e.FieldStart("endDate")
+		json.EncodeDate(e, s.EndDate)
+	}
+	{
+		e.FieldStart("totalBudget")
+		e.Int64(s.TotalBudget)
+	}
+	{
+		e.FieldStart("totalRemaining")
+		e.Int64(s.TotalRemaining)
+	}
+	{
+		e.FieldStart("totalSpent")
+		e.Int64(s.TotalSpent)
+	}
+	{
+		if s.ProjectedEndingBalance.Set {
+			e.FieldStart("projectedEndingBalance")
+			s.ProjectedEndingBalance.Encode(e)
+		}
+	}
+	{
+		e.FieldStart("envelopeSummaries")
+		e.ArrStart()
+		for _, elem := range s.EnvelopeSummaries {
+			elem.Encode(e)
+		}
+		e.ArrEnd()
+	}
+}
+
+var jsonFieldsNameOfPeriodSummary = [8]string{
+	0: "id",
+	1: "startDate",
+	2: "endDate",
+	3: "totalBudget",
+	4: "totalRemaining",
+	5: "totalSpent",
+	6: "projectedEndingBalance",
+	7: "envelopeSummaries",
+}
+
+// Decode decodes PeriodSummary from json.
+func (s *PeriodSummary) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode PeriodSummary to nil")
+	}
+	var requiredBitSet [1]uint8
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "id":
+			requiredBitSet[0] |= 1 << 0
+			if err := func() error {
+				v, err := json.DecodeUUID(d)
+				s.ID = v
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"id\"")
+			}
+		case "startDate":
+			requiredBitSet[0] |= 1 << 1
+			if err := func() error {
+				v, err := json.DecodeDate(d)
+				s.StartDate = v
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"startDate\"")
+			}
+		case "endDate":
+			requiredBitSet[0] |= 1 << 2
+			if err := func() error {
+				v, err := json.DecodeDate(d)
+				s.EndDate = v
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"endDate\"")
+			}
+		case "totalBudget":
+			requiredBitSet[0] |= 1 << 3
+			if err := func() error {
+				v, err := d.Int64()
+				s.TotalBudget = int64(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"totalBudget\"")
+			}
+		case "totalRemaining":
+			requiredBitSet[0] |= 1 << 4
+			if err := func() error {
+				v, err := d.Int64()
+				s.TotalRemaining = int64(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"totalRemaining\"")
+			}
+		case "totalSpent":
+			requiredBitSet[0] |= 1 << 5
+			if err := func() error {
+				v, err := d.Int64()
+				s.TotalSpent = int64(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"totalSpent\"")
+			}
+		case "projectedEndingBalance":
+			if err := func() error {
+				s.ProjectedEndingBalance.Reset()
+				if err := s.ProjectedEndingBalance.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"projectedEndingBalance\"")
+			}
+		case "envelopeSummaries":
+			requiredBitSet[0] |= 1 << 7
+			if err := func() error {
+				s.EnvelopeSummaries = make([]EnvelopeSummary, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem EnvelopeSummary
+					if err := elem.Decode(d); err != nil {
+						return err
+					}
+					s.EnvelopeSummaries = append(s.EnvelopeSummaries, elem)
+					return nil
+				}); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"envelopeSummaries\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode PeriodSummary")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b10111111,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfPeriodSummary) {
+					name = jsonFieldsNameOfPeriodSummary[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *PeriodSummary) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *PeriodSummary) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }

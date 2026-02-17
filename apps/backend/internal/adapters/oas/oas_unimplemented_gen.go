@@ -27,7 +27,7 @@ func (UnimplementedHandler) CreateEnvelope(ctx context.Context, req *CreateEnvel
 // Create a new financial period.
 //
 // POST /periods
-func (UnimplementedHandler) CreatePeriod(ctx context.Context, req *CreatePeriod) (r *Period, _ error) {
+func (UnimplementedHandler) CreatePeriod(ctx context.Context, req *CreatePeriod) (r *PeriodSummary, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -72,7 +72,7 @@ func (UnimplementedHandler) DeleteTransaction(ctx context.Context, params Delete
 // Get current active period.
 //
 // GET /periods/current
-func (UnimplementedHandler) GetCurrentPeriod(ctx context.Context) (r *Period, _ error) {
+func (UnimplementedHandler) GetCurrentPeriod(ctx context.Context) (r *PeriodSummary, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

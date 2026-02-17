@@ -369,7 +369,7 @@ func (s *Server) handleCreatePeriodRequest(args [0]string, argsEscaped bool, w h
 		}
 	}()
 
-	var response *Period
+	var response *PeriodSummary
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -385,7 +385,7 @@ func (s *Server) handleCreatePeriodRequest(args [0]string, argsEscaped bool, w h
 		type (
 			Request  = *CreatePeriod
 			Params   = struct{}
-			Response = *Period
+			Response = *PeriodSummary
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -1344,7 +1344,7 @@ func (s *Server) handleGetCurrentPeriodRequest(args [0]string, argsEscaped bool,
 
 	var rawBody []byte
 
-	var response *Period
+	var response *PeriodSummary
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -1360,7 +1360,7 @@ func (s *Server) handleGetCurrentPeriodRequest(args [0]string, argsEscaped bool,
 		type (
 			Request  = struct{}
 			Params   = struct{}
-			Response = *Period
+			Response = *PeriodSummary
 		)
 		response, err = middleware.HookMiddleware[
 			Request,

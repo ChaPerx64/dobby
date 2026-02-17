@@ -39,7 +39,7 @@ type Invoker interface {
 	// Create a new financial period.
 	//
 	// POST /periods
-	CreatePeriod(ctx context.Context, request *CreatePeriod) (*Period, error)
+	CreatePeriod(ctx context.Context, request *CreatePeriod) (*PeriodSummary, error)
 	// CreateTransaction invokes createTransaction operation.
 	//
 	// Create a new transaction.
@@ -69,7 +69,7 @@ type Invoker interface {
 	// Get current active period.
 	//
 	// GET /periods/current
-	GetCurrentPeriod(ctx context.Context) (*Period, error)
+	GetCurrentPeriod(ctx context.Context) (*PeriodSummary, error)
 	// GetCurrentUser invokes getCurrentUser operation.
 	//
 	// Get current authenticated user.
@@ -301,12 +301,12 @@ func (c *Client) sendCreateEnvelope(ctx context.Context, request *CreateEnvelope
 // Create a new financial period.
 //
 // POST /periods
-func (c *Client) CreatePeriod(ctx context.Context, request *CreatePeriod) (*Period, error) {
+func (c *Client) CreatePeriod(ctx context.Context, request *CreatePeriod) (*PeriodSummary, error) {
 	res, err := c.sendCreatePeriod(ctx, request)
 	return res, err
 }
 
-func (c *Client) sendCreatePeriod(ctx context.Context, request *CreatePeriod) (res *Period, err error) {
+func (c *Client) sendCreatePeriod(ctx context.Context, request *CreatePeriod) (res *PeriodSummary, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("createPeriod"),
 		semconv.HTTPRequestMethodKey.String("POST"),
@@ -891,12 +891,12 @@ func (c *Client) sendDeleteTransaction(ctx context.Context, params DeleteTransac
 // Get current active period.
 //
 // GET /periods/current
-func (c *Client) GetCurrentPeriod(ctx context.Context) (*Period, error) {
+func (c *Client) GetCurrentPeriod(ctx context.Context) (*PeriodSummary, error) {
 	res, err := c.sendGetCurrentPeriod(ctx)
 	return res, err
 }
 
-func (c *Client) sendGetCurrentPeriod(ctx context.Context) (res *Period, err error) {
+func (c *Client) sendGetCurrentPeriod(ctx context.Context) (res *PeriodSummary, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("getCurrentPeriod"),
 		semconv.HTTPRequestMethodKey.String("GET"),

@@ -97,6 +97,18 @@ func (r *psqlRepo) GetPeriod(ctx context.Context, id uuid.UUID) (*service.Period
 	return p, err
 }
 
+func (r *psqlRepo) GetCurrentPeriod(ctx context.Context) (*service.Period, error) {
+	query := `SELECT id, start_dt, end_dt FROM financial_periods 
+              WHERE NOW() BETWEEN start_dt AND end_dt 
+              ORDER BY start_dt ASC LIMIT 1`
+	p := &service.Period{}
+	err := r.getDB(ctx).QueryRowContext(ctx, query).Scan(&p.ID, &p.StartDate, &p.EndDate)
+	if err == sql.ErrNoRows {
+		return nil, service.ErrNotFound
+	}
+	return p, err
+}
+
 func (r *psqlRepo) ListPeriods(ctx context.Context) ([]service.Period, error) {
 	query := `SELECT id, start_dt, end_dt FROM financial_periods ORDER BY start_dt DESC`
 	rows, err := r.getDB(ctx).QueryContext(ctx, query)

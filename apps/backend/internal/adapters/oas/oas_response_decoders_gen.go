@@ -96,7 +96,7 @@ func decodeCreateEnvelopeResponse(resp *http.Response) (res *Envelope, _ error) 
 	return res, errors.Wrap(defRes, "error")
 }
 
-func decodeCreatePeriodResponse(resp *http.Response) (res *Period, _ error) {
+func decodeCreatePeriodResponse(resp *http.Response) (res *PeriodSummary, _ error) {
 	switch resp.StatusCode {
 	case 201:
 		// Code 201.
@@ -112,7 +112,7 @@ func decodeCreatePeriodResponse(resp *http.Response) (res *Period, _ error) {
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Period
+			var response PeriodSummary
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -436,7 +436,7 @@ func decodeDeleteTransactionResponse(resp *http.Response) (res DeleteTransaction
 	return res, errors.Wrap(defRes, "error")
 }
 
-func decodeGetCurrentPeriodResponse(resp *http.Response) (res *Period, _ error) {
+func decodeGetCurrentPeriodResponse(resp *http.Response) (res *PeriodSummary, _ error) {
 	switch resp.StatusCode {
 	case 200:
 		// Code 200.
@@ -452,7 +452,7 @@ func decodeGetCurrentPeriodResponse(resp *http.Response) (res *Period, _ error) 
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Period
+			var response PeriodSummary
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -713,7 +713,7 @@ func decodeGetPeriodResponse(resp *http.Response) (res GetPeriodRes, _ error) {
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Period
+			var response PeriodSummary
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -1380,7 +1380,7 @@ func decodeUpdatePeriodResponse(resp *http.Response) (res UpdatePeriodRes, _ err
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Period
+			var response PeriodSummary
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err

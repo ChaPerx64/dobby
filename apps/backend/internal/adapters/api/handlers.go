@@ -35,35 +35,15 @@ func (h *dobbyHandler) GetCurrentUser(ctx context.Context) (*oas.User, error) {
 	}, nil
 }
 
-func (h *dobbyHandler) GetCurrentPeriod(ctx context.Context) (*oas.Period, error) {
+func (h *dobbyHandler) GetCurrentPeriod(ctx context.Context) (*oas.PeriodSummary, error) {
 	log.Println("Got a request @/periods/current")
 
-	// For now, if no periods exist, return a mock or empty
-	periods, err := h.financeService.ListPeriods(ctx)
+	p, err := h.financeService.GetCurrentPeriod(ctx)
 	if err != nil {
 		return nil, h.NewError(ctx, err)
 	}
 
-	if len(periods) == 0 {
-		// Mock a period for now if none exists to maintain original behavior
-		return &oas.Period{
-			ID:                     uuid.MustParse("11111111-1111-1111-1111-111111111111"),
-			StartDate:              time.Now().AddDate(0, 0, -5),
-			EndDate:                time.Now().AddDate(0, 1, -5),
-			TotalBudget:            12000000,
-			TotalSpent:             2300000,
-			TotalRemaining:         9700000,
-			ProjectedEndingBalance: oas.NewOptInt64(-300000),
-		}, nil
-	}
-
-	// Assuming the last one is "current" for simplicity of mock refactor
-	summary, err := h.financeService.GetPeriodSummary(ctx, periods[len(periods)-1].ID)
-	if err != nil {
-		return nil, h.NewError(ctx, err)
-	}
-
-	return mapPeriodSummaryToOAS(summary), nil
+	return mapPeriodSummaryToOAS(p), nil
 }
 
 func (h *dobbyHandler) GetPeriod(ctx context.Context, params oas.GetPeriodParams) (oas.GetPeriodRes, error) {
@@ -141,7 +121,7 @@ func (h *dobbyHandler) CreateEnvelope(ctx context.Context, req *oas.CreateEnvelo
 	}, nil
 }
 
-func (h *dobbyHandler) CreatePeriod(ctx context.Context, req *oas.CreatePeriod) (*oas.Period, error) {
+func (h *dobbyHandler) CreatePeriod(ctx context.Context, req *oas.CreatePeriod) (*oas.PeriodSummary, error) {
 	log.Println("Got a request POST /periods")
 	p, err := h.financeService.CreatePeriod(ctx, req.StartDate, req.EndDate)
 	if err != nil {
@@ -199,7 +179,7 @@ func (h *dobbyHandler) CreateTransaction(ctx context.Context, req *oas.CreateTra
 	}, nil
 }
 
-func mapPeriodSummaryToOAS(s *service.PeriodSummary) *oas.Period {
+func mapPeriodSummaryToOAS(s *service.PeriodSummary) *oas.PeriodSummary {
 	envSummaries := make([]oas.EnvelopeSummary, len(s.EnvelopeStats))
 	for i, stat := range s.EnvelopeStats {
 		envSummaries[i] = oas.EnvelopeSummary{
@@ -211,7 +191,7 @@ func mapPeriodSummaryToOAS(s *service.PeriodSummary) *oas.Period {
 		}
 	}
 
-	return &oas.Period{
+	return &oas.PeriodSummary{
 		ID:                     s.Period.ID,
 		StartDate:              s.Period.StartDate,
 		EndDate:                s.Period.EndDate,

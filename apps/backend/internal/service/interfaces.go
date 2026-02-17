@@ -18,6 +18,7 @@ var (
 type FinanceService interface {
 	// Period Operations
 	CreatePeriod(ctx context.Context, start, end time.Time) (*Period, error)
+	GetCurrentPeriod(ctx context.Context) (*PeriodSummary, error)
 	GetPeriodSummary(ctx context.Context, id uuid.UUID) (*PeriodSummary, error)
 	ListPeriods(ctx context.Context) ([]Period, error)
 
@@ -45,6 +46,7 @@ type Repository interface {
 
 	SavePeriod(ctx context.Context, p *Period) error
 	GetPeriod(ctx context.Context, id uuid.UUID) (*Period, error)
+	GetCurrentPeriod(ctx context.Context) (*Period, error)
 	ListPeriods(ctx context.Context) ([]Period, error)
 
 	SaveEnvelope(ctx context.Context, e *Envelope) error

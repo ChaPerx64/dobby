@@ -577,105 +577,6 @@ func (o OptUUID) Or(d uuid.UUID) uuid.UUID {
 	return d
 }
 
-// Ref: #/components/schemas/Period
-type Period struct {
-	ID        uuid.UUID `json:"id"`
-	StartDate time.Time `json:"startDate"`
-	EndDate   time.Time `json:"endDate"`
-	// Total household budget in currency cents.
-	TotalBudget int64 `json:"totalBudget"`
-	// Last known remaining balance in currency cents.
-	TotalRemaining int64 `json:"totalRemaining"`
-	// Total spendings for the period in currency cents.
-	TotalSpent int64 `json:"totalSpent"`
-	// Projected balance at the end of the period in currency cents.
-	ProjectedEndingBalance OptInt64          `json:"projectedEndingBalance"`
-	EnvelopeSummaries      []EnvelopeSummary `json:"envelopeSummaries"`
-}
-
-// GetID returns the value of ID.
-func (s *Period) GetID() uuid.UUID {
-	return s.ID
-}
-
-// GetStartDate returns the value of StartDate.
-func (s *Period) GetStartDate() time.Time {
-	return s.StartDate
-}
-
-// GetEndDate returns the value of EndDate.
-func (s *Period) GetEndDate() time.Time {
-	return s.EndDate
-}
-
-// GetTotalBudget returns the value of TotalBudget.
-func (s *Period) GetTotalBudget() int64 {
-	return s.TotalBudget
-}
-
-// GetTotalRemaining returns the value of TotalRemaining.
-func (s *Period) GetTotalRemaining() int64 {
-	return s.TotalRemaining
-}
-
-// GetTotalSpent returns the value of TotalSpent.
-func (s *Period) GetTotalSpent() int64 {
-	return s.TotalSpent
-}
-
-// GetProjectedEndingBalance returns the value of ProjectedEndingBalance.
-func (s *Period) GetProjectedEndingBalance() OptInt64 {
-	return s.ProjectedEndingBalance
-}
-
-// GetEnvelopeSummaries returns the value of EnvelopeSummaries.
-func (s *Period) GetEnvelopeSummaries() []EnvelopeSummary {
-	return s.EnvelopeSummaries
-}
-
-// SetID sets the value of ID.
-func (s *Period) SetID(val uuid.UUID) {
-	s.ID = val
-}
-
-// SetStartDate sets the value of StartDate.
-func (s *Period) SetStartDate(val time.Time) {
-	s.StartDate = val
-}
-
-// SetEndDate sets the value of EndDate.
-func (s *Period) SetEndDate(val time.Time) {
-	s.EndDate = val
-}
-
-// SetTotalBudget sets the value of TotalBudget.
-func (s *Period) SetTotalBudget(val int64) {
-	s.TotalBudget = val
-}
-
-// SetTotalRemaining sets the value of TotalRemaining.
-func (s *Period) SetTotalRemaining(val int64) {
-	s.TotalRemaining = val
-}
-
-// SetTotalSpent sets the value of TotalSpent.
-func (s *Period) SetTotalSpent(val int64) {
-	s.TotalSpent = val
-}
-
-// SetProjectedEndingBalance sets the value of ProjectedEndingBalance.
-func (s *Period) SetProjectedEndingBalance(val OptInt64) {
-	s.ProjectedEndingBalance = val
-}
-
-// SetEnvelopeSummaries sets the value of EnvelopeSummaries.
-func (s *Period) SetEnvelopeSummaries(val []EnvelopeSummary) {
-	s.EnvelopeSummaries = val
-}
-
-func (*Period) getPeriodRes()    {}
-func (*Period) updatePeriodRes() {}
-
 // Ref: #/components/schemas/PeriodListItem
 type PeriodListItem struct {
 	ID        uuid.UUID `json:"id"`
@@ -712,6 +613,105 @@ func (s *PeriodListItem) SetStartDate(val time.Time) {
 func (s *PeriodListItem) SetEndDate(val time.Time) {
 	s.EndDate = val
 }
+
+// Ref: #/components/schemas/PeriodSummary
+type PeriodSummary struct {
+	ID        uuid.UUID `json:"id"`
+	StartDate time.Time `json:"startDate"`
+	EndDate   time.Time `json:"endDate"`
+	// Total household budget in currency cents.
+	TotalBudget int64 `json:"totalBudget"`
+	// Last known remaining balance in currency cents.
+	TotalRemaining int64 `json:"totalRemaining"`
+	// Total spendings for the period in currency cents.
+	TotalSpent int64 `json:"totalSpent"`
+	// Projected balance at the end of the period in currency cents.
+	ProjectedEndingBalance OptInt64          `json:"projectedEndingBalance"`
+	EnvelopeSummaries      []EnvelopeSummary `json:"envelopeSummaries"`
+}
+
+// GetID returns the value of ID.
+func (s *PeriodSummary) GetID() uuid.UUID {
+	return s.ID
+}
+
+// GetStartDate returns the value of StartDate.
+func (s *PeriodSummary) GetStartDate() time.Time {
+	return s.StartDate
+}
+
+// GetEndDate returns the value of EndDate.
+func (s *PeriodSummary) GetEndDate() time.Time {
+	return s.EndDate
+}
+
+// GetTotalBudget returns the value of TotalBudget.
+func (s *PeriodSummary) GetTotalBudget() int64 {
+	return s.TotalBudget
+}
+
+// GetTotalRemaining returns the value of TotalRemaining.
+func (s *PeriodSummary) GetTotalRemaining() int64 {
+	return s.TotalRemaining
+}
+
+// GetTotalSpent returns the value of TotalSpent.
+func (s *PeriodSummary) GetTotalSpent() int64 {
+	return s.TotalSpent
+}
+
+// GetProjectedEndingBalance returns the value of ProjectedEndingBalance.
+func (s *PeriodSummary) GetProjectedEndingBalance() OptInt64 {
+	return s.ProjectedEndingBalance
+}
+
+// GetEnvelopeSummaries returns the value of EnvelopeSummaries.
+func (s *PeriodSummary) GetEnvelopeSummaries() []EnvelopeSummary {
+	return s.EnvelopeSummaries
+}
+
+// SetID sets the value of ID.
+func (s *PeriodSummary) SetID(val uuid.UUID) {
+	s.ID = val
+}
+
+// SetStartDate sets the value of StartDate.
+func (s *PeriodSummary) SetStartDate(val time.Time) {
+	s.StartDate = val
+}
+
+// SetEndDate sets the value of EndDate.
+func (s *PeriodSummary) SetEndDate(val time.Time) {
+	s.EndDate = val
+}
+
+// SetTotalBudget sets the value of TotalBudget.
+func (s *PeriodSummary) SetTotalBudget(val int64) {
+	s.TotalBudget = val
+}
+
+// SetTotalRemaining sets the value of TotalRemaining.
+func (s *PeriodSummary) SetTotalRemaining(val int64) {
+	s.TotalRemaining = val
+}
+
+// SetTotalSpent sets the value of TotalSpent.
+func (s *PeriodSummary) SetTotalSpent(val int64) {
+	s.TotalSpent = val
+}
+
+// SetProjectedEndingBalance sets the value of ProjectedEndingBalance.
+func (s *PeriodSummary) SetProjectedEndingBalance(val OptInt64) {
+	s.ProjectedEndingBalance = val
+}
+
+// SetEnvelopeSummaries sets the value of EnvelopeSummaries.
+func (s *PeriodSummary) SetEnvelopeSummaries(val []EnvelopeSummary) {
+	s.EnvelopeSummaries = val
+}
+
+func (*PeriodSummary) getPeriodRes()    {}
+func (*PeriodSummary) updatePeriodRes() {}
 
 // Ref: #/components/schemas/Transaction
 type Transaction struct {

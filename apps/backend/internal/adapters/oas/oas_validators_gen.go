@@ -7,7 +7,7 @@ import (
 	"github.com/ogen-go/ogen/validate"
 )
 
-func (s *Period) Validate() error {
+func (s *PeriodSummary) Validate() error {
 	if s == nil {
 		return validate.ErrNilPointer
 	}

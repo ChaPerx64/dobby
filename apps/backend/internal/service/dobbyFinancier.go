@@ -31,6 +31,14 @@ func (s *dobbyFinancier) CreatePeriod(ctx context.Context, start, end time.Time)
 	return p, nil
 }
 
+func (s *dobbyFinancier) GetCurrentPeriod(ctx context.Context) (*PeriodSummary, error) {
+	p, err := s.repo.GetCurrentPeriod(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return s.GetPeriodSummary(ctx, p.ID)
+}
+
 func (s *dobbyFinancier) GetPeriodSummary(ctx context.Context, id uuid.UUID) (*PeriodSummary, error) {
 	period, err := s.repo.GetPeriod(ctx, id)
 	if err != nil {

@@ -19,7 +19,7 @@ type Handler interface {
 	// Create a new financial period.
 	//
 	// POST /periods
-	CreatePeriod(ctx context.Context, req *CreatePeriod) (*Period, error)
+	CreatePeriod(ctx context.Context, req *CreatePeriod) (*PeriodSummary, error)
 	// CreateTransaction implements createTransaction operation.
 	//
 	// Create a new transaction.
@@ -49,7 +49,7 @@ type Handler interface {
 	// Get current active period.
 	//
 	// GET /periods/current
-	GetCurrentPeriod(ctx context.Context) (*Period, error)
+	GetCurrentPeriod(ctx context.Context) (*PeriodSummary, error)
 	// GetCurrentUser implements getCurrentUser operation.
 	//
 	// Get current authenticated user.

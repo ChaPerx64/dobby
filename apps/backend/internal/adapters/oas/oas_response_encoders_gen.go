@@ -26,7 +26,7 @@ func encodeCreateEnvelopeResponse(response *Envelope, w http.ResponseWriter, spa
 	return nil
 }
 
-func encodeCreatePeriodResponse(response *Period, w http.ResponseWriter, span trace.Span) error {
+func encodeCreatePeriodResponse(response *PeriodSummary, w http.ResponseWriter, span trace.Span) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(201)
 	span.SetStatus(codes.Ok, http.StatusText(201))
@@ -123,7 +123,7 @@ func encodeDeleteTransactionResponse(response DeleteTransactionRes, w http.Respo
 	}
 }
 
-func encodeGetCurrentPeriodResponse(response *Period, w http.ResponseWriter, span trace.Span) error {
+func encodeGetCurrentPeriodResponse(response *PeriodSummary, w http.ResponseWriter, span trace.Span) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 	span.SetStatus(codes.Ok, http.StatusText(200))
@@ -179,7 +179,7 @@ func encodeGetEnvelopeResponse(response GetEnvelopeRes, w http.ResponseWriter, s
 
 func encodeGetPeriodResponse(response GetPeriodRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
-	case *Period:
+	case *PeriodSummary:
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(200)
 		span.SetStatus(codes.Ok, http.StatusText(200))
@@ -329,7 +329,7 @@ func encodeUpdateEnvelopeResponse(response UpdateEnvelopeRes, w http.ResponseWri
 
 func encodeUpdatePeriodResponse(response UpdatePeriodRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
-	case *Period:
+	case *PeriodSummary:
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(200)
 		span.SetStatus(codes.Ok, http.StatusText(200))
