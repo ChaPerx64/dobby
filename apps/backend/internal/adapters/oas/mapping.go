@@ -31,3 +31,22 @@ func (req *CreateTransaction) ToLogicModel() service.Transaction {
 
 	return t
 }
+
+// ApplyToModel applies UpdateTransaction DTO to an existing logic model.
+func (req *UpdateTransaction) ApplyToModel(t *service.Transaction) {
+	if v, ok := req.EnvelopeId.Get(); ok {
+		t.EnvelopeID = v
+	}
+	if v, ok := req.Amount.Get(); ok {
+		t.Amount = v
+	}
+	if v, ok := req.Description.Get(); ok {
+		t.Description = v
+	}
+	if v, ok := req.Date.Get(); ok {
+		t.Date = v
+	}
+	if v, ok := req.Category.Get(); ok {
+		t.Category = v
+	}
+}

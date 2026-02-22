@@ -220,3 +220,25 @@ func (r *psqlRepo) ListTransactions(ctx context.Context, filter service.Transact
 	}
 	return res, nil
 }
+
+func (r *psqlRepo) GetTransaction(ctx context.Context, id uuid.UUID) (*service.Transaction, error) {
+	query := `SELECT id, financial_period_id, envelope_id, category, amount, description, date FROM transactions WHERE id = $1`
+	t := &service.Transaction{}
+	err := r.getDB(ctx).QueryRow(ctx, query, id).Scan(&t.ID, &t.PeriodID, &t.EnvelopeID, &t.Category, &t.Amount, &t.Description, &t.Date)
+	if err == pgx.ErrNoRows {
+		return nil, service.ErrNotFound
+	}
+	return t, err
+}
+
+func (r *psqlRepo) DeleteTransaction(ctx context.Context, id uuid.UUID) error {
+	query := `DELETE FROM transactions WHERE id = $1`
+	result, err := r.getDB(ctx).Exec(ctx, query, id)
+	if err != nil {
+		return err
+	}
+	if result.RowsAffected() == 0 {
+		return service.ErrNotFound
+	}
+	return nil
+}

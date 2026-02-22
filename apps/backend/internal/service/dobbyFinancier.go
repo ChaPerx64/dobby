@@ -148,6 +148,33 @@ func (s *dobbyFinancier) RecordTransaction(ctx context.Context, t Transaction) (
 	return &t, nil
 }
 
+func (s *dobbyFinancier) ListTransactions(ctx context.Context, filter TransactionFilter) ([]Transaction, error) {
+	return s.repo.ListTransactions(ctx, filter)
+}
+
+func (s *dobbyFinancier) GetTransaction(ctx context.Context, id uuid.UUID) (*Transaction, error) {
+	return s.repo.GetTransaction(ctx, id)
+}
+
+func (s *dobbyFinancier) UpdateTransaction(ctx context.Context, t Transaction) (*Transaction, error) {
+	_, err := s.repo.GetTransaction(ctx, t.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.txManager.WithTx(ctx, func(ctx context.Context) error {
+		return s.repo.SaveTransaction(ctx, &t)
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &t, nil
+}
+
+func (s *dobbyFinancier) DeleteTransaction(ctx context.Context, id uuid.UUID) error {
+	return s.repo.DeleteTransaction(ctx, id)
+}
+
 func (s *dobbyFinancier) CreateEnvelope(ctx context.Context, name string) (*Envelope, error) {
 	e := &Envelope{
 		ID:   uuid.New(),

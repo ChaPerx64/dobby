@@ -81,4 +81,17 @@ export const apiClient = {
       params: { path: { transactionId } },
     });
   },
+
+  async updateTransaction(transactionId: string, transaction: components['schemas']['UpdateTransaction']) {
+    return api.PATCH('/transactions/{transactionId}', {
+      params: { path: { transactionId } },
+      body: transaction,
+    });
+  },
+
+  async deleteTransaction(transactionId: string) {
+    return api.DELETE('/transactions/{transactionId}', {
+      params: { path: { transactionId } },
+    });
+  },
 };

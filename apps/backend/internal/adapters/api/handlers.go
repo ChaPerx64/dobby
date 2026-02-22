@@ -167,15 +167,108 @@ func (h *dobbyHandler) CreateTransaction(ctx context.Context, req *oas.CreateTra
 		return nil, h.NewError(ctx, err)
 	}
 
+	return mapTransactionToOAS(recorded), nil
+}
+
+func (h *dobbyHandler) ListTransactions(ctx context.Context, params oas.ListTransactionsParams) ([]oas.Transaction, error) {
+	log.Println("Got a request GET /transactions")
+
+	filter := service.TransactionFilter{}
+	if v, ok := params.PeriodId.Get(); ok {
+		filter.PeriodID = &v
+	}
+
+	transactions, err := h.financeService.ListTransactions(ctx, filter)
+	if err != nil {
+		return nil, h.NewError(ctx, err)
+	}
+
+	res := make([]oas.Transaction, len(transactions))
+	for i, t := range transactions {
+		res[i] = *mapTransactionToOAS(&t)
+	}
+	return res, nil
+}
+
+func (h *dobbyHandler) GetTransaction(ctx context.Context, params oas.GetTransactionParams) (oas.GetTransactionRes, error) {
+	log.Printf("Got a request GET /transactions/%s\n", params.TransactionId)
+
+	t, err := h.financeService.GetTransaction(ctx, params.TransactionId)
+	if err != nil {
+		if errors.Is(err, service.ErrNotFound) {
+			return &oas.GetTransactionNotFound{}, nil
+		}
+		return nil, h.NewError(ctx, err)
+	}
+
+	return mapTransactionToOAS(t), nil
+}
+
+func (h *dobbyHandler) UpdateTransaction(ctx context.Context, req *oas.UpdateTransaction, params oas.UpdateTransactionParams) (oas.UpdateTransactionRes, error) {
+	log.Printf("Got a request PATCH /transactions/%s\n", params.TransactionId)
+
+	existing, err := h.financeService.GetTransaction(ctx, params.TransactionId)
+	if err != nil {
+		if errors.Is(err, service.ErrNotFound) {
+			return &oas.UpdateTransactionNotFound{}, nil
+		}
+		return nil, h.NewError(ctx, err)
+	}
+
+	req.ApplyToModel(existing)
+
+	// If date changed, we might need to update PeriodID
+	if _, ok := req.Date.Get(); ok {
+		periods, err := h.financeService.ListPeriods(ctx)
+		if err != nil {
+			return nil, h.NewError(ctx, err)
+		}
+
+		var periodID uuid.UUID
+		for _, p := range periods {
+			if (existing.Date.After(p.StartDate) || existing.Date.Equal(p.StartDate)) && (existing.Date.Before(p.EndDate) || existing.Date.Equal(p.EndDate)) {
+				periodID = p.ID
+				break
+			}
+		}
+
+		if periodID != uuid.Nil {
+			existing.PeriodID = periodID
+		}
+	}
+
+	updated, err := h.financeService.UpdateTransaction(ctx, *existing)
+	if err != nil {
+		return nil, h.NewError(ctx, err)
+	}
+
+	return mapTransactionToOAS(updated), nil
+}
+
+func (h *dobbyHandler) DeleteTransaction(ctx context.Context, params oas.DeleteTransactionParams) (oas.DeleteTransactionRes, error) {
+	log.Printf("Got a request DELETE /transactions/%s\n", params.TransactionId)
+
+	err := h.financeService.DeleteTransaction(ctx, params.TransactionId)
+	if err != nil {
+		if errors.Is(err, service.ErrNotFound) {
+			return &oas.DeleteTransactionNotFound{}, nil
+		}
+		return nil, h.NewError(ctx, err)
+	}
+
+	return &oas.DeleteTransactionNoContent{}, nil
+}
+
+func mapTransactionToOAS(t *service.Transaction) *oas.Transaction {
 	return &oas.Transaction{
-		ID:          recorded.ID,
-		PeriodId:    recorded.PeriodID,
-		EnvelopeId:  recorded.EnvelopeID,
-		Amount:      recorded.Amount,
-		Description: oas.NewOptString(recorded.Description),
-		Date:        recorded.Date,
-		Category:    oas.NewOptString(recorded.Category),
-	}, nil
+		ID:          t.ID,
+		PeriodId:    t.PeriodID,
+		EnvelopeId:  t.EnvelopeID,
+		Amount:      t.Amount,
+		Description: oas.NewOptString(t.Description),
+		Date:        t.Date,
+		Category:    oas.NewOptString(t.Category),
+	}
 }
 
 func mapPeriodSummaryToOAS(s *service.PeriodSummary) *oas.PeriodSummary {

@@ -25,6 +25,10 @@ type FinanceService interface {
 
 	// Transaction Operations
 	RecordTransaction(ctx context.Context, t Transaction) (*Transaction, error)
+	ListTransactions(ctx context.Context, filter TransactionFilter) ([]Transaction, error)
+	GetTransaction(ctx context.Context, id uuid.UUID) (*Transaction, error)
+	UpdateTransaction(ctx context.Context, t Transaction) (*Transaction, error)
+	DeleteTransaction(ctx context.Context, id uuid.UUID) error
 
 	// Envelope Operations
 	CreateEnvelope(ctx context.Context, name string) (*Envelope, error)
@@ -57,4 +61,6 @@ type Repository interface {
 
 	SaveTransaction(ctx context.Context, t *Transaction) error
 	ListTransactions(ctx context.Context, filter TransactionFilter) ([]Transaction, error)
+	GetTransaction(ctx context.Context, id uuid.UUID) (*Transaction, error)
+	DeleteTransaction(ctx context.Context, id uuid.UUID) error
 }
