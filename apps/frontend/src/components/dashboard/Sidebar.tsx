@@ -5,6 +5,7 @@ import { getMonthName, formatDateRange } from '@/lib/format';
 import { LogOut } from 'lucide-react';
 import { CreateEnvelopeModal } from './CreateEnvelopeModal';
 import { CreateAllocationModal } from './CreateAllocationModal';
+import { CreateSpendingModal } from './CreateSpendingModal';
 import type { components } from '@/api/types';
 
 interface SidebarProps {
@@ -54,6 +55,11 @@ export function Sidebar({
           <CreateAllocationModal
             envelopes={envelopes}
             onAllocationCreated={onAllocationCreated}
+            defaultEnvelopeId={defaultEnvelopeId}
+          />
+          <CreateSpendingModal
+            envelopes={envelopes}
+            onSpendingCreated={onAllocationCreated}
             defaultEnvelopeId={defaultEnvelopeId}
           />
         </div>
