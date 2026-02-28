@@ -1,2 +1,9 @@
 docker-compose.override.yml
 .env
+.gemini
+.plan.md
+.progress.md
+GEMINI.md
+AGENTS.md
+CLAUDE.md
+
