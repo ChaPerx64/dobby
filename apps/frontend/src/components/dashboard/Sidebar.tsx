@@ -61,6 +61,8 @@ export function Sidebar({
             envelopes={envelopes}
             onSpendingCreated={onAllocationCreated}
             defaultEnvelopeId={defaultEnvelopeId}
+            buttonVariant="ghost"
+            buttonClassName="w-full justify-start gap-2 px-3 py-2 h-auto font-normal text-muted-foreground hover:text-foreground"
           />
         </div>
         <ul className="space-y-1">

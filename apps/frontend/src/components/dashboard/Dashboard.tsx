@@ -196,7 +196,13 @@ export function Dashboard() {
           {activeTab === 'balance' ? (
             <SpendingChart data={chartData} />
           ) : (
-            <TransactionList transactions={filteredTx} initialBalance={initialBalance} />
+            <TransactionList 
+              transactions={filteredTx} 
+              initialBalance={initialBalance}
+              envelopes={period ? period.envelopeSummaries.map(s => ({ id: s.envelopeId, name: s.envelopeName })) : []}
+              defaultEnvelopeId={selectedCategory !== 'total' ? selectedCategory : undefined}
+              onTransactionChange={loadData}
+            />
           )}
         </div>
       </div>
