@@ -3,12 +3,13 @@ import { Sidebar } from './Sidebar';
 import { MetricsPanel } from './MetricsPanel';
 import { SpendingChart } from './SpendingChart';
 import { apiClient } from '@/api/client';
-import type { Period } from '@/types/api';
-import type { CategoryItem } from '@/types/dashboard';
+import type { Period, Transaction } from '@/types/api';
+import type { CategoryItem, ChartDataPoint } from '@/types/dashboard';
 
 export function Dashboard() {
   const [selectedCategory, setSelectedCategory] = useState('total');
   const [period, setPeriod] = useState<Period | null>(null);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -19,6 +20,12 @@ export function Dashboard() {
       if (!periodData) throw new Error('No period data received');
       
       setPeriod(periodData);
+
+      const { data: txData, error: txError } = await apiClient.listTransactions(periodData.id);
+      if (txError) throw new Error(txError.message || 'Failed to fetch transactions');
+      if (txData) {
+        setTransactions(txData);
+      }
     } catch (err: unknown) {
       console.error(err);
       setError(err instanceof Error ? err.message : 'An error occurred');
@@ -92,6 +99,56 @@ export function Dashboard() {
   const currentCategory =
     categories.find((cat) => cat.id === selectedCategory) || categories[0];
 
+  const chartData: ChartDataPoint[] = [];
+
+  if (period) {
+    const filteredTx = selectedCategory === 'total'
+      ? transactions
+      : transactions.filter(tx => tx.envelopeId === selectedCategory);
+
+    const txByDay = new Map<string, { allocated: number; spent: number }>();
+    let totalAllocatedInPeriod = 0;
+
+    for (const tx of filteredTx) {
+      const dayStr = tx.date.split('T')[0];
+      const existing = txByDay.get(dayStr) || { allocated: 0, spent: 0 };
+      if (tx.amount > 0) {
+        existing.allocated += tx.amount;
+        totalAllocatedInPeriod += tx.amount;
+      } else {
+        existing.spent += Math.abs(tx.amount);
+      }
+      txByDay.set(dayStr, existing);
+    }
+
+    const initialBalance = currentCategory.allocated - totalAllocatedInPeriod;
+    let cumulativeAllocated = initialBalance;
+    let cumulativeSpent = 0;
+
+    const startDate = new Date(period.startDate);
+    const endDate = new Date(period.endDate);
+    const today = new Date();
+    const chartEndDate = today < endDate ? today : endDate;
+
+    const utcCurrent = new Date(Date.UTC(startDate.getFullYear(), startDate.getMonth(), startDate.getDate()));
+    const utcEnd = new Date(Date.UTC(chartEndDate.getFullYear(), chartEndDate.getMonth(), chartEndDate.getDate()));
+
+    while (utcCurrent <= utcEnd) {
+      const dateStr = utcCurrent.toISOString().split('T')[0];
+
+      const dailyTx = txByDay.get(dateStr) || { allocated: 0, spent: 0 };
+      cumulativeAllocated += dailyTx.allocated;
+      cumulativeSpent += dailyTx.spent;
+
+      chartData.push({
+        date: dateStr,
+        remaining: cumulativeAllocated - cumulativeSpent,
+      });
+
+      utcCurrent.setUTCDate(utcCurrent.getUTCDate() + 1);
+    }
+  }
+
   return (
     <div className="h-screen flex">
       <Sidebar
@@ -108,7 +165,7 @@ export function Dashboard() {
         remaining={currentCategory.remaining}
         projectedBalance={period.projectedEndingBalance ?? 0}
       />
-      <SpendingChart data={[]} />
+      <SpendingChart data={chartData} />
     </div>
   );
 }

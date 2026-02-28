@@ -14,12 +14,8 @@ interface SpendingChartProps {
 
 const chartConfig = {
   remaining: {
-    label: 'Remaining',
+    label: 'Remaining Balance',
     color: 'hsl(var(--chart-1))',
-  },
-  spent: {
-    label: 'Spent',
-    color: 'hsl(var(--chart-2))',
   },
 } satisfies ChartConfig;
 
@@ -31,13 +27,12 @@ export function SpendingChart({ data }: SpendingChartProps) {
       day: 'numeric',
     }),
     remaining: point.remaining / 100,
-    spent: point.spent / 100,
   }));
 
   return (
     <div className="flex-1 bg-background p-6">
       <h2 className="text-xl font-bold text-foreground mb-4">
-        Spending Over Time
+        Balance Over Time
       </h2>
       <ChartContainer config={chartConfig} className="h-[500px] w-full">
         <AreaChart data={chartData}>
@@ -67,17 +62,8 @@ export function SpendingChart({ data }: SpendingChartProps) {
           <Area
             type="monotone"
             dataKey="remaining"
-            stackId="1"
             stroke={chartConfig.remaining.color}
             fill={chartConfig.remaining.color}
-            fillOpacity={0.6}
-          />
-          <Area
-            type="monotone"
-            dataKey="spent"
-            stackId="2"
-            stroke={chartConfig.spent.color}
-            fill={chartConfig.spent.color}
             fillOpacity={0.6}
           />
         </AreaChart>

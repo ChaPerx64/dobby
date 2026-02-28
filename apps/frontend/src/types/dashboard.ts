@@ -21,5 +21,4 @@ export interface CategoryItem {
 export interface ChartDataPoint {
   date: string;
   remaining: number; // in para (currency cents)
-  spent: number; // in para (currency cents)
 }
