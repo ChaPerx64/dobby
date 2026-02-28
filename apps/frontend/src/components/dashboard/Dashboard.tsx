@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import { Sidebar } from './Sidebar';
 import { MetricsPanel } from './MetricsPanel';
 import { SpendingChart } from './SpendingChart';
+import { TransactionList } from './TransactionList';
 import { apiClient } from '@/api/client';
 import type { Period, Transaction } from '@/types/api';
 import type { CategoryItem, ChartDataPoint } from '@/types/dashboard';
 
 export function Dashboard() {
   const [selectedCategory, setSelectedCategory] = useState('total');
+  const [activeTab, setActiveTab] = useState<'balance' | 'transactions'>('balance');
   const [period, setPeriod] = useState<Period | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
@@ -100,9 +102,11 @@ export function Dashboard() {
     categories.find((cat) => cat.id === selectedCategory) || categories[0];
 
   const chartData: ChartDataPoint[] = [];
+  let filteredTx: Transaction[] = [];
+  let initialBalance = 0;
 
   if (period) {
-    const filteredTx = selectedCategory === 'total'
+    filteredTx = selectedCategory === 'total'
       ? transactions
       : transactions.filter(tx => tx.envelopeId === selectedCategory);
 
@@ -121,7 +125,7 @@ export function Dashboard() {
       txByDay.set(dayStr, existing);
     }
 
-    const initialBalance = currentCategory.allocated - totalAllocatedInPeriod;
+    initialBalance = currentCategory.allocated - totalAllocatedInPeriod;
     let cumulativeAllocated = initialBalance;
     let cumulativeSpent = 0;
 
@@ -165,7 +169,37 @@ export function Dashboard() {
         remaining={currentCategory.remaining}
         projectedBalance={period.projectedEndingBalance ?? 0}
       />
-      <SpendingChart data={chartData} />
+      <div className="flex-1 flex flex-col bg-background">
+        <div className="flex border-b border-border">
+          <button
+            className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === 'balance'
+                ? 'border-primary text-foreground'
+                : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
+            }`}
+            onClick={() => setActiveTab('balance')}
+          >
+            Balance Over Time
+          </button>
+          <button
+            className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === 'transactions'
+                ? 'border-primary text-foreground'
+                : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
+            }`}
+            onClick={() => setActiveTab('transactions')}
+          >
+            Transactions
+          </button>
+        </div>
+        <div className="flex-1 p-6 overflow-hidden flex flex-col">
+          {activeTab === 'balance' ? (
+            <SpendingChart data={chartData} />
+          ) : (
+            <TransactionList transactions={filteredTx} initialBalance={initialBalance} />
+          )}
+        </div>
+      </div>
     </div>
   );
 }

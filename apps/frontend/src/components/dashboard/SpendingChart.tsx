@@ -30,11 +30,8 @@ export function SpendingChart({ data }: SpendingChartProps) {
   }));
 
   return (
-    <div className="flex-1 bg-background p-6">
-      <h2 className="text-xl font-bold text-foreground mb-4">
-        Balance Over Time
-      </h2>
-      <ChartContainer config={chartConfig} className="h-[500px] w-full">
+    <div className="h-full min-h-[500px] w-full flex-1">
+      <ChartContainer config={chartConfig} className="h-full w-full">
         <AreaChart data={chartData}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis
