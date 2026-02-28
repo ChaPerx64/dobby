@@ -40,8 +40,8 @@ type Transaction struct {
 type PeriodSummary struct {
 	Period                 Period
 	TotalBudget            int64 // Sum of all positive transactions (Income) across all envelopes
-	TotalSpent             int64 // Sum of all negative transactions (Expense) across all envelopes
-	TotalRemaining         int64 // TotalBudget + TotalSpent (since spent is negative)
+	TotalSpent             int64 // Sum of all negative transactions (Expense) across all envelopes (Stored as positive)
+	TotalRemaining         int64 // TotalBudget - TotalSpent
 	ProjectedEndingBalance int64 // Forecast logic
 	EnvelopeStats          []EnvelopeStat
 }
@@ -50,6 +50,6 @@ type PeriodSummary struct {
 type EnvelopeStat struct {
 	Envelope  Envelope
 	Allocated int64 // Sum of positive transactions (Income) for this envelope in this period
-	Spent     int64 // Sum of negative transactions (Expense) for this envelope in this period
-	Remaining int64 // Allocated + Spent (since spent is negative)
+	Spent     int64 // Sum of negative transactions (Expense) for this envelope in this period (Stored as positive)
+	Remaining int64 // Allocated - Spent
 }

@@ -63,4 +63,6 @@ type Repository interface {
 	ListTransactions(ctx context.Context, filter TransactionFilter) ([]Transaction, error)
 	GetTransaction(ctx context.Context, id uuid.UUID) (*Transaction, error)
 	DeleteTransaction(ctx context.Context, id uuid.UUID) error
+
+	GetPeriodStats(ctx context.Context, periodID uuid.UUID) ([]EnvelopeStat, error)
 }

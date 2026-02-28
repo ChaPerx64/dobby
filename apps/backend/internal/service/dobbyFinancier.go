@@ -82,49 +82,22 @@ func (s *dobbyFinancier) GetPeriodSummary(ctx context.Context, id uuid.UUID) (*P
 		return nil, err
 	}
 
-	transactions, err := s.repo.ListTransactions(ctx, TransactionFilter{PeriodID: &id})
-	if err != nil {
-		return nil, err
-	}
-
-	envelopes, err := s.repo.ListEnvelopes(ctx)
+	stats, err := s.repo.GetPeriodStats(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 
 	summary := &PeriodSummary{
-		Period: *period,
+		Period:        *period,
+		EnvelopeStats: stats,
 	}
 
-	envelopeStatsMap := make(map[uuid.UUID]*EnvelopeStat)
-	for _, env := range envelopes {
-		envelopeStatsMap[env.ID] = &EnvelopeStat{
-			Envelope: env,
-		}
+	for _, stat := range stats {
+		summary.TotalBudget += stat.Allocated
+		summary.TotalSpent += stat.Spent
 	}
 
-	for _, t := range transactions {
-		stat, ok := envelopeStatsMap[t.EnvelopeID]
-		if !ok {
-			continue
-		}
-
-		if t.Amount > 0 {
-			stat.Allocated += t.Amount
-			summary.TotalBudget += t.Amount
-		} else {
-			stat.Spent += t.Amount // Amount is negative for expenses
-			summary.TotalSpent += t.Amount
-		}
-	}
-
-	for _, env := range envelopes {
-		stat := envelopeStatsMap[env.ID]
-		stat.Remaining = stat.Allocated + stat.Spent
-		summary.EnvelopeStats = append(summary.EnvelopeStats, *stat)
-	}
-
-	summary.TotalRemaining = summary.TotalBudget + summary.TotalSpent
+	summary.TotalRemaining = summary.TotalBudget - summary.TotalSpent
 
 	return summary, nil
 }

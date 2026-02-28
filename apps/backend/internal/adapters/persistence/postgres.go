@@ -242,3 +242,32 @@ func (r *psqlRepo) DeleteTransaction(ctx context.Context, id uuid.UUID) error {
 	}
 	return nil
 }
+
+func (r *psqlRepo) GetPeriodStats(ctx context.Context, periodID uuid.UUID) ([]service.EnvelopeStat, error) {
+	query := `
+		SELECT 
+			e.id, 
+			e.name,
+			COALESCE(SUM(CASE WHEN t.amount > 0 THEN t.amount ELSE 0 END), 0) as allocated,
+			COALESCE(SUM(CASE WHEN t.amount < 0 THEN ABS(t.amount) ELSE 0 END), 0) as spent
+		FROM envelopes e
+		LEFT JOIN transactions t ON e.id = t.envelope_id AND t.financial_period_id = $1
+		GROUP BY e.id, e.name
+	`
+	rows, err := r.getDB(ctx).Query(ctx, query, periodID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var stats []service.EnvelopeStat
+	for rows.Next() {
+		var stat service.EnvelopeStat
+		if err := rows.Scan(&stat.Envelope.ID, &stat.Envelope.Name, &stat.Allocated, &stat.Spent); err != nil {
+			return nil, err
+		}
+		stat.Remaining = stat.Allocated - stat.Spent
+		stats = append(stats, stat)
+	}
+	return stats, nil
+}
