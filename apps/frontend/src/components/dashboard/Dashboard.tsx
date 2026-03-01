@@ -157,7 +157,7 @@ export function Dashboard() {
   }
 
   return (
-    <div className="h-screen flex flex-col md:flex-row overflow-hidden">
+    <div className="h-screen flex flex-col md:flex-row md:overflow-hidden">
       {/* Mobile Header */}
       <div className="md:hidden flex items-center justify-between p-4 border-b border-border bg-card">
         <h2 className="text-lg font-semibold">{currentCategory.name}</h2>
@@ -190,7 +190,7 @@ export function Dashboard() {
         remaining={currentCategory.remaining}
         projectedBalance={period.projectedEndingBalance ?? 0}
       />
-      <div className="flex-1 flex flex-col bg-background">
+      <div className="flex-1 flex flex-col bg-background md:overflow-hidden">
         <div className="flex border-b border-border">
           <button
             className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
@@ -213,7 +213,7 @@ export function Dashboard() {
             Transactions
           </button>
         </div>
-        <div className="flex-1 p-6 overflow-hidden flex flex-col">
+        <div className="flex-1 p-6 md:overflow-hidden flex flex-col">
           {activeTab === 'balance' ? (
             <SpendingChart data={chartData} />
           ) : (

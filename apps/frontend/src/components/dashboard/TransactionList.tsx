@@ -114,7 +114,7 @@ export function TransactionList({ transactions, initialBalance, envelopes, defau
   );
 
   return (
-    <div className="flex-1 overflow-auto -mx-6 px-6">
+    <div className="flex-1 overflow-y-auto overflow-x-hidden -mx-6 px-6">
       <div className="flex justify-end mb-4 pt-2">
         <CreateSpendingModal 
           envelopes={envelopes}
