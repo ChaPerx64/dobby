@@ -1,8 +1,9 @@
 import { useAuth } from 'react-oidc-context';
 import { Separator } from '@/components/ui/separator';
+import { Button } from '@/components/ui/button';
 import type { CategoryItem } from '@/types/dashboard';
 import { getMonthName, formatDateRange } from '@/lib/format';
-import { LogOut } from 'lucide-react';
+import { LogOut, X } from 'lucide-react';
 import { CreateEnvelopeModal } from './CreateEnvelopeModal';
 import { CreateAllocationModal } from './CreateAllocationModal';
 import { CreateSpendingModal } from './CreateSpendingModal';
@@ -15,6 +16,8 @@ interface SidebarProps {
   onSelectCategory: (categoryId: string) => void;
   onEnvelopeCreated: (envelope: components["schemas"]["Envelope"]) => void;
   onAllocationCreated: () => void;
+  isOpen: boolean;
+  onClose: () => void;
 }
 
 export function Sidebar({
@@ -24,6 +27,8 @@ export function Sidebar({
   onSelectCategory,
   onEnvelopeCreated,
   onAllocationCreated,
+  isOpen,
+  onClose,
 }: SidebarProps) {
   const auth = useAuth();
   const monthName = getMonthName(period.startDate);
@@ -41,10 +46,15 @@ export function Sidebar({
   const defaultEnvelopeId = selectedCategory !== 'total' ? selectedCategory : undefined;
 
   return (
-    <div className="w-64 bg-card border-r border-border p-6 flex flex-col">
-      <div className="mb-4">
-        <h1 className="text-2xl font-bold text-foreground">{monthName}</h1>
-        <p className="text-sm text-muted-foreground">{dateRange}</p>
+    <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-card border-r border-border p-6 flex flex-col transform transition-transform duration-200 ease-in-out md:relative md:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <div className="mb-4 flex justify-between items-start">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">{monthName}</h1>
+          <p className="text-sm text-muted-foreground">{dateRange}</p>
+        </div>
+        <Button variant="ghost" size="icon" className="md:hidden" onClick={onClose}>
+          <X size={20} />
+        </Button>
       </div>
 
       <Separator className="mb-4" />
@@ -69,7 +79,10 @@ export function Sidebar({
           {categories.map((category) => (
             <li key={category.id}>
               <button
-                onClick={() => onSelectCategory(category.id)}
+                onClick={() => {
+                  onSelectCategory(category.id);
+                  onClose();
+                }}
                 className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
                   selectedCategory === category.id
                     ? 'bg-accent text-accent-foreground font-medium'

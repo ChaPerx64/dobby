@@ -26,8 +26,8 @@ export function MetricsPanel({
   ];
 
   return (
-    <div className="w-80 bg-background p-6">
-      <ItemGroup>
+    <div className="w-full md:w-80 bg-background p-4 md:p-6 border-b border-border md:border-b-0 md:border-r">
+      <ItemGroup className="grid grid-cols-2 md:flex md:flex-col gap-4">
         {metrics.map((metric, index) => (
           <Item key={index} variant="muted">
             <ItemContent>

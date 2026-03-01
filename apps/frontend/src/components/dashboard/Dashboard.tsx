@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { Menu } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { Sidebar } from './Sidebar';
 import { MetricsPanel } from './MetricsPanel';
 import { SpendingChart } from './SpendingChart';
@@ -10,6 +12,7 @@ import type { CategoryItem, ChartDataPoint } from '@/types/dashboard';
 export function Dashboard() {
   const [selectedCategory, setSelectedCategory] = useState('total');
   const [activeTab, setActiveTab] = useState<'balance' | 'transactions'>('balance');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [period, setPeriod] = useState<Period | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
@@ -154,7 +157,23 @@ export function Dashboard() {
   }
 
   return (
-    <div className="h-screen flex">
+    <div className="h-screen flex flex-col md:flex-row overflow-hidden">
+      {/* Mobile Header */}
+      <div className="md:hidden flex items-center justify-between p-4 border-b border-border bg-card">
+        <h2 className="text-lg font-semibold">{currentCategory.name}</h2>
+        <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(true)}>
+          <Menu size={24} />
+        </Button>
+      </div>
+
+      {/* Mobile Backdrop */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm md:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       <Sidebar
         period={period}
         categories={categories}
@@ -162,6 +181,8 @@ export function Dashboard() {
         onSelectCategory={setSelectedCategory}
         onEnvelopeCreated={handleEnvelopeCreated}
         onAllocationCreated={loadData}
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
       />
       <MetricsPanel
         allocated={currentCategory.allocated}

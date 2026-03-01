@@ -58,8 +58,9 @@ export function TransactionList({ transactions, initialBalance, envelopes, defau
     </div>
   ) : (
     <>
-      <table className="w-full text-sm text-left border-collapse">
-        <thead className="sticky top-0 bg-background/95 backdrop-blur z-10 border-b border-border">
+      <div className="w-full overflow-x-auto">
+        <table className="w-full min-w-[600px] text-sm text-left border-collapse">
+          <thead className="sticky top-0 bg-background/95 backdrop-blur z-10 border-b border-border">
           <tr>
             <th className="py-3 pr-4 font-medium text-muted-foreground">Date</th>
             <th className="px-4 py-3 font-medium text-muted-foreground">Description</th>
@@ -106,7 +107,8 @@ export function TransactionList({ transactions, initialBalance, envelopes, defau
             </tr>
           ))}
         </tbody>
-      </table>
+        </table>
+      </div>
       <div ref={bottomRef} className="h-1" />
     </>
   );
