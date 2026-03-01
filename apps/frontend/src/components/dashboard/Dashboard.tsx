@@ -11,7 +11,7 @@ import type { CategoryItem, ChartDataPoint } from '@/types/dashboard';
 
 export function Dashboard() {
   const [selectedCategory, setSelectedCategory] = useState('total');
-  const [activeTab, setActiveTab] = useState<'balance' | 'transactions'>('balance');
+  const [activeTab, setActiveTab] = useState<'balance' | 'transactions'>('transactions');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [period, setPeriod] = useState<Period | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -157,7 +157,7 @@ export function Dashboard() {
   }
 
   return (
-    <div className="h-screen flex flex-col md:flex-row md:overflow-hidden">
+    <div className="h-screen flex flex-col md:flex-row overflow-hidden">
       {/* Mobile Header */}
       <div className="md:hidden flex items-center justify-between p-4 border-b border-border bg-card">
         <h2 className="text-lg font-semibold">{currentCategory.name}</h2>
@@ -190,18 +190,8 @@ export function Dashboard() {
         remaining={currentCategory.remaining}
         projectedBalance={period.projectedEndingBalance ?? 0}
       />
-      <div className="flex-1 flex flex-col bg-background md:overflow-hidden">
+      <div className="flex-1 flex flex-col bg-background overflow-hidden min-h-0">
         <div className="flex border-b border-border">
-          <button
-            className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
-              activeTab === 'balance'
-                ? 'border-primary text-foreground'
-                : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
-            }`}
-            onClick={() => setActiveTab('balance')}
-          >
-            Balance Over Time
-          </button>
           <button
             className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
               activeTab === 'transactions'
@@ -212,11 +202,19 @@ export function Dashboard() {
           >
             Transactions
           </button>
+          <button
+            className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === 'balance'
+                ? 'border-primary text-foreground'
+                : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
+            }`}
+            onClick={() => setActiveTab('balance')}
+          >
+            Balance Over Time
+          </button>
         </div>
-        <div className="flex-1 p-6 md:overflow-hidden flex flex-col">
-          {activeTab === 'balance' ? (
-            <SpendingChart data={chartData} />
-          ) : (
+        <div className="flex-1 p-6 overflow-hidden flex flex-col min-h-0">
+          {activeTab === 'transactions' ? (
             <TransactionList 
               transactions={filteredTx} 
               initialBalance={initialBalance}
@@ -224,6 +222,8 @@ export function Dashboard() {
               defaultEnvelopeId={selectedCategory !== 'total' ? selectedCategory : undefined}
               onTransactionChange={loadData}
             />
+          ) : (
+            <SpendingChart data={chartData} />
           )}
         </div>
       </div>

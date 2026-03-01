@@ -58,16 +58,15 @@ export function TransactionList({ transactions, initialBalance, envelopes, defau
     </div>
   ) : (
     <>
-      <div className="w-full overflow-x-auto">
-        <table className="w-full min-w-[600px] text-sm text-left border-collapse">
-          <thead className="sticky top-0 bg-background/95 backdrop-blur z-10 border-b border-border">
+      <table className="w-full min-w-[600px] text-sm text-left border-collapse">
+        <thead className="z-10 border-b border-border">
           <tr>
-            <th className="py-3 pr-4 font-medium text-muted-foreground">Date</th>
-            <th className="px-4 py-3 font-medium text-muted-foreground">Description</th>
-            <th className="px-4 py-3 font-medium text-muted-foreground">Category</th>
-            <th className="py-3 px-4 font-medium text-muted-foreground text-right">Amount</th>
-            <th className="py-3 px-4 font-medium text-muted-foreground text-right">Balance</th>
-            <th className="py-3 pl-4 font-medium text-muted-foreground text-right">Actions</th>
+            <th className="sticky top-0 bg-background py-3 pr-4 font-medium text-muted-foreground z-10">Date</th>
+            <th className="sticky top-0 bg-background px-4 py-3 font-medium text-muted-foreground z-10">Description</th>
+            <th className="sticky top-0 bg-background px-4 py-3 font-medium text-muted-foreground z-10">Category</th>
+            <th className="sticky top-0 bg-background py-3 px-4 font-medium text-muted-foreground text-right z-10">Amount</th>
+            <th className="sticky top-0 bg-background py-3 px-4 font-medium text-muted-foreground text-right z-10">Balance</th>
+            <th className="sticky top-0 bg-background py-3 pl-4 font-medium text-muted-foreground text-right z-10">Actions</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-border">
@@ -107,22 +106,27 @@ export function TransactionList({ transactions, initialBalance, envelopes, defau
             </tr>
           ))}
         </tbody>
-        </table>
-      </div>
-      <div ref={bottomRef} className="h-1" />
+      </table>
+      <div ref={bottomRef} className="h-20" />
     </>
   );
 
   return (
-    <div className="flex-1 overflow-y-auto overflow-x-hidden -mx-6 px-6">
-      <div className="flex justify-end mb-4 pt-2">
+    <div className="relative flex-1 flex flex-col min-h-0">
+      <div className="flex-1 overflow-auto -mx-6 px-6">
+        {content}
+      </div>
+      
+      <div className="absolute bottom-6 right-6 z-10">
         <CreateSpendingModal 
           envelopes={envelopes}
           defaultEnvelopeId={defaultEnvelopeId}
           onSpendingCreated={onTransactionChange}
+          buttonVariant="default"
+          buttonClassName="rounded-full shadow-lg h-12 px-6 gap-2"
         />
       </div>
-      {content}
+
       <EditTransactionModal
         transaction={editingTx}
         envelopes={envelopes}
