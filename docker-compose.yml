@@ -57,7 +57,7 @@ services:
       - "traefik.http.routers.dobby-api.entrypoints=websecure"
       - "traefik.http.routers.dobby-api.tls.certresolver=letsencrypt"
       - "traefik.http.services.dobby-api.loadbalancer.server.port=${BACKEND_PORT}"
-      - "traefik.http.middlewares.dobby-cors.headers.accesscontrolallowmethods=GET,OPTIONS,PUT,POST,DELETE"
+      - "traefik.http.middlewares.dobby-cors.headers.accesscontrolallowmethods=GET,OPTIONS,PUT,POST,DELETE,PATCH"
       - "traefik.http.middlewares.dobby-cors.headers.accesscontrolallowheaders=*"
       - "traefik.http.middlewares.dobby-cors.headers.accesscontrolalloworiginlist=${ALLOWED_ORIGINS}"
       - "traefik.http.middlewares.dobby-cors.headers.accesscontrolmaxage=100"
