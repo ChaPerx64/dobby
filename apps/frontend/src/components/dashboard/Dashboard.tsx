@@ -189,6 +189,9 @@ export function Dashboard() {
         spent={currentCategory.spent}
         remaining={currentCategory.remaining}
         projectedBalance={period.projectedEndingBalance ?? 0}
+        envelopes={allocationCategories.map(cat => ({ id: cat.id, name: cat.name }))}
+        defaultEnvelopeId={selectedCategory !== 'total' ? selectedCategory : undefined}
+        onAllocationCreated={loadData}
       />
       <div className="flex-1 flex flex-col bg-background overflow-hidden min-h-0">
         <div className="flex border-b border-border">

@@ -18,12 +18,16 @@ interface CreateAllocationModalProps {
   envelopes: Array<{ id: string; name: string }>
   defaultEnvelopeId?: string
   onAllocationCreated: () => void
+  buttonVariant?: "ghost" | "outline" | "default"
+  buttonClassName?: string
 }
 
 export function CreateAllocationModal({
   envelopes,
   defaultEnvelopeId,
   onAllocationCreated,
+  buttonVariant = "outline",
+  buttonClassName = "gap-2",
 }: CreateAllocationModalProps) {
   const [open, setOpen] = React.useState(false)
   const [isLoading, setIsLoading] = React.useState(false)
@@ -96,9 +100,9 @@ export function CreateAllocationModal({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button
-          variant="ghost"
+          variant={buttonVariant}
           size="sm"
-          className="w-full justify-start gap-2 px-3 py-2 h-auto font-normal text-muted-foreground hover:text-foreground"
+          className={buttonClassName}
         >
           <Landmark size={16} />
           Add Allocation

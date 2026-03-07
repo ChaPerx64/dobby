@@ -5,7 +5,6 @@ import type { CategoryItem } from '@/types/dashboard';
 import { getMonthName, formatDateRange } from '@/lib/format';
 import { LogOut, X } from 'lucide-react';
 import { CreateEnvelopeModal } from './CreateEnvelopeModal';
-import { CreateAllocationModal } from './CreateAllocationModal';
 import { CreateSpendingModal } from './CreateSpendingModal';
 import type { components } from '@/api/types';
 
@@ -62,11 +61,6 @@ export function Sidebar({
       <nav className="flex-1 overflow-y-auto">
         <div className="mb-2 space-y-1">
           <CreateEnvelopeModal onEnvelopeCreated={onEnvelopeCreated} />
-          <CreateAllocationModal
-            envelopes={envelopes}
-            onAllocationCreated={onAllocationCreated}
-            defaultEnvelopeId={defaultEnvelopeId}
-          />
           <CreateSpendingModal
             envelopes={envelopes}
             onSpendingCreated={onAllocationCreated}

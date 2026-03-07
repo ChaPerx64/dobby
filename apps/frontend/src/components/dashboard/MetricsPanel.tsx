@@ -1,11 +1,15 @@
 import { Item, ItemContent, ItemTitle, ItemDescription, ItemGroup } from '@/components/ui/item';
 import { formatCurrency } from '@/lib/format';
+import { CreateAllocationModal } from './CreateAllocationModal';
 
 interface MetricsPanelProps {
   allocated: number;
   spent: number;
   remaining: number;
   projectedBalance: number;
+  envelopes: Array<{ id: string; name: string }>;
+  defaultEnvelopeId?: string;
+  onAllocationCreated: () => void;
 }
 
 export function MetricsPanel({
@@ -13,6 +17,9 @@ export function MetricsPanel({
   spent,
   remaining,
   projectedBalance,
+  envelopes,
+  defaultEnvelopeId,
+  onAllocationCreated,
 }: MetricsPanelProps) {
   const metrics = [
     { label: 'Allocated', value: allocated, highlight: false },
@@ -45,6 +52,15 @@ export function MetricsPanel({
           </Item>
         ))}
       </ItemGroup>
+      <div className="mt-4 md:mt-6">
+        <CreateAllocationModal
+          envelopes={envelopes}
+          defaultEnvelopeId={defaultEnvelopeId}
+          onAllocationCreated={onAllocationCreated}
+          buttonVariant="outline"
+          buttonClassName="w-full justify-center gap-2"
+        />
+      </div>
     </div>
   );
 }
