@@ -1,6 +1,6 @@
 \restrict dbmate
 
--- Dumped from database version 17.8
+-- Dumped from database version 17.7
 -- Dumped by pg_dump version 18.2
 
 SET statement_timeout = 0;
