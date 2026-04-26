@@ -1,0 +1,32 @@
+version: "3"
+
+tasks:
+  run:
+    desc: Start all services (db detached, backend + frontend local)
+    deps: [run:db, run:backend, run:frontend]
+
+  run:db:
+    desc: Start database container (detached)
+    cmd: docker compose up -d dobby-db
+
+  run:backend:
+    desc: Run backend locally
+    dir: apps/backend
+    cmd: go run .
+
+  run:frontend:
+    desc: Run frontend dev server
+    dir: apps/frontend
+    cmd: npm run dev
+
+  down:
+    desc: Stop DB container
+    cmd: docker compose down
+
+  db:migrate:
+    desc: Run pending DB migrations
+    cmd: docker compose run --rm dbmate
+
+  db:new:
+    desc: "Create new migration (usage: task db:new -- <name>)"
+    cmd: "docker compose run --rm dbmate n {{.CLI_ARGS}}"
