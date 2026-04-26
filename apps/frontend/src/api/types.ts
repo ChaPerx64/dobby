@@ -195,6 +195,8 @@ export interface components {
             startDate: string;
             /** Format: date */
             endDate: string;
+            /** Format: uuid */
+            defaultEnvelopeId?: string;
         };
         PeriodSummary: {
             /** Format: uuid */
@@ -227,6 +229,8 @@ export interface components {
              * @example -30000
              */
             projectedEndingBalance?: number;
+            /** Format: uuid */
+            defaultEnvelopeId?: string;
             envelopeSummaries: components["schemas"]["EnvelopeSummary"][];
         };
         CreatePeriod: {
@@ -244,6 +248,8 @@ export interface components {
             endDate?: string;
             /** Format: int64 */
             totalBudget?: number;
+            /** Format: uuid */
+            defaultEnvelopeId?: string | null;
         };
         EnvelopeSummary: {
             /**

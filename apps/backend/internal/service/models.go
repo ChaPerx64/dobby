@@ -14,9 +14,10 @@ type User struct {
 
 // Period represents a defined financial timeframe.
 type Period struct {
-	ID        uuid.UUID
-	StartDate time.Time
-	EndDate   time.Time
+	ID                uuid.UUID
+	StartDate         time.Time
+	EndDate           time.Time
+	DefaultEnvelopeID *uuid.UUID
 }
 
 // Envelope represents a budget category/bucket (e.g., "Groceries").

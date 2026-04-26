@@ -18,14 +18,17 @@ export function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const loadPeriod = async () => {
+    const { data: periodData, error: periodError } = await apiClient.getCurrentPeriod();
+    if (periodError) throw new Error(periodError.message || 'Failed to fetch period');
+    if (!periodData) throw new Error('No period data received');
+    setPeriod(periodData);
+    return periodData;
+  };
+
   const loadData = async () => {
     try {
-      const { data: periodData, error: periodError } = await apiClient.getCurrentPeriod();
-      if (periodError) throw new Error(periodError.message || 'Failed to fetch period');
-      if (!periodData) throw new Error('No period data received');
-      
-      setPeriod(periodData);
-
+      const periodData = await loadPeriod();
       const { data: txData, error: txError } = await apiClient.listTransactions(periodData.id);
       if (txError) throw new Error(txError.message || 'Failed to fetch transactions');
       if (txData) {
@@ -175,12 +178,13 @@ export function Dashboard() {
       )}
 
       <Sidebar
-        period={period}
+        period={{ ...period, defaultEnvelopeId: period.defaultEnvelopeId ?? undefined }}
         categories={categories}
         selectedCategory={selectedCategory}
         onSelectCategory={setSelectedCategory}
         onEnvelopeCreated={handleEnvelopeCreated}
         onAllocationCreated={loadData}
+        onDefaultEnvelopeChanged={() => loadPeriod().catch(err => setError(err instanceof Error ? err.message : 'An error occurred'))}
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
       />
@@ -190,7 +194,7 @@ export function Dashboard() {
         remaining={currentCategory.remaining}
         projectedBalance={period.projectedEndingBalance ?? 0}
         envelopes={allocationCategories.map(cat => ({ id: cat.id, name: cat.name }))}
-        defaultEnvelopeId={selectedCategory !== 'total' ? selectedCategory : undefined}
+        defaultEnvelopeId={selectedCategory !== 'total' ? selectedCategory : period.defaultEnvelopeId ?? undefined}
         onAllocationCreated={loadData}
       />
       <div className="flex-1 flex flex-col bg-background overflow-hidden min-h-0">
@@ -222,7 +226,7 @@ export function Dashboard() {
               transactions={filteredTx} 
               initialBalance={initialBalance}
               envelopes={period ? period.envelopeSummaries.map(s => ({ id: s.envelopeId, name: s.envelopeName })) : []}
-              defaultEnvelopeId={selectedCategory !== 'total' ? selectedCategory : undefined}
+              defaultEnvelopeId={selectedCategory !== 'total' ? selectedCategory : period.defaultEnvelopeId ?? undefined}
               onTransactionChange={loadData}
             />
           ) : (

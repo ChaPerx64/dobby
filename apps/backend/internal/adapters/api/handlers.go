@@ -86,13 +86,46 @@ func (h *dobbyHandler) ListPeriods(ctx context.Context) ([]oas.PeriodListItem, e
 
 	res := make([]oas.PeriodListItem, len(periods))
 	for i, p := range periods {
-		res[i] = oas.PeriodListItem{
+		item := oas.PeriodListItem{
 			ID:        p.ID,
 			StartDate: p.StartDate,
 			EndDate:   p.EndDate,
 		}
+		item.DefaultEnvelopeId = optUUIDFromPtr(p.DefaultEnvelopeID)
+		res[i] = item
 	}
 	return res, nil
+}
+
+func (h *dobbyHandler) UpdatePeriod(ctx context.Context, req *oas.UpdatePeriod, params oas.UpdatePeriodParams) (oas.UpdatePeriodRes, error) {
+	log.Printf("Got a request PATCH /periods/%s\n", params.PeriodId)
+
+	if !req.DefaultEnvelopeId.IsSet() {
+		summary, err := h.financeService.GetPeriodSummary(ctx, params.PeriodId)
+		if err != nil {
+			if errors.Is(err, service.ErrNotFound) {
+				return &oas.UpdatePeriodNotFound{}, nil
+			}
+			return nil, h.NewError(ctx, err)
+		}
+		return mapPeriodSummaryToOAS(summary), nil
+	}
+
+	var defaultEnvID *uuid.UUID
+	if !req.DefaultEnvelopeId.IsNull() {
+		// IsSet() and !IsNull() are already confirmed above, so Get() always succeeds here.
+		id, _ := req.DefaultEnvelopeId.Get()
+		defaultEnvID = &id
+	}
+
+	summary, err := h.financeService.UpdatePeriod(ctx, params.PeriodId, defaultEnvID)
+	if err != nil {
+		if errors.Is(err, service.ErrNotFound) {
+			return &oas.UpdatePeriodNotFound{}, nil
+		}
+		return nil, h.NewError(ctx, err)
+	}
+	return mapPeriodSummaryToOAS(summary), nil
 }
 
 func (h *dobbyHandler) CreateEnvelope(ctx context.Context, req *oas.CreateEnvelope) (*oas.Envelope, error) {
@@ -283,7 +316,7 @@ func mapPeriodSummaryToOAS(s *service.PeriodSummary) *oas.PeriodSummary {
 		}
 	}
 
-	return &oas.PeriodSummary{
+	summary := &oas.PeriodSummary{
 		ID:                     s.Period.ID,
 		StartDate:              s.Period.StartDate,
 		EndDate:                s.Period.EndDate,
@@ -293,6 +326,15 @@ func mapPeriodSummaryToOAS(s *service.PeriodSummary) *oas.PeriodSummary {
 		ProjectedEndingBalance: oas.NewOptInt64(s.ProjectedEndingBalance),
 		EnvelopeSummaries:      envSummaries,
 	}
+	summary.DefaultEnvelopeId = optUUIDFromPtr(s.Period.DefaultEnvelopeID)
+	return summary
+}
+
+func optUUIDFromPtr(p *uuid.UUID) oas.OptUUID {
+	if p == nil {
+		return oas.OptUUID{}
+	}
+	return oas.NewOptUUID(*p)
 }
 
 func (h *dobbyHandler) NewError(ctx context.Context, err error) *oas.ErrorStatusCode {

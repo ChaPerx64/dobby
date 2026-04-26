@@ -83,16 +83,16 @@ func (r *psqlRepo) GetUser(ctx context.Context, id uuid.UUID) (*service.User, er
 }
 
 func (r *psqlRepo) SavePeriod(ctx context.Context, p *service.Period) error {
-	query := `INSERT INTO financial_periods (id, start_dt, end_dt) VALUES ($1, $2, $3)
-              ON CONFLICT (id) DO UPDATE SET start_dt = EXCLUDED.start_dt, end_dt = EXCLUDED.end_dt`
-	_, err := r.getDB(ctx).Exec(ctx, query, p.ID, p.StartDate, p.EndDate)
+	query := `INSERT INTO financial_periods (id, start_dt, end_dt, default_envelope_id) VALUES ($1, $2, $3, $4)
+              ON CONFLICT (id) DO UPDATE SET start_dt = EXCLUDED.start_dt, end_dt = EXCLUDED.end_dt, default_envelope_id = EXCLUDED.default_envelope_id`
+	_, err := r.getDB(ctx).Exec(ctx, query, p.ID, p.StartDate, p.EndDate, p.DefaultEnvelopeID)
 	return err
 }
 
 func (r *psqlRepo) GetPeriod(ctx context.Context, id uuid.UUID) (*service.Period, error) {
-	query := `SELECT id, start_dt, end_dt FROM financial_periods WHERE id = $1`
+	query := `SELECT id, start_dt, end_dt, default_envelope_id FROM financial_periods WHERE id = $1`
 	p := &service.Period{}
-	err := r.getDB(ctx).QueryRow(ctx, query, id).Scan(&p.ID, &p.StartDate, &p.EndDate)
+	err := r.getDB(ctx).QueryRow(ctx, query, id).Scan(&p.ID, &p.StartDate, &p.EndDate, &p.DefaultEnvelopeID)
 	if err == pgx.ErrNoRows {
 		return nil, service.ErrNotFound
 	}
@@ -100,11 +100,11 @@ func (r *psqlRepo) GetPeriod(ctx context.Context, id uuid.UUID) (*service.Period
 }
 
 func (r *psqlRepo) GetCurrentPeriod(ctx context.Context) (*service.Period, error) {
-	query := `SELECT id, start_dt, end_dt FROM financial_periods 
-              WHERE NOW() BETWEEN start_dt AND end_dt 
+	query := `SELECT id, start_dt, end_dt, default_envelope_id FROM financial_periods
+              WHERE NOW() BETWEEN start_dt AND end_dt
               ORDER BY start_dt ASC LIMIT 1`
 	p := &service.Period{}
-	err := r.getDB(ctx).QueryRow(ctx, query).Scan(&p.ID, &p.StartDate, &p.EndDate)
+	err := r.getDB(ctx).QueryRow(ctx, query).Scan(&p.ID, &p.StartDate, &p.EndDate, &p.DefaultEnvelopeID)
 	if err == pgx.ErrNoRows {
 		return nil, service.ErrNotFound
 	}
@@ -112,7 +112,7 @@ func (r *psqlRepo) GetCurrentPeriod(ctx context.Context) (*service.Period, error
 }
 
 func (r *psqlRepo) ListPeriods(ctx context.Context) ([]service.Period, error) {
-	query := `SELECT id, start_dt, end_dt FROM financial_periods ORDER BY start_dt DESC`
+	query := `SELECT id, start_dt, end_dt, default_envelope_id FROM financial_periods ORDER BY start_dt DESC`
 	rows, err := r.getDB(ctx).Query(ctx, query)
 	if err != nil {
 		return nil, err
@@ -122,7 +122,7 @@ func (r *psqlRepo) ListPeriods(ctx context.Context) ([]service.Period, error) {
 	var res []service.Period
 	for rows.Next() {
 		var p service.Period
-		if err := rows.Scan(&p.ID, &p.StartDate, &p.EndDate); err != nil {
+		if err := rows.Scan(&p.ID, &p.StartDate, &p.EndDate, &p.DefaultEnvelopeID); err != nil {
 			return nil, err
 		}
 		res = append(res, p)

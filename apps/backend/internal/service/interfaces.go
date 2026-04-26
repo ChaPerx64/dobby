@@ -22,6 +22,7 @@ type FinanceService interface {
 	GetCurrentPeriod(ctx context.Context) (*PeriodSummary, error)
 	GetPeriodSummary(ctx context.Context, id uuid.UUID) (*PeriodSummary, error)
 	ListPeriods(ctx context.Context) ([]Period, error)
+	UpdatePeriod(ctx context.Context, id uuid.UUID, defaultEnvelopeID *uuid.UUID) (*PeriodSummary, error)
 
 	// Transaction Operations
 	RecordTransaction(ctx context.Context, t Transaction) (*Transaction, error)

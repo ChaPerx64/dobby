@@ -1,20 +1,23 @@
+import { useState } from 'react';
 import { useAuth } from 'react-oidc-context';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import type { CategoryItem } from '@/types/dashboard';
 import { getMonthName, formatDateRange } from '@/lib/format';
-import { LogOut, X } from 'lucide-react';
+import { LogOut, X, Star } from 'lucide-react';
 import { CreateEnvelopeModal } from './CreateEnvelopeModal';
 import { CreateSpendingModal } from './CreateSpendingModal';
+import { apiClient } from '@/api/client';
 import type { components } from '@/api/types';
 
 interface SidebarProps {
-  period: { startDate: string; endDate: string };
+  period: { startDate: string; endDate: string; id: string; defaultEnvelopeId?: string };
   categories: CategoryItem[];
   selectedCategory: string;
   onSelectCategory: (categoryId: string) => void;
   onEnvelopeCreated: (envelope: components["schemas"]["Envelope"]) => void;
   onAllocationCreated: () => void;
+  onDefaultEnvelopeChanged: () => void;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -26,10 +29,12 @@ export function Sidebar({
   onSelectCategory,
   onEnvelopeCreated,
   onAllocationCreated,
+  onDefaultEnvelopeChanged,
   isOpen,
   onClose,
 }: SidebarProps) {
   const auth = useAuth();
+  const [settingDefaultFor, setSettingDefaultFor] = useState<string | null>(null);
   const monthName = getMonthName(period.startDate);
   const dateRange = formatDateRange(period.startDate, period.endDate);
 
@@ -37,7 +42,19 @@ export function Sidebar({
     auth.signoutRedirect();
   };
 
-  // Filter out the 'Total' category for the allocation modal
+  const handleSetDefault = async (envelopeId: string) => {
+    const isCurrentDefault = period.defaultEnvelopeId === envelopeId;
+    setSettingDefaultFor(envelopeId);
+    try {
+      await apiClient.updatePeriod(period.id, {
+        defaultEnvelopeId: isCurrentDefault ? null : envelopeId,
+      });
+      onDefaultEnvelopeChanged();
+    } finally {
+      setSettingDefaultFor(null);
+    }
+  };
+
   const envelopes = categories
     .filter((cat) => cat.id !== 'total')
     .map((cat) => ({ id: cat.id, name: cat.name }));
@@ -71,13 +88,13 @@ export function Sidebar({
         </div>
         <ul className="space-y-1">
           {categories.map((category) => (
-            <li key={category.id}>
+            <li key={category.id} className="flex items-center gap-1">
               <button
                 onClick={() => {
                   onSelectCategory(category.id);
                   onClose();
                 }}
-                className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
+                className={`flex-1 text-left px-3 py-2 rounded-md text-sm transition-colors ${
                   selectedCategory === category.id
                     ? 'bg-accent text-accent-foreground font-medium'
                     : 'text-foreground hover:bg-accent/50'
@@ -85,6 +102,23 @@ export function Sidebar({
               >
                 {category.name}
               </button>
+              {category.id !== 'total' && (
+                <button
+                  onClick={() => handleSetDefault(category.id)}
+                  disabled={settingDefaultFor === category.id}
+                  title={period.defaultEnvelopeId === category.id ? 'Remove default' : 'Set as default envelope'}
+                  className={`p-1.5 rounded-md transition-colors flex-shrink-0 ${
+                    period.defaultEnvelopeId === category.id
+                      ? 'text-yellow-500 hover:text-yellow-600'
+                      : 'text-muted-foreground hover:text-foreground'
+                  } disabled:opacity-40`}
+                >
+                  <Star
+                    size={14}
+                    fill={period.defaultEnvelopeId === category.id ? 'currentColor' : 'none'}
+                  />
+                </button>
+              )}
             </li>
           ))}
         </ul>

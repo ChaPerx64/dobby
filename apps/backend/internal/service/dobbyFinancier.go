@@ -106,6 +106,18 @@ func (s *dobbyFinancier) ListPeriods(ctx context.Context) ([]Period, error) {
 	return s.repo.ListPeriods(ctx)
 }
 
+func (s *dobbyFinancier) UpdatePeriod(ctx context.Context, id uuid.UUID, defaultEnvelopeID *uuid.UUID) (*PeriodSummary, error) {
+	p, err := s.repo.GetPeriod(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	p.DefaultEnvelopeID = defaultEnvelopeID
+	if err := s.repo.SavePeriod(ctx, p); err != nil {
+		return nil, err
+	}
+	return s.GetPeriodSummary(ctx, id)
+}
+
 func (s *dobbyFinancier) RecordTransaction(ctx context.Context, t Transaction) (*Transaction, error) {
 	if t.ID == uuid.Nil {
 		t.ID = uuid.New()

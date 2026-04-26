@@ -541,6 +541,9 @@ components:
         endDate:
           type: string
           format: date
+        defaultEnvelopeId:
+          type: string
+          format: uuid
       required:
         - id
         - startDate
@@ -578,6 +581,9 @@ components:
           format: int64
           description: Projected balance at the end of the period in currency cents
           example: -30000
+        defaultEnvelopeId:
+          type: string
+          format: uuid
         envelopeSummaries:
           type: array
           items:
@@ -620,6 +626,10 @@ components:
         totalBudget:
           type: integer
           format: int64
+        defaultEnvelopeId:
+          type: string
+          format: uuid
+          nullable: true
 
     EnvelopeSummary:
       type: object

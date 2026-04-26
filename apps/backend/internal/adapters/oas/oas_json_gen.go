@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-faster/errors"
 	"github.com/go-faster/jx"
+	"github.com/google/uuid"
 	"github.com/ogen-go/ogen/json"
 	"github.com/ogen-go/ogen/validate"
 )
@@ -898,6 +899,57 @@ func (s *OptInt64) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
+// Encode encodes uuid.UUID as json.
+func (o OptNilUUID) Encode(e *jx.Encoder) {
+	if !o.Set {
+		return
+	}
+	if o.Null {
+		e.Null()
+		return
+	}
+	json.EncodeUUID(e, o.Value)
+}
+
+// Decode decodes uuid.UUID from json.
+func (o *OptNilUUID) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode OptNilUUID to nil")
+	}
+	if d.Next() == jx.Null {
+		if err := d.Null(); err != nil {
+			return err
+		}
+
+		var v uuid.UUID
+		o.Value = v
+		o.Set = true
+		o.Null = true
+		return nil
+	}
+	o.Set = true
+	o.Null = false
+	v, err := json.DecodeUUID(d)
+	if err != nil {
+		return err
+	}
+	o.Value = v
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s OptNilUUID) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OptNilUUID) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode encodes string as json.
 func (o OptString) Encode(e *jx.Encoder) {
 	if !o.Set {
@@ -989,12 +1041,19 @@ func (s *PeriodListItem) encodeFields(e *jx.Encoder) {
 		e.FieldStart("endDate")
 		json.EncodeDate(e, s.EndDate)
 	}
+	{
+		if s.DefaultEnvelopeId.Set {
+			e.FieldStart("defaultEnvelopeId")
+			s.DefaultEnvelopeId.Encode(e)
+		}
+	}
 }
 
-var jsonFieldsNameOfPeriodListItem = [3]string{
+var jsonFieldsNameOfPeriodListItem = [4]string{
 	0: "id",
 	1: "startDate",
 	2: "endDate",
+	3: "defaultEnvelopeId",
 }
 
 // Decode decodes PeriodListItem from json.
@@ -1041,6 +1100,16 @@ func (s *PeriodListItem) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"endDate\"")
+			}
+		case "defaultEnvelopeId":
+			if err := func() error {
+				s.DefaultEnvelopeId.Reset()
+				if err := s.DefaultEnvelopeId.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"defaultEnvelopeId\"")
 			}
 		default:
 			return d.Skip()
@@ -1138,6 +1207,12 @@ func (s *PeriodSummary) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
+		if s.DefaultEnvelopeId.Set {
+			e.FieldStart("defaultEnvelopeId")
+			s.DefaultEnvelopeId.Encode(e)
+		}
+	}
+	{
 		e.FieldStart("envelopeSummaries")
 		e.ArrStart()
 		for _, elem := range s.EnvelopeSummaries {
@@ -1147,7 +1222,7 @@ func (s *PeriodSummary) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfPeriodSummary = [8]string{
+var jsonFieldsNameOfPeriodSummary = [9]string{
 	0: "id",
 	1: "startDate",
 	2: "endDate",
@@ -1155,7 +1230,8 @@ var jsonFieldsNameOfPeriodSummary = [8]string{
 	4: "totalRemaining",
 	5: "totalSpent",
 	6: "projectedEndingBalance",
-	7: "envelopeSummaries",
+	7: "defaultEnvelopeId",
+	8: "envelopeSummaries",
 }
 
 // Decode decodes PeriodSummary from json.
@@ -1163,7 +1239,7 @@ func (s *PeriodSummary) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode PeriodSummary to nil")
 	}
-	var requiredBitSet [1]uint8
+	var requiredBitSet [2]uint8
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
@@ -1249,8 +1325,18 @@ func (s *PeriodSummary) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"projectedEndingBalance\"")
 			}
+		case "defaultEnvelopeId":
+			if err := func() error {
+				s.DefaultEnvelopeId.Reset()
+				if err := s.DefaultEnvelopeId.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"defaultEnvelopeId\"")
+			}
 		case "envelopeSummaries":
-			requiredBitSet[0] |= 1 << 7
+			requiredBitSet[1] |= 1 << 0
 			if err := func() error {
 				s.EnvelopeSummaries = make([]EnvelopeSummary, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
@@ -1276,8 +1362,9 @@ func (s *PeriodSummary) Decode(d *jx.Decoder) error {
 	}
 	// Validate required fields.
 	var failures []validate.FieldError
-	for i, mask := range [1]uint8{
-		0b10111111,
+	for i, mask := range [2]uint8{
+		0b00111111,
+		0b00000001,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -1611,12 +1698,19 @@ func (s *UpdatePeriod) encodeFields(e *jx.Encoder) {
 			s.TotalBudget.Encode(e)
 		}
 	}
+	{
+		if s.DefaultEnvelopeId.Set {
+			e.FieldStart("defaultEnvelopeId")
+			s.DefaultEnvelopeId.Encode(e)
+		}
+	}
 }
 
-var jsonFieldsNameOfUpdatePeriod = [3]string{
+var jsonFieldsNameOfUpdatePeriod = [4]string{
 	0: "startDate",
 	1: "endDate",
 	2: "totalBudget",
+	3: "defaultEnvelopeId",
 }
 
 // Decode decodes UpdatePeriod from json.
@@ -1656,6 +1750,16 @@ func (s *UpdatePeriod) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"totalBudget\"")
+			}
+		case "defaultEnvelopeId":
+			if err := func() error {
+				s.DefaultEnvelopeId.Reset()
+				if err := s.DefaultEnvelopeId.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"defaultEnvelopeId\"")
 			}
 		default:
 			return d.Skip()

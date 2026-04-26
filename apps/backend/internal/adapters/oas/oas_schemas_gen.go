@@ -485,6 +485,69 @@ func (o OptInt64) Or(d int64) int64 {
 	return d
 }
 
+// NewOptNilUUID returns new OptNilUUID with value set to v.
+func NewOptNilUUID(v uuid.UUID) OptNilUUID {
+	return OptNilUUID{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptNilUUID is optional nullable uuid.UUID.
+type OptNilUUID struct {
+	Value uuid.UUID
+	Set   bool
+	Null  bool
+}
+
+// IsSet returns true if OptNilUUID was set.
+func (o OptNilUUID) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptNilUUID) Reset() {
+	var v uuid.UUID
+	o.Value = v
+	o.Set = false
+	o.Null = false
+}
+
+// SetTo sets value to v.
+func (o *OptNilUUID) SetTo(v uuid.UUID) {
+	o.Set = true
+	o.Null = false
+	o.Value = v
+}
+
+// IsNull returns true if value is Null.
+func (o OptNilUUID) IsNull() bool { return o.Null }
+
+// SetToNull sets value to null.
+func (o *OptNilUUID) SetToNull() {
+	o.Set = true
+	o.Null = true
+	var v uuid.UUID
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptNilUUID) Get() (v uuid.UUID, ok bool) {
+	if o.Null {
+		return v, false
+	}
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptNilUUID) Or(d uuid.UUID) uuid.UUID {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // NewOptString returns new OptString with value set to v.
 func NewOptString(v string) OptString {
 	return OptString{
@@ -579,9 +642,10 @@ func (o OptUUID) Or(d uuid.UUID) uuid.UUID {
 
 // Ref: #/components/schemas/PeriodListItem
 type PeriodListItem struct {
-	ID        uuid.UUID `json:"id"`
-	StartDate time.Time `json:"startDate"`
-	EndDate   time.Time `json:"endDate"`
+	ID                uuid.UUID `json:"id"`
+	StartDate         time.Time `json:"startDate"`
+	EndDate           time.Time `json:"endDate"`
+	DefaultEnvelopeId OptUUID   `json:"defaultEnvelopeId"`
 }
 
 // GetID returns the value of ID.
@@ -599,6 +663,11 @@ func (s *PeriodListItem) GetEndDate() time.Time {
 	return s.EndDate
 }
 
+// GetDefaultEnvelopeId returns the value of DefaultEnvelopeId.
+func (s *PeriodListItem) GetDefaultEnvelopeId() OptUUID {
+	return s.DefaultEnvelopeId
+}
+
 // SetID sets the value of ID.
 func (s *PeriodListItem) SetID(val uuid.UUID) {
 	s.ID = val
@@ -614,6 +683,11 @@ func (s *PeriodListItem) SetEndDate(val time.Time) {
 	s.EndDate = val
 }
 
+// SetDefaultEnvelopeId sets the value of DefaultEnvelopeId.
+func (s *PeriodListItem) SetDefaultEnvelopeId(val OptUUID) {
+	s.DefaultEnvelopeId = val
+}
+
 // Ref: #/components/schemas/PeriodSummary
 type PeriodSummary struct {
 	ID        uuid.UUID `json:"id"`
@@ -627,6 +701,7 @@ type PeriodSummary struct {
 	TotalSpent int64 `json:"totalSpent"`
 	// Projected balance at the end of the period in currency cents.
 	ProjectedEndingBalance OptInt64          `json:"projectedEndingBalance"`
+	DefaultEnvelopeId      OptUUID           `json:"defaultEnvelopeId"`
 	EnvelopeSummaries      []EnvelopeSummary `json:"envelopeSummaries"`
 }
 
@@ -663,6 +738,11 @@ func (s *PeriodSummary) GetTotalSpent() int64 {
 // GetProjectedEndingBalance returns the value of ProjectedEndingBalance.
 func (s *PeriodSummary) GetProjectedEndingBalance() OptInt64 {
 	return s.ProjectedEndingBalance
+}
+
+// GetDefaultEnvelopeId returns the value of DefaultEnvelopeId.
+func (s *PeriodSummary) GetDefaultEnvelopeId() OptUUID {
+	return s.DefaultEnvelopeId
 }
 
 // GetEnvelopeSummaries returns the value of EnvelopeSummaries.
@@ -703,6 +783,11 @@ func (s *PeriodSummary) SetTotalSpent(val int64) {
 // SetProjectedEndingBalance sets the value of ProjectedEndingBalance.
 func (s *PeriodSummary) SetProjectedEndingBalance(val OptInt64) {
 	s.ProjectedEndingBalance = val
+}
+
+// SetDefaultEnvelopeId sets the value of DefaultEnvelopeId.
+func (s *PeriodSummary) SetDefaultEnvelopeId(val OptUUID) {
+	s.DefaultEnvelopeId = val
 }
 
 // SetEnvelopeSummaries sets the value of EnvelopeSummaries.
@@ -823,9 +908,10 @@ func (*UpdateEnvelopeNotFound) updateEnvelopeRes() {}
 
 // Ref: #/components/schemas/UpdatePeriod
 type UpdatePeriod struct {
-	StartDate   OptDate  `json:"startDate"`
-	EndDate     OptDate  `json:"endDate"`
-	TotalBudget OptInt64 `json:"totalBudget"`
+	StartDate         OptDate    `json:"startDate"`
+	EndDate           OptDate    `json:"endDate"`
+	TotalBudget       OptInt64   `json:"totalBudget"`
+	DefaultEnvelopeId OptNilUUID `json:"defaultEnvelopeId"`
 }
 
 // GetStartDate returns the value of StartDate.
@@ -843,6 +929,11 @@ func (s *UpdatePeriod) GetTotalBudget() OptInt64 {
 	return s.TotalBudget
 }
 
+// GetDefaultEnvelopeId returns the value of DefaultEnvelopeId.
+func (s *UpdatePeriod) GetDefaultEnvelopeId() OptNilUUID {
+	return s.DefaultEnvelopeId
+}
+
 // SetStartDate sets the value of StartDate.
 func (s *UpdatePeriod) SetStartDate(val OptDate) {
 	s.StartDate = val
@@ -856,6 +947,11 @@ func (s *UpdatePeriod) SetEndDate(val OptDate) {
 // SetTotalBudget sets the value of TotalBudget.
 func (s *UpdatePeriod) SetTotalBudget(val OptInt64) {
 	s.TotalBudget = val
+}
+
+// SetDefaultEnvelopeId sets the value of DefaultEnvelopeId.
+func (s *UpdatePeriod) SetDefaultEnvelopeId(val OptNilUUID) {
+	s.DefaultEnvelopeId = val
 }
 
 // UpdatePeriodNotFound is response for UpdatePeriod operation.

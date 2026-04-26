@@ -63,6 +63,13 @@ export const apiClient = {
     });
   },
 
+  async updatePeriod(periodId: string, body: components['schemas']['UpdatePeriod']) {
+    return api.PATCH('/periods/{periodId}', {
+      params: { path: { periodId } },
+      body,
+    });
+  },
+
   // Transactions
   async listTransactions(periodId?: string) {
     return api.GET('/transactions', {
