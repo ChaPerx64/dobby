@@ -1,13 +1,12 @@
 import json
 import http.client
-import urllib.parse
 import os
 
 # Configuration
-API_HOST = "api.dobby.homelab.chapar.tech"
-API_TOKEN = os.getenv("DOBBY_API_TOKEN")
+API_HOST = "api.dobby.chaianpar.dev"
+API_TOKEN = "paste-actual-token"
 ENVELOPE_ID = "2aeccd10-20f8-484f-80ab-fe920666e1da"
-INPUT_FILE = "scripts/missing-transactions/missing-operations.json"
+INPUT_FILE = "scripts/missing-transactions/missing_transactions.json"
 
 def create_transaction(data):
     conn = http.client.HTTPSConnection(API_HOST)
